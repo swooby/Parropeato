@@ -1,0 +1,126 @@
+name: Android Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        if: github.event_name == 'pull_request'
+        run: ./gradlew :wear:assembleDebug :mobile:assembleDebug
+
+      - name: Decode release keystore
+        if: github.event_name == 'push'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release-keystore.jks"
+
+      - name: Build release APK
+        if: github.event_name == 'push'
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/release-keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          VERSION_NAME="${GITHUB_REF_NAME}"
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            VERSION_NAME="1.0.${GITHUB_RUN_NUMBER}"
+          fi
+          MOBILE_VERSION_CODE="$((GITHUB_RUN_NUMBER * 10))" \
+          WEAR_VERSION_CODE="$((GITHUB_RUN_NUMBER * 10 + 1))" \
+          VERSION_NAME="$VERSION_NAME" \
+          ./gradlew :wear:assembleRelease :mobile:assembleRelease
+
+      - name: Build release bundle
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/release-keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          VERSION_NAME="${GITHUB_REF_NAME#v}"
+          MOBILE_VERSION_CODE="$((GITHUB_RUN_NUMBER * 10))" \
+          WEAR_VERSION_CODE="$((GITHUB_RUN_NUMBER * 10 + 1))" \
+          VERSION_NAME="$VERSION_NAME" \
+          ./gradlew :wear:bundleRelease :mobile:bundleRelease
+
+      - name: Upload wear release bundle to Google Play
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.swooby.ropeato
+          releaseFiles: wear/build/outputs/bundle/release/*.aab
+          tracks: wear:internal
+          status: draft
+
+      - name: Upload mobile release bundle to Google Play
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.swooby.ropeato
+          releaseFiles: mobile/build/outputs/bundle/release/*.aab
+          tracks: internal
+          status: draft
+
+      - name: Upload debug APK
+        if: github.event_name == 'pull_request' && success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ropeato-debug-apk
+          path: |
+            wear/build/outputs/apk/debug/*.apk
+            mobile/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload release APK
+        if: github.event_name == 'push' && success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ropeato-release-apk
+          path: |
+            wear/build/outputs/apk/release/*.apk
+            mobile/build/outputs/apk/release/*.apk
+          if-no-files-found: error

@@ -1,0 +1,52 @@
+package com.smartfoo.android.core
+
+@Suppress("unused")
+class FooListenerAutoStartManager<T>(name: String)
+    : FooListenerManager<T?>(name) {
+    interface FooListenerAutoStartManagerCallbacks {
+        fun onFirstAttach()
+
+        /**
+         * @return true to automatically detach this [FooListenerAutoStartManagerCallbacks] from [FooListenerAutoStartManager.autoStartListeners]
+         */
+        fun onLastDetach(): Boolean
+    }
+
+    private val autoStartListeners = FooListenerManager<FooListenerAutoStartManagerCallbacks>(this)
+
+    private var isStarted = false
+
+    constructor(name: Any) : this(FooReflection.getShortClassName(name))
+
+    fun attach(callbacks: FooListenerAutoStartManagerCallbacks) {
+        autoStartListeners.attach(callbacks)
+    }
+
+    fun detach(callbacks: FooListenerAutoStartManagerCallbacks) {
+        autoStartListeners.detach(callbacks)
+    }
+
+    override fun onListenersUpdated(listenersSize: Int) {
+        super.onListenersUpdated(listenersSize)
+        if (isStarted) {
+            if (listenersSize == 0) {
+                isStarted = false
+                for (callbacks in autoStartListeners.beginTraversing()) {
+                    @Suppress("ControlFlowWithEmptyBody")
+                    if (callbacks.onLastDetach()) {
+                        //autoStartListeners.detach(callbacks);
+                    }
+                }
+                autoStartListeners.endTraversing()
+            }
+        } else {
+            if (listenersSize > 0) {
+                isStarted = true
+                for (callbacks in autoStartListeners.beginTraversing()) {
+                    callbacks.onFirstAttach()
+                }
+                autoStartListeners.endTraversing()
+            }
+        }
+    }
+}
