@@ -638,8 +638,8 @@ private fun RopeatoApp(
                         text = viewModel.text,
                     )
                 }
+                platformOverlay()
             }
-            platformOverlay()
         }
     }
 }
