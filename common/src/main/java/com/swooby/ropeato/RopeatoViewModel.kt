@@ -43,6 +43,13 @@ class RopeatoViewModel : ViewModel() {
             _text.value = value
         }
 
+    private val _volumePercent = mutableStateOf(0.5f)
+    var volumePercent: Float
+        get() = _volumePercent.value
+        set(value) {
+            _volumePercent.value = value.coerceIn(0f, 1f)
+        }
+
     fun appendText(text: String) {
         _text.value += " $text"
     }

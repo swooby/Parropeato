@@ -16,9 +16,51 @@ import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.smartfoo.android.core.FooString
 import com.smartfoo.android.core.FooString.quote
@@ -28,6 +70,11 @@ import com.smartfoo.android.core.texttospeech.FooTextToSpeech
 import com.swooby.ropeato.ReflectionUtils.getMapOfIntFieldsToNames
 import com.swooby.ropeato.ReflectionUtils.valueToString
 import com.swooby.ropeato.common.BuildConfig
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 abstract class BaseMainActivity : ComponentActivity() {
     companion object {
@@ -45,14 +92,36 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected val viewModel by viewModels<RopeatoViewModel>()
 
     protected open val textToSpeechVoiceSpeed: Float = 2.0f
+    protected open val watchFaceSceneScale: Float = 0.92f
+    protected open val watchFaceControlsScale: Float = 0.88f
+    protected open val watchFaceBorderOutset: Boolean = false
 
-    protected abstract fun setupUI()
+    protected open fun setupUI() {
+        setContent {
+            RopeatoApp(
+                viewModel = viewModel,
+                logTag = TAG,
+                sceneScale = watchFaceSceneScale,
+                controlsScale = watchFaceControlsScale,
+                borderOutset = watchFaceBorderOutset,
+                platformOverlay = { PlatformOverlay() },
+                onPushToTalkPressed = ::onPushToTalkPressed,
+                onPushToTalkReleased = ::onPushToTalkReleased,
+                onVolumeChange = ::setVolumePercent,
+            )
+        }
+    }
+
+    @Composable
+    protected open fun PlatformOverlay() {
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "+onCreate(...)")
         super.onCreate(savedInstanceState)
-        setupUI()
         audioManager = getSystemService(AudioManager::class.java)
+        updateMediaVolumeState(updateText = false)
+        setupUI()
         initTextToSpeech()
         initSpeechRecognizer()
         Log.i(TAG, "-onCreate(...)")
@@ -360,16 +429,37 @@ abstract class BaseMainActivity : ComponentActivity() {
         adjustMediaVolume(AudioManager.ADJUST_RAISE)
     }
 
+    protected fun setVolumePercent(volumePercent: Float) {
+        val volumeMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val volume = (volumeMax * volumePercent.coerceIn(0f, 1f)).roundToInt()
+        audioManager.setStreamVolume(
+            AudioManager.STREAM_MUSIC,
+            volume,
+            AudioManager.FLAG_PLAY_SOUND
+        )
+        updateMediaVolumeState(updateText = true)
+    }
+
     private fun adjustMediaVolume(direction: Int) {
         audioManager.adjustStreamVolume(
             AudioManager.STREAM_MUSIC,
             direction,
             AudioManager.FLAG_PLAY_SOUND
         )
+        updateMediaVolumeState(updateText = true)
+    }
+
+    private fun updateMediaVolumeState(updateText: Boolean) {
         val volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         val volumeMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        tts.volumeRelativeToAudioStream = volume / volumeMax.toFloat()
-        viewModel.text = "Volume $volume / $volumeMax"
+        val volumePercent = volume / volumeMax.toFloat()
+        if (::tts.isInitialized) {
+            tts.volumeRelativeToAudioStream = volumePercent
+        }
+        viewModel.volumePercent = volumePercent
+        if (updateText) {
+            viewModel.text = "Volume $volume / $volumeMax"
+        }
     }
 
     protected fun speechRecognizerStop() {
@@ -458,4 +548,344 @@ abstract class BaseMainActivity : ComponentActivity() {
     private fun bestPartialRecognition(): String? =
         latestUnstableRecognition?.takeIf { it.isNotBlank() }
             ?: latestPartialRecognition?.takeIf { it.isNotBlank() }
+}
+
+@Composable
+private fun RopeatoApp(
+    viewModel: RopeatoViewModel,
+    logTag: String,
+    sceneScale: Float,
+    controlsScale: Float,
+    borderOutset: Boolean,
+    platformOverlay: @Composable () -> Unit,
+    onPushToTalkPressed: () -> Unit,
+    onPushToTalkReleased: () -> Unit,
+    onVolumeChange: (Float) -> Unit,
+) {
+    MaterialTheme(
+        colorScheme = darkColorScheme(
+            primary = RopeatoPrimary,
+            background = Color.Black,
+        ),
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (viewModel.state == RopeatoViewModel.State.Initializing) {
+                CircularProgressIndicator(modifier = Modifier.fillMaxSize())
+            }
+
+            val sceneSize = (if (maxWidth < maxHeight) maxWidth else maxHeight) * sceneScale
+            val controlsSize = sceneSize * controlsScale
+            val controlScale = (controlsSize / WearReferenceSceneSize).coerceIn(1f, 1.4f)
+            val borderScale = (sceneSize / WearReferenceSceneSize).coerceIn(1f, 1.4f)
+            Box(
+                modifier = Modifier.size(sceneSize),
+                contentAlignment = Alignment.Center,
+            ) {
+                WatchFaceBorder(
+                    modifier = Modifier.fillMaxSize(),
+                    scale = borderScale,
+                    outset = borderOutset,
+                )
+                Box(
+                    modifier = Modifier.align(Alignment.Center),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    VolumeControls(
+                        modifier = Modifier.size(controlsSize),
+                        volumePercent = viewModel.volumePercent,
+                        scale = controlScale,
+                        onVolumeChange = onVolumeChange,
+                    )
+                    PushToTalkButton(
+                        modifier = Modifier.align(Alignment.Center),
+                        isListening = viewModel.state == RopeatoViewModel.State.Listening,
+                        scale = controlScale,
+                        logTag = logTag,
+                        onPushToTalkPressed = onPushToTalkPressed,
+                        onPushToTalkReleased = onPushToTalkReleased,
+                    )
+                    Greeting(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth()
+                            .height(72.dp * controlScale)
+                            .offset(y = 77.dp * controlScale),
+                        text = viewModel.text,
+                    )
+                }
+            }
+            platformOverlay()
+        }
+    }
+}
+
+@Composable
+private fun WatchFaceBorder(
+    scale: Float,
+    outset: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Canvas(modifier = modifier) {
+        val strokeWidth = (12.dp * scale).toPx()
+        val radius = if (outset) {
+            size.minDimension / 2f + strokeWidth / 2f
+        } else {
+            size.minDimension / 2f - strokeWidth / 2f
+        }
+        drawCircle(
+            brush = Brush.sweepGradient(
+                colors = listOf(
+                    Color(0xFF1E1E1E),
+                    Color(0xFF5F5F5F),
+                    Color(0xFF2B2B2B),
+                    Color(0xFF0F0F0F),
+                    Color(0xFF6A6A6A),
+                    Color(0xFF1E1E1E),
+                ),
+                center = center,
+            ),
+            radius = radius,
+            center = center,
+            style = Stroke(width = strokeWidth),
+        )
+        drawCircle(
+            color = Color.White.copy(alpha = 0.12f),
+            radius = radius - strokeWidth / 2.7f,
+            center = center,
+            style = Stroke(width = 1.dp.toPx()),
+        )
+        drawCircle(
+            color = Color.Black.copy(alpha = 0.45f),
+            radius = radius + strokeWidth / 2.8f,
+            center = center,
+            style = Stroke(width = 2.dp.toPx()),
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalComposeUiApi::class)
+private fun VolumeControls(
+    volumePercent: Float,
+    scale: Float,
+    onVolumeChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val primary = MaterialTheme.colorScheme.primary
+    val track = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
+    val boundedVolume = volumePercent.coerceIn(0f, 1f)
+    val density = LocalDensity.current
+    val iconSize = 24.dp * scale
+    val strokeWidth = 8.dp * scale
+    val radiusInset = 5.dp * scale
+    val iconSizePx = with(density) { iconSize.roundToPx() }
+    val strokeWidthPx = with(density) { strokeWidth.roundToPx() }
+    val radiusInsetPx = with(density) { radiusInset.roundToPx() }
+
+    Box(
+        modifier = modifier
+            .onSizeChanged { layoutSize.value = it }
+            .pointerInteropFilter { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN,
+                    MotionEvent.ACTION_MOVE -> {
+                        if (event.x < layoutSize.value.width * 0.62f) return@pointerInteropFilter false
+                        val size = layoutSize.value
+                        if (size.width > 0 && size.height > 0) {
+                            onVolumeChange(volumePercentFromArcPosition(event.x, event.y, size))
+                        }
+                        true
+                    }
+                    else -> true
+                }
+            },
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidthPxFloat = strokeWidth.toPx()
+            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx()
+            val center = Offset(size.width / 2f, size.height / 2f)
+            val oval = Rect(
+                left = center.x - radius,
+                top = center.y - radius,
+                right = center.x + radius,
+                bottom = center.y + radius,
+            )
+            drawArc(
+                color = track,
+                startAngle = VOLUME_ARC_MAX_ANGLE_DEGREES,
+                sweepAngle = VOLUME_ARC_SWEEP_DEGREES,
+                useCenter = false,
+                topLeft = oval.topLeft,
+                size = oval.size,
+                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
+            )
+            drawArc(
+                color = primary,
+                startAngle = VOLUME_ARC_MIN_ANGLE_DEGREES,
+                sweepAngle = -VOLUME_ARC_SWEEP_DEGREES * boundedVolume,
+                useCenter = false,
+                topLeft = oval.topLeft,
+                size = oval.size,
+                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
+            )
+
+            val thumbAngle = Math.toRadians((VOLUME_ARC_MIN_ANGLE_DEGREES - VOLUME_ARC_SWEEP_DEGREES * boundedVolume).toDouble())
+            val thumbCenter = Offset(
+                x = center.x + cos(thumbAngle).toFloat() * radius,
+                y = center.y + sin(thumbAngle).toFloat() * radius,
+            )
+            drawCircle(
+                color = primary.copy(alpha = 0.18f),
+                radius = (17.dp * scale).toPx(),
+                center = thumbCenter,
+            )
+            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumbCenter)
+        }
+        VolumeIcon(
+            modifier = Modifier.offset {
+                volumeIconOffset(
+                    size = layoutSize.value,
+                    angleDegrees = VOLUME_ICON_MAX_ANGLE_DEGREES,
+                    iconSizePx = iconSizePx,
+                    strokeWidthPx = strokeWidthPx,
+                    radiusInsetPx = radiusInsetPx,
+                )
+            },
+            icon = Icons.AutoMirrored.Filled.VolumeUp,
+            contentDescription = "Maximum volume",
+            size = iconSize,
+        )
+        VolumeIcon(
+            modifier = Modifier.offset {
+                volumeIconOffset(
+                    size = layoutSize.value,
+                    angleDegrees = VOLUME_ICON_MIN_ANGLE_DEGREES,
+                    iconSizePx = iconSizePx,
+                    strokeWidthPx = strokeWidthPx,
+                    radiusInsetPx = radiusInsetPx,
+                )
+            },
+            icon = Icons.AutoMirrored.Filled.VolumeDown,
+            contentDescription = "Minimum volume",
+            size = iconSize,
+        )
+    }
+}
+
+@Composable
+private fun VolumeIcon(
+    icon: ImageVector,
+    contentDescription: String,
+    size: androidx.compose.ui.unit.Dp,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        modifier = modifier.size(size),
+        imageVector = icon,
+        contentDescription = contentDescription,
+        tint = MaterialTheme.colorScheme.primary,
+    )
+}
+
+private const val VOLUME_ARC_MAX_ANGLE_DEGREES = -50f
+private const val VOLUME_ARC_MIN_ANGLE_DEGREES = 50f
+private const val VOLUME_ARC_SWEEP_DEGREES = 100f
+private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -62f
+private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 62f
+private val RopeatoPrimary = Color(0xFFBB86FC)
+private val WearReferenceSceneSize = 213.dp
+
+private fun volumePercentFromArcPosition(x: Float, y: Float, size: IntSize): Float {
+    val centerX = size.width / 2f
+    val centerY = size.height / 2f
+    val angleDegrees = (atan2(y - centerY, x - centerX) * 180f / PI.toFloat())
+        .coerceIn(VOLUME_ARC_MAX_ANGLE_DEGREES, VOLUME_ARC_MIN_ANGLE_DEGREES)
+    return ((VOLUME_ARC_MIN_ANGLE_DEGREES - angleDegrees) / VOLUME_ARC_SWEEP_DEGREES)
+        .coerceIn(0f, 1f)
+}
+
+private fun volumeIconOffset(
+    size: IntSize,
+    angleDegrees: Float,
+    iconSizePx: Int,
+    strokeWidthPx: Int,
+    radiusInsetPx: Int,
+): IntOffset {
+    val radius = size.width / 2f - strokeWidthPx - radiusInsetPx
+    val angle = Math.toRadians(angleDegrees.toDouble())
+    val centerX = size.width / 2f
+    val centerY = size.height / 2f
+    return IntOffset(
+        x = (centerX + cos(angle).toFloat() * radius - iconSizePx / 2f).roundToInt(),
+        y = (centerY + sin(angle).toFloat() * radius - iconSizePx / 2f).roundToInt(),
+    )
+}
+
+@Composable
+@OptIn(ExperimentalComposeUiApi::class)
+private fun PushToTalkButton(
+    isListening: Boolean,
+    scale: Float,
+    logTag: String,
+    onPushToTalkPressed: () -> Unit,
+    onPushToTalkReleased: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(73.dp * scale)
+            .border(
+                width = 3.dp * scale,
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape,
+            )
+            .pointerInteropFilter { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        FooLog.i(logTag, "PushToTalkButton ACTION_DOWN")
+                        onPushToTalkPressed()
+                        true
+                    }
+                    MotionEvent.ACTION_UP,
+                    MotionEvent.ACTION_CANCEL -> {
+                        FooLog.i(logTag, "PushToTalkButton ${MotionEvent.actionToString(event.actionMasked)}")
+                        onPushToTalkReleased()
+                        true
+                    }
+                    else -> true
+                }
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            modifier = Modifier.size(42.dp * scale),
+            imageVector = Icons.Filled.Mic,
+            contentDescription = if (isListening) "Listening" else "Hold to talk",
+            tint = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+@Composable
+private fun Greeting(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary,
+            text = text,
+        )
+    }
 }
