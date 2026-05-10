@@ -50,7 +50,17 @@ class RopeatoViewModel : ViewModel() {
             _volumePercent.value = value.coerceIn(0f, 1f)
         }
 
+    private val _voiceSpeed = mutableStateOf(2.0f)
+    var voiceSpeed: Float
+        get() = _voiceSpeed.value
+        set(value) {
+            _voiceSpeed.value = value.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX)
+        }
+
     fun appendText(text: String) {
         _text.value += " $text"
     }
 }
+
+const val VOICE_SPEED_MIN = 0.1f
+const val VOICE_SPEED_MAX = 3.0f

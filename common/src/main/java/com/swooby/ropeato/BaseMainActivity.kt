@@ -36,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -70,6 +72,7 @@ import com.smartfoo.android.core.texttospeech.FooTextToSpeech
 import com.swooby.ropeato.ReflectionUtils.getMapOfIntFieldsToNames
 import com.swooby.ropeato.ReflectionUtils.valueToString
 import com.swooby.ropeato.common.BuildConfig
+import com.swooby.ropeato.common.R
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -108,6 +111,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 onPushToTalkPressed = ::onPushToTalkPressed,
                 onPushToTalkReleased = ::onPushToTalkReleased,
                 onVolumeChange = ::setVolumePercent,
+                onVoiceSpeedChange = ::setVoiceSpeed,
             )
         }
     }
@@ -121,6 +125,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         audioManager = getSystemService(AudioManager::class.java)
         updateMediaVolumeState(updateText = false)
+        viewModel.voiceSpeed = textToSpeechVoiceSpeed
         setupUI()
         initTextToSpeech()
         initSpeechRecognizer()
@@ -440,6 +445,14 @@ abstract class BaseMainActivity : ComponentActivity() {
         updateMediaVolumeState(updateText = true)
     }
 
+    protected fun setVoiceSpeed(voiceSpeed: Float) {
+        viewModel.voiceSpeed = voiceSpeed
+        if (::tts.isInitialized) {
+            tts.voiceSpeed = viewModel.voiceSpeed
+        }
+        viewModel.text = "Voice speed ${"%.1f".format(viewModel.voiceSpeed)}x"
+    }
+
     private fun adjustMediaVolume(direction: Int) {
         audioManager.adjustStreamVolume(
             AudioManager.STREAM_MUSIC,
@@ -533,8 +546,8 @@ abstract class BaseMainActivity : ComponentActivity() {
             ?: voices.first()
         Log.i(TAG, "onTextToSpeechInitialized: voice=$voice")
         tts.setVoiceName(voice.name)
-        tts.voiceSpeed = textToSpeechVoiceSpeed
-        Log.i(TAG, "onTextToSpeechInitialized: voiceSpeed=$textToSpeechVoiceSpeed")
+        tts.voiceSpeed = viewModel.voiceSpeed
+        Log.i(TAG, "onTextToSpeechInitialized: voiceSpeed=${viewModel.voiceSpeed}")
 
         tts.speak("Talk to me!")
     }
@@ -561,6 +574,7 @@ private fun RopeatoApp(
     onPushToTalkPressed: () -> Unit,
     onPushToTalkReleased: () -> Unit,
     onVolumeChange: (Float) -> Unit,
+    onVoiceSpeedChange: (Float) -> Unit,
 ) {
     MaterialTheme(
         colorScheme = darkColorScheme(
@@ -600,6 +614,12 @@ private fun RopeatoApp(
                         volumePercent = viewModel.volumePercent,
                         scale = controlScale,
                         onVolumeChange = onVolumeChange,
+                    )
+                    VoiceSpeedControls(
+                        modifier = Modifier.size(controlsSize),
+                        voiceSpeed = viewModel.voiceSpeed,
+                        scale = controlScale,
+                        onVoiceSpeedChange = onVoiceSpeedChange,
                     )
                     PushToTalkButton(
                         modifier = Modifier.align(Alignment.Center),
@@ -747,7 +767,7 @@ private fun VolumeControls(
             )
             drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumbCenter)
         }
-        VolumeIcon(
+        EdgeControlIcon(
             modifier = Modifier.offset {
                 volumeIconOffset(
                     size = layoutSize.value,
@@ -761,7 +781,7 @@ private fun VolumeControls(
             contentDescription = "Maximum volume",
             size = iconSize,
         )
-        VolumeIcon(
+        EdgeControlIcon(
             modifier = Modifier.offset {
                 volumeIconOffset(
                     size = layoutSize.value,
@@ -779,7 +799,118 @@ private fun VolumeControls(
 }
 
 @Composable
-private fun VolumeIcon(
+@OptIn(ExperimentalComposeUiApi::class)
+private fun VoiceSpeedControls(
+    voiceSpeed: Float,
+    scale: Float,
+    onVoiceSpeedChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val primary = MaterialTheme.colorScheme.primary
+    val track = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
+    val boundedVoiceSpeed = voiceSpeed.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX)
+    val voiceSpeedPercent = (boundedVoiceSpeed - VOICE_SPEED_MIN) / (VOICE_SPEED_MAX - VOICE_SPEED_MIN)
+    val density = LocalDensity.current
+    val iconSize = 24.dp * scale
+    val strokeWidth = 8.dp * scale
+    val radiusInset = 5.dp * scale
+    val iconSizePx = with(density) { iconSize.roundToPx() }
+    val strokeWidthPx = with(density) { strokeWidth.roundToPx() }
+    val radiusInsetPx = with(density) { radiusInset.roundToPx() }
+
+    Box(
+        modifier = modifier
+            .onSizeChanged { layoutSize.value = it }
+            .pointerInteropFilter { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN,
+                    MotionEvent.ACTION_MOVE -> {
+                        if (event.x > layoutSize.value.width * 0.38f) return@pointerInteropFilter false
+                        val size = layoutSize.value
+                        if (size.width > 0 && size.height > 0) {
+                            onVoiceSpeedChange(voiceSpeedFromArcPosition(event.x, event.y, size))
+                        }
+                        true
+                    }
+                    else -> true
+                }
+            },
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidthPxFloat = strokeWidth.toPx()
+            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx()
+            val center = Offset(size.width / 2f, size.height / 2f)
+            val oval = Rect(
+                left = center.x - radius,
+                top = center.y - radius,
+                right = center.x + radius,
+                bottom = center.y + radius,
+            )
+            drawArc(
+                color = track,
+                startAngle = VOICE_SPEED_ARC_MIN_ANGLE_DEGREES,
+                sweepAngle = VOICE_SPEED_ARC_SWEEP_DEGREES,
+                useCenter = false,
+                topLeft = oval.topLeft,
+                size = oval.size,
+                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
+            )
+            drawArc(
+                color = primary,
+                startAngle = VOICE_SPEED_ARC_MIN_ANGLE_DEGREES,
+                sweepAngle = VOICE_SPEED_ARC_SWEEP_DEGREES * voiceSpeedPercent,
+                useCenter = false,
+                topLeft = oval.topLeft,
+                size = oval.size,
+                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
+            )
+
+            val thumbAngle = Math.toRadians((VOICE_SPEED_ARC_MIN_ANGLE_DEGREES + VOICE_SPEED_ARC_SWEEP_DEGREES * voiceSpeedPercent).toDouble())
+            val thumbCenter = Offset(
+                x = center.x + cos(thumbAngle).toFloat() * radius,
+                y = center.y + sin(thumbAngle).toFloat() * radius,
+            )
+            drawCircle(
+                color = primary.copy(alpha = 0.18f),
+                radius = (17.dp * scale).toPx(),
+                center = thumbCenter,
+            )
+            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumbCenter)
+        }
+        EdgeControlIcon(
+            modifier = Modifier.offset {
+                volumeIconOffset(
+                    size = layoutSize.value,
+                    angleDegrees = VOICE_SPEED_ICON_MAX_ANGLE_DEGREES,
+                    iconSizePx = iconSizePx,
+                    strokeWidthPx = strokeWidthPx,
+                    radiusInsetPx = radiusInsetPx,
+                )
+            },
+            icon = Icons.Filled.Speed,
+            contentDescription = "Maximum voice speed",
+            size = iconSize,
+        )
+        EdgeControlIcon(
+            modifier = Modifier.offset {
+                volumeIconOffset(
+                    size = layoutSize.value,
+                    angleDegrees = VOICE_SPEED_ICON_MIN_ANGLE_DEGREES,
+                    iconSizePx = iconSizePx,
+                    strokeWidthPx = strokeWidthPx,
+                    radiusInsetPx = radiusInsetPx,
+                )
+            },
+            icon = ImageVector.vectorResource(id = R.drawable.speed_2_24px),
+            contentDescription = "Minimum voice speed",
+            size = iconSize,
+        )
+    }
+}
+
+@Composable
+private fun EdgeControlIcon(
     icon: ImageVector,
     contentDescription: String,
     size: androidx.compose.ui.unit.Dp,
@@ -798,16 +929,54 @@ private const val VOLUME_ARC_MIN_ANGLE_DEGREES = 50f
 private const val VOLUME_ARC_SWEEP_DEGREES = 100f
 private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -62f
 private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 62f
+private const val VOICE_SPEED_ARC_MIN_ANGLE_DEGREES = 130f
+private const val VOICE_SPEED_ARC_SWEEP_DEGREES = 100f
+private const val VOICE_SPEED_ICON_MAX_ANGLE_DEGREES = -118f
+private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = 118f
 private val RopeatoPrimary = Color(0xFFBB86FC)
 private val WearReferenceSceneSize = 213.dp
 
 private fun volumePercentFromArcPosition(x: Float, y: Float, size: IntSize): Float {
+    return arcPercentFromPosition(
+        x = x,
+        y = y,
+        size = size,
+        startAngleDegrees = VOLUME_ARC_MAX_ANGLE_DEGREES,
+        sweepDegrees = VOLUME_ARC_SWEEP_DEGREES,
+        reverse = true,
+    )
+}
+
+private fun voiceSpeedFromArcPosition(x: Float, y: Float, size: IntSize): Float {
+    val voiceSpeedPercent = arcPercentFromPosition(
+        x = x,
+        y = y,
+        size = size,
+        startAngleDegrees = VOICE_SPEED_ARC_MIN_ANGLE_DEGREES,
+        sweepDegrees = VOICE_SPEED_ARC_SWEEP_DEGREES,
+    )
+    return VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * voiceSpeedPercent
+}
+
+private fun arcPercentFromPosition(
+    x: Float,
+    y: Float,
+    size: IntSize,
+    startAngleDegrees: Float,
+    sweepDegrees: Float,
+    reverse: Boolean = false,
+): Float {
     val centerX = size.width / 2f
     val centerY = size.height / 2f
-    val angleDegrees = (atan2(y - centerY, x - centerX) * 180f / PI.toFloat())
-        .coerceIn(VOLUME_ARC_MAX_ANGLE_DEGREES, VOLUME_ARC_MIN_ANGLE_DEGREES)
-    return ((VOLUME_ARC_MIN_ANGLE_DEGREES - angleDegrees) / VOLUME_ARC_SWEEP_DEGREES)
-        .coerceIn(0f, 1f)
+    val rawAngleDegrees = atan2(y - centerY, x - centerX) * 180f / PI.toFloat()
+    val endAngleDegrees = startAngleDegrees + sweepDegrees
+    val angleDegrees = if (endAngleDegrees > 180f && rawAngleDegrees < startAngleDegrees) {
+        rawAngleDegrees + 360f
+    } else {
+        rawAngleDegrees
+    }
+    val percent = ((angleDegrees - startAngleDegrees) / sweepDegrees).coerceIn(0f, 1f)
+    return if (reverse) 1f - percent else percent
 }
 
 private fun volumeIconOffset(
