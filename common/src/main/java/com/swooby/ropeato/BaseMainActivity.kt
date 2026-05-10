@@ -44,6 +44,8 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     protected val viewModel by viewModels<RopeatoViewModel>()
 
+    protected open val textToSpeechVoiceSpeed: Float = 2.0f
+
     protected abstract fun setupUI()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -437,13 +439,12 @@ abstract class BaseMainActivity : ComponentActivity() {
 
         val voices = tts.voices!!
         Log.i(TAG, "onTextToSpeechInitialized: voices=${FooString.toString(voices, true)}")
-        val voice = voices.find { voice -> voice.name.equals("en-GB-language", ignoreCase = true) }
-            ?: voices.find { voice -> voice.name.equals("en-US-default", ignoreCase = true) }
-            ?: voices.find { voice -> voice.locale.language.equals("en", ignoreCase = true) }
-            ?: voices.elementAt(0)
+        val voice = TextToSpeechVoicePreference.preferredEnglishVoice(voices)
+            ?: voices.first()
         Log.i(TAG, "onTextToSpeechInitialized: voice=$voice")
         tts.setVoiceName(voice.name)
-        tts.voiceSpeed = 2.0f
+        tts.voiceSpeed = textToSpeechVoiceSpeed
+        Log.i(TAG, "onTextToSpeechInitialized: voiceSpeed=$textToSpeechVoiceSpeed")
 
         tts.speak("Talk to me!")
     }

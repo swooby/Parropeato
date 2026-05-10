@@ -437,9 +437,15 @@ object FooString {
             sb.append("null")
         } else {
             sb.append('[')
+            if (multiline) {
+                sb.append(LINEFEED)
+            }
             val it = items.iterator()
             while (it.hasNext()) {
                 val item = it.next()
+                if (multiline) {
+                    sb.append("  ")
+                }
                 sb.append(quote(item))
                 if (it.hasNext()) {
                     sb.append(", ")

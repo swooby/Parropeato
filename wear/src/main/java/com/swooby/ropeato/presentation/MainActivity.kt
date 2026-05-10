@@ -41,6 +41,8 @@ class MainActivity : BaseMainActivity() {
         val TAG = FooLog.TAG(MainActivity::class)
     }
 
+    override val textToSpeechVoiceSpeed: Float = 1.3f
+
     override fun setupUI() {
         setContent {
             WearApp(
