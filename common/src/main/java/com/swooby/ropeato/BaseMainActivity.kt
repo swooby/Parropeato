@@ -2,15 +2,17 @@ package com.swooby.ropeato
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.AudioManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.speech.RecognitionListener
+import android.speech.RecognitionSupport
+import android.speech.RecognitionSupportCallback
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
@@ -58,6 +60,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -90,11 +93,12 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected lateinit var tts: FooTextToSpeech
     protected lateinit var speechRecognizer: SpeechRecognizer
     protected lateinit var audioManager: AudioManager
+    protected lateinit var settings: Settings
     protected val mainHandler = Handler(Looper.getMainLooper())
 
     protected val viewModel by viewModels<RopeatoViewModel>()
 
-    protected open val textToSpeechVoiceSpeed: Float = 2.0f
+    protected open val textToSpeechVoiceSpeed: Float = VOICE_SPEED_DEFAULT
     protected open val watchFaceSceneScale: Float = 0.92f
     protected open val watchFaceControlsScale: Float = 0.88f
     protected open val watchFaceBorderOutset: Boolean = false
@@ -107,28 +111,42 @@ abstract class BaseMainActivity : ComponentActivity() {
                 sceneScale = watchFaceSceneScale,
                 controlsScale = watchFaceControlsScale,
                 borderOutset = watchFaceBorderOutset,
-                platformOverlay = { PlatformOverlay() },
+                platformOverlay = { onSettingsClick -> PlatformOverlay(onSettingsClick) },
                 onPushToTalkPressed = ::onPushToTalkPressed,
                 onPushToTalkReleased = ::onPushToTalkReleased,
                 onVolumeChange = ::setVolumePercent,
                 onVoiceSpeedChange = ::setVoiceSpeed,
+                onVoicePitchChange = ::setVoicePitch,
+                settingsOverlay = {
+                    if (viewModel.showSettings) {
+                        SettingsOverlay(onDismiss = { viewModel.showSettings = false })
+                    }
+                },
             )
         }
     }
 
     @Composable
-    protected open fun PlatformOverlay() {
+    protected open fun PlatformOverlay(onSettingsClick: () -> Unit) {
+    }
+
+    @Composable
+    protected open fun SettingsOverlay(onDismiss: () -> Unit) {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "+onCreate(...)")
         super.onCreate(savedInstanceState)
         audioManager = getSystemService(AudioManager::class.java)
+        settings = Settings(this, defaultTtsVoiceSpeed = textToSpeechVoiceSpeed)
         updateMediaVolumeState(updateText = false)
-        viewModel.voiceSpeed = textToSpeechVoiceSpeed
+        viewModel.voiceSpeed = settings.ttsVoiceSpeed
+        viewModel.voicePitch = settings.ttsPitch
+        viewModel.speechRecognizerLocale = settings.speechRecognizerLocale
         setupUI()
         initTextToSpeech()
         initSpeechRecognizer()
+        initSupportedSpeechLocales()
         Log.i(TAG, "-onCreate(...)")
     }
 
@@ -176,7 +194,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 }
                 if (shouldRetry) {
                     viewModel.state = RopeatoViewModel.State.Listening
-                    viewModel.text = "Listening..."
+                    viewModel.text = getString(R.string.status_listening)
                     resetSpeechRecognizer()
                     mainHandler.postDelayed({
                         if (isPushToTalkPressed && !isListening) {
@@ -188,9 +206,9 @@ abstract class BaseMainActivity : ComponentActivity() {
                 resetSpeechRecognizer()
                 viewModel.state = RopeatoViewModel.State.Idle
                 viewModel.text = when (error) {
-                    SpeechRecognizer.ERROR_NO_MATCH -> "Didn't catch that.\nHold the mic to try again."
-                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech heard.\nHold the mic to try again."
-                    else -> "Speech error ${speechRecognizerErrorToString(error)}.\nHold the mic to try again."
+                    SpeechRecognizer.ERROR_NO_MATCH -> getString(R.string.error_no_match)
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> getString(R.string.error_no_speech)
+                    else -> getString(R.string.error_speech_generic, speechRecognizerErrorToString(error))
                 }
             }
 
@@ -222,7 +240,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 val confidenceScores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES) ?: floatArrayOf()
                 if (recognitions.isEmpty()) {
                     viewModel.state = RopeatoViewModel.State.Idle
-                    viewModel.text = "Didn't catch that.\nHold the mic to try again."
+                    viewModel.text = getString(R.string.error_no_match)
                     resetSpeechRecognizer()
                     return
                 }
@@ -263,8 +281,44 @@ abstract class BaseMainActivity : ComponentActivity() {
 
         if (updatePrompt) {
             viewModel.state = RopeatoViewModel.State.Idle
-            viewModel.text = "Hold the mic\nto talk"
+            viewModel.text = getString(R.string.status_hold_mic_to_talk)
         }
+    }
+
+    private fun initSupportedSpeechLocales() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        speechRecognizer.checkRecognitionSupport(
+            intent,
+            mainExecutor,
+            object : RecognitionSupportCallback {
+                override fun onSupportResult(recognitionSupport: RecognitionSupport) {
+                    val supportedTags: Set<String> = mutableSetOf<String>().apply {
+                        addAll(recognitionSupport.installedOnDeviceLanguages)
+                        addAll(recognitionSupport.supportedOnDeviceLanguages)
+                        addAll(recognitionSupport.onlineLanguages)
+                    }
+                    val filtered = SpeechLocalePreference.CANDIDATES
+                        .filter { it in supportedTags }
+                        .sortedBy { java.util.Locale.forLanguageTag(it).getDisplayName(java.util.Locale.getDefault()) }
+                    Log.i(TAG, "initSupportedSpeechLocales: ${filtered.size} locales supported")
+                    viewModel.supportedSpeechLocales = filtered
+                    viewModel.speechLocalesSupportChecked = true
+                    val savedLocale = viewModel.speechRecognizerLocale
+                    if (savedLocale != null && savedLocale !in filtered) {
+                        Log.w(TAG, "initSupportedSpeechLocales: saved locale $savedLocale no longer supported, clearing")
+                        viewModel.speechRecognizerLocale = null
+                        settings.speechRecognizerLocale = null
+                    }
+                }
+
+                override fun onError(errorCode: Int) {
+                    Log.w(TAG, "initSupportedSpeechLocales: checkRecognitionSupport error=$errorCode, using full candidate list")
+                    viewModel.supportedSpeechLocales = SpeechLocalePreference.CANDIDATES
+                        .sortedBy { java.util.Locale.forLanguageTag(it).getDisplayName(java.util.Locale.getDefault()) }
+                    viewModel.speechLocalesSupportChecked = true
+                }
+            }
+        )
     }
 
     override fun onPause() {
@@ -324,10 +378,10 @@ abstract class BaseMainActivity : ComponentActivity() {
         } else if (!isGranted) {
             pendingStartAfterPermission = false
             viewModel.state = RopeatoViewModel.State.Idle
-            viewModel.text = "Microphone permission\nis required."
+            viewModel.text = getString(R.string.error_mic_permission)
         } else {
             viewModel.state = RopeatoViewModel.State.Idle
-            viewModel.text = "Hold the mic\nto talk"
+            viewModel.text = getString(R.string.status_hold_mic_to_talk)
         }
         FooLog.i(TAG, "-onPermissionRecordAudioResult(isGranted=$isGranted)")
     }
@@ -401,7 +455,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             speechRecognizerStop()
             if (!fallbackRecognition.isNullOrBlank()) {
                 viewModel.state = RopeatoViewModel.State.Idle
-                viewModel.text = "Thinking..."
+                viewModel.text = getString(R.string.status_thinking)
                 mainHandler.postDelayed({
                     if (isListening && shouldProcessResults) {
                         isListening = false
@@ -413,7 +467,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 }, 500)
             } else {
                 viewModel.state = RopeatoViewModel.State.Idle
-                viewModel.text = "Thinking..."
+                viewModel.text = getString(R.string.status_thinking)
             }
         } else if (!fallbackRecognition.isNullOrBlank()) {
             viewModel.state = RopeatoViewModel.State.Speaking
@@ -421,17 +475,9 @@ abstract class BaseMainActivity : ComponentActivity() {
             resetSpeechRecognizer()
         } else {
             viewModel.state = RopeatoViewModel.State.Idle
-            viewModel.text = "Didn't catch that.\nHold the mic to try again."
+            viewModel.text = getString(R.string.error_no_match)
         }
         FooLog.i(TAG, "-onPushToTalkReleased()")
-    }
-
-    protected fun volumeDown() {
-        adjustMediaVolume(AudioManager.ADJUST_LOWER)
-    }
-
-    protected fun volumeUp() {
-        adjustMediaVolume(AudioManager.ADJUST_RAISE)
     }
 
     protected fun setVolumePercent(volumePercent: Float) {
@@ -450,16 +496,55 @@ abstract class BaseMainActivity : ComponentActivity() {
         if (::tts.isInitialized) {
             tts.voiceSpeed = viewModel.voiceSpeed
         }
-        viewModel.text = "Voice speed ${"%.1f".format(viewModel.voiceSpeed)}x"
+        if (::settings.isInitialized) {
+            settings.ttsVoiceSpeed = viewModel.voiceSpeed
+        }
+        viewModel.text = getString(R.string.status_voice_speed, viewModel.voiceSpeed)
     }
 
-    private fun adjustMediaVolume(direction: Int) {
-        audioManager.adjustStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            direction,
-            AudioManager.FLAG_PLAY_SOUND
+    protected fun setVoicePitch(voicePitch: Float) {
+        viewModel.voicePitch = voicePitch
+        if (::tts.isInitialized) {
+            tts.voicePitch = viewModel.voicePitch
+        }
+        if (::settings.isInitialized) {
+            settings.ttsPitch = viewModel.voicePitch
+        }
+        viewModel.text = getString(R.string.status_voice_pitch, viewModel.voicePitch)
+    }
+
+    protected fun onSettingsVoiceSelected(voiceName: String?) {
+        tts.setVoiceName(voiceName)  // null → engine default
+        viewModel.selectedVoiceName = voiceName
+        settings.ttsVoiceName = voiceName
+    }
+
+    protected fun onSettingsVoicePreview(voiceName: String) {
+        val restoreName = viewModel.selectedVoiceName
+        tts.clear()
+        tts.setVoiceName(voiceName)
+        tts.speak(
+            getString(R.string.tts_voice_preview),
+            callbacks = object : FooTextToSpeech.SequenceCallbacks {
+                override fun onSequenceStart(sequenceId: String) {}
+                override fun onSequenceComplete(sequenceId: String, neverStarted: Boolean, errorCode: Int) {
+                    tts.setVoiceName(restoreName)
+                }
+            },
         )
-        updateMediaVolumeState(updateText = true)
+    }
+
+    protected fun onSettingsSpeechLocaleSelected(locale: String?) {
+        viewModel.speechRecognizerLocale = locale
+        settings.speechRecognizerLocale = locale
+    }
+
+    protected fun openTtsSettings() {
+        try {
+            startActivity(Intent("com.android.settings.TTS_SETTINGS"))
+        } catch (_: ActivityNotFoundException) {
+            startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
+        }
     }
 
     private fun updateMediaVolumeState(updateText: Boolean) {
@@ -471,7 +556,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
         viewModel.volumePercent = volumePercent
         if (updateText) {
-            viewModel.text = "Volume $volume / $volumeMax"
+            viewModel.text = getString(R.string.status_volume, volume, volumeMax)
         }
     }
 
@@ -505,17 +590,18 @@ abstract class BaseMainActivity : ComponentActivity() {
         latestPartialRecognition = null
         latestUnstableRecognition = null
         viewModel.state = RopeatoViewModel.State.Listening
-        viewModel.text = "Listening..."
+        viewModel.text = getString(R.string.status_listening)
         val recognizerIntent = Intent()
         recognizerIntent.action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            recognizerIntent.putExtra(
-                RecognizerIntent.EXTRA_ENABLE_FORMATTING,
-                RecognizerIntent.FORMATTING_OPTIMIZE_QUALITY
-            )
-            recognizerIntent.putExtra(RecognizerIntent.EXTRA_MASK_OFFENSIVE_WORDS, false)
+        viewModel.speechRecognizerLocale?.let { locale ->
+            recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
         }
+        recognizerIntent.putExtra(
+            RecognizerIntent.EXTRA_ENABLE_FORMATTING,
+            RecognizerIntent.FORMATTING_OPTIMIZE_QUALITY
+        )
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MASK_OFFENSIVE_WORDS, false)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false)
@@ -528,9 +614,9 @@ abstract class BaseMainActivity : ComponentActivity() {
 
         if (status != TextToSpeech.SUCCESS) {
             viewModel.state = RopeatoViewModel.State.InitializingError
-            var text = "TextToSpeech init failed."
+            var text = getString(R.string.error_tts_init_failed)
             if (BuildConfig.DEBUG) {
-                text += "\nTTS may not work\nin an emulator."
+                text += "\n" + getString(R.string.error_tts_emulator_hint)
             }
             text += "\nstatus=${FooTextToSpeech.statusToString(status)}"
             viewModel.text = text
@@ -538,18 +624,43 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
 
         viewModel.state = RopeatoViewModel.State.Initialized
-        viewModel.text = "Hold the mic\nto talk"
+        viewModel.text = getString(R.string.status_hold_mic_to_talk)
 
-        val voices = tts.voices!!
+        val voices = TextToSpeechVoicePreference.installedVoices(tts.voices)
         Log.i(TAG, "onTextToSpeechInitialized: voices=${FooString.toString(voices, true)}")
-        val voice = TextToSpeechVoicePreference.preferredEnglishVoice(voices)
-            ?: voices.first()
-        Log.i(TAG, "onTextToSpeechInitialized: voice=$voice")
-        tts.setVoiceName(voice.name)
+        viewModel.availableVoices = voices.toList()
+
+        // Probe the engine's default voice name (setVoiceName(null) resolves to defaultVoice).
+        tts.setVoiceName(null)
+        viewModel.ttsDefaultVoiceName = tts.voiceName
+        Log.i(TAG, "onTextToSpeechInitialized: ttsDefaultVoiceName=${viewModel.ttsDefaultVoiceName}")
+
+        // One-time migration: older builds auto-selected a voice via preferredEnglishVoice() and
+        // persisted it without any user interaction. Reset to Device Default so the user starts
+        // fresh with the correct engine default rather than a stale auto-chosen voice.
+        if (settings.settingsVersion < Settings.CURRENT_VERSION) {
+            Log.i(TAG, "onTextToSpeechInitialized: migrating settings " +
+                    "v${settings.settingsVersion} → ${Settings.CURRENT_VERSION}, clearing ttsVoiceName")
+            settings.ttsVoiceName = null
+            settings.settingsVersion = Settings.CURRENT_VERSION
+        }
+
+        val savedVoiceName = settings.ttsVoiceName
+        if (savedVoiceName != null && voices.any { it.name == savedVoiceName }) {
+            tts.setVoiceName(savedVoiceName)
+        } else if (savedVoiceName != null) {
+            // Previously saved voice is no longer installed — reset to device default.
+            settings.ttsVoiceName = null
+        }
+        // null savedVoiceName → already on engine default from the probe above.
+        viewModel.selectedVoiceName = settings.ttsVoiceName
+        Log.i(TAG, "onTextToSpeechInitialized: selectedVoiceName=${viewModel.selectedVoiceName}")
         tts.voiceSpeed = viewModel.voiceSpeed
         Log.i(TAG, "onTextToSpeechInitialized: voiceSpeed=${viewModel.voiceSpeed}")
+        tts.voicePitch = viewModel.voicePitch
+        Log.i(TAG, "onTextToSpeechInitialized: voicePitch=${viewModel.voicePitch}")
 
-        tts.speak("Talk to me!")
+        tts.speak(getString(R.string.tts_greeting))
     }
 
     private fun speakRecognition(text: String) {
@@ -570,11 +681,13 @@ private fun RopeatoApp(
     sceneScale: Float,
     controlsScale: Float,
     borderOutset: Boolean,
-    platformOverlay: @Composable () -> Unit,
+    platformOverlay: @Composable (onSettingsClick: () -> Unit) -> Unit,
     onPushToTalkPressed: () -> Unit,
     onPushToTalkReleased: () -> Unit,
     onVolumeChange: (Float) -> Unit,
     onVoiceSpeedChange: (Float) -> Unit,
+    onVoicePitchChange: (Float) -> Unit,
+    settingsOverlay: @Composable () -> Unit,
 ) {
     MaterialTheme(
         colorScheme = darkColorScheme(
@@ -621,6 +734,12 @@ private fun RopeatoApp(
                         scale = controlScale,
                         onVoiceSpeedChange = onVoiceSpeedChange,
                     )
+                    VoicePitchControls(
+                        modifier = Modifier.size(controlsSize),
+                        voicePitch = viewModel.voicePitch,
+                        scale = controlScale,
+                        onVoicePitchChange = onVoicePitchChange,
+                    )
                     PushToTalkButton(
                         modifier = Modifier.align(Alignment.Center),
                         isListening = viewModel.state == RopeatoViewModel.State.Listening,
@@ -638,9 +757,11 @@ private fun RopeatoApp(
                         text = viewModel.text,
                     )
                 }
-                platformOverlay()
+                platformOverlay { viewModel.showSettings = true }
             }
         }
+
+        settingsOverlay()
     }
 }
 
@@ -745,15 +866,6 @@ private fun VolumeControls(
                 size = oval.size,
                 style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
             )
-            drawArc(
-                color = primary,
-                startAngle = VOLUME_ARC_MIN_ANGLE_DEGREES,
-                sweepAngle = -VOLUME_ARC_SWEEP_DEGREES * boundedVolume,
-                useCenter = false,
-                topLeft = oval.topLeft,
-                size = oval.size,
-                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
-            )
 
             val thumbAngle = Math.toRadians((VOLUME_ARC_MIN_ANGLE_DEGREES - VOLUME_ARC_SWEEP_DEGREES * boundedVolume).toDouble())
             val thumbCenter = Offset(
@@ -778,7 +890,7 @@ private fun VolumeControls(
                 )
             },
             icon = Icons.AutoMirrored.Filled.VolumeUp,
-            contentDescription = "Maximum volume",
+            contentDescription = stringResource(R.string.cd_volume_max),
             size = iconSize,
         )
         EdgeControlIcon(
@@ -792,7 +904,7 @@ private fun VolumeControls(
                 )
             },
             icon = Icons.AutoMirrored.Filled.VolumeDown,
-            contentDescription = "Minimum volume",
+            contentDescription = stringResource(R.string.cd_volume_min),
             size = iconSize,
         )
     }
@@ -815,9 +927,11 @@ private fun VoiceSpeedControls(
     val iconSize = 24.dp * scale
     val strokeWidth = 8.dp * scale
     val radiusInset = 5.dp * scale
+    val speedExtraInset = 26.dp * scale
     val iconSizePx = with(density) { iconSize.roundToPx() }
     val strokeWidthPx = with(density) { strokeWidth.roundToPx() }
     val radiusInsetPx = with(density) { radiusInset.roundToPx() }
+    val speedExtraInsetPx = with(density) { speedExtraInset.roundToPx() }
 
     Box(
         modifier = modifier
@@ -826,11 +940,16 @@ private fun VoiceSpeedControls(
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN,
                     MotionEvent.ACTION_MOVE -> {
-                        if (event.x > layoutSize.value.width * 0.38f) return@pointerInteropFilter false
                         val size = layoutSize.value
-                        if (size.width > 0 && size.height > 0) {
-                            onVoiceSpeedChange(voiceSpeedFromArcPosition(event.x, event.y, size))
+                        if (size.width <= 0 || size.height <= 0) return@pointerInteropFilter false
+                        val cx = size.width / 2f
+                        val cy = size.height / 2f
+                        val rawAngle = atan2(event.y - cy, event.x - cx) * 180f / PI.toFloat()
+                        // Only accept touches within the speed arc zone: -140° to -40° (top center)
+                        if (rawAngle < VOICE_SPEED_ARC_MIN_ANGLE_DEGREES || rawAngle > VOICE_SPEED_ARC_MAX_ANGLE_DEGREES) {
+                            return@pointerInteropFilter false
                         }
+                        onVoiceSpeedChange(voiceSpeedFromArcPosition(event.x, event.y, size))
                         true
                     }
                     else -> true
@@ -839,7 +958,7 @@ private fun VoiceSpeedControls(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidthPxFloat = strokeWidth.toPx()
-            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx()
+            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx() - speedExtraInset.toPx()
             val center = Offset(size.width / 2f, size.height / 2f)
             val oval = Rect(
                 left = center.x - radius,
@@ -851,15 +970,6 @@ private fun VoiceSpeedControls(
                 color = track,
                 startAngle = VOICE_SPEED_ARC_MIN_ANGLE_DEGREES,
                 sweepAngle = VOICE_SPEED_ARC_SWEEP_DEGREES,
-                useCenter = false,
-                topLeft = oval.topLeft,
-                size = oval.size,
-                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
-            )
-            drawArc(
-                color = primary,
-                startAngle = VOICE_SPEED_ARC_MIN_ANGLE_DEGREES,
-                sweepAngle = VOICE_SPEED_ARC_SWEEP_DEGREES * voiceSpeedPercent,
                 useCenter = false,
                 topLeft = oval.topLeft,
                 size = oval.size,
@@ -885,11 +995,11 @@ private fun VoiceSpeedControls(
                     angleDegrees = VOICE_SPEED_ICON_MAX_ANGLE_DEGREES,
                     iconSizePx = iconSizePx,
                     strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx,
+                    radiusInsetPx = radiusInsetPx + speedExtraInsetPx,
                 )
             },
             icon = Icons.Filled.Speed,
-            contentDescription = "Maximum voice speed",
+            contentDescription = stringResource(R.string.cd_voice_speed_max),
             size = iconSize,
         )
         EdgeControlIcon(
@@ -899,11 +1009,113 @@ private fun VoiceSpeedControls(
                     angleDegrees = VOICE_SPEED_ICON_MIN_ANGLE_DEGREES,
                     iconSizePx = iconSizePx,
                     strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx,
+                    radiusInsetPx = radiusInsetPx + speedExtraInsetPx,
                 )
             },
             icon = ImageVector.vectorResource(id = R.drawable.speed_2_24px),
-            contentDescription = "Minimum voice speed",
+            contentDescription = stringResource(R.string.cd_voice_speed_min),
+            size = iconSize,
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalComposeUiApi::class)
+private fun VoicePitchControls(
+    voicePitch: Float,
+    scale: Float,
+    onVoicePitchChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val primary = MaterialTheme.colorScheme.primary
+    val track = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
+    val boundedVoicePitch = voicePitch.coerceIn(VOICE_PITCH_MIN, VOICE_PITCH_MAX)
+    val voicePitchPercent = (boundedVoicePitch - VOICE_PITCH_MIN) / (VOICE_PITCH_MAX - VOICE_PITCH_MIN)
+    val density = LocalDensity.current
+    val iconSize = 24.dp * scale
+    val strokeWidth = 8.dp * scale
+    val radiusInset = 5.dp * scale
+    val iconSizePx = with(density) { iconSize.roundToPx() }
+    val strokeWidthPx = with(density) { strokeWidth.roundToPx() }
+    val radiusInsetPx = with(density) { radiusInset.roundToPx() }
+
+    Box(
+        modifier = modifier
+            .onSizeChanged { layoutSize.value = it }
+            .pointerInteropFilter { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN,
+                    MotionEvent.ACTION_MOVE -> {
+                        if (event.x > layoutSize.value.width * 0.38f) return@pointerInteropFilter false
+                        val size = layoutSize.value
+                        if (size.width > 0 && size.height > 0) {
+                            onVoicePitchChange(voicePitchFromArcPosition(event.x, event.y, size))
+                        }
+                        true
+                    }
+                    else -> true
+                }
+            },
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidthPxFloat = strokeWidth.toPx()
+            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx()
+            val center = Offset(size.width / 2f, size.height / 2f)
+            val oval = Rect(
+                left = center.x - radius,
+                top = center.y - radius,
+                right = center.x + radius,
+                bottom = center.y + radius,
+            )
+            drawArc(
+                color = track,
+                startAngle = VOICE_PITCH_ARC_MIN_ANGLE_DEGREES,
+                sweepAngle = VOICE_PITCH_ARC_SWEEP_DEGREES,
+                useCenter = false,
+                topLeft = oval.topLeft,
+                size = oval.size,
+                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
+            )
+
+            val thumbAngle = Math.toRadians((VOICE_PITCH_ARC_MIN_ANGLE_DEGREES + VOICE_PITCH_ARC_SWEEP_DEGREES * voicePitchPercent).toDouble())
+            val thumbCenter = Offset(
+                x = center.x + cos(thumbAngle).toFloat() * radius,
+                y = center.y + sin(thumbAngle).toFloat() * radius,
+            )
+            drawCircle(
+                color = primary.copy(alpha = 0.18f),
+                radius = (17.dp * scale).toPx(),
+                center = thumbCenter,
+            )
+            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumbCenter)
+        }
+        EdgeControlIcon(
+            modifier = Modifier.offset {
+                volumeIconOffset(
+                    size = layoutSize.value,
+                    angleDegrees = VOICE_PITCH_ICON_MAX_ANGLE_DEGREES,
+                    iconSizePx = iconSizePx,
+                    strokeWidthPx = strokeWidthPx,
+                    radiusInsetPx = radiusInsetPx,
+                )
+            },
+            icon = ImageVector.vectorResource(id = R.drawable.pitch_high_24px),
+            contentDescription = stringResource(R.string.cd_voice_pitch_max),
+            size = iconSize,
+        )
+        EdgeControlIcon(
+            modifier = Modifier.offset {
+                volumeIconOffset(
+                    size = layoutSize.value,
+                    angleDegrees = VOICE_PITCH_ICON_MIN_ANGLE_DEGREES,
+                    iconSizePx = iconSizePx,
+                    strokeWidthPx = strokeWidthPx,
+                    radiusInsetPx = radiusInsetPx,
+                )
+            },
+            icon = ImageVector.vectorResource(id = R.drawable.pitch_low_24px),
+            contentDescription = stringResource(R.string.cd_voice_pitch_min),
             size = iconSize,
         )
     }
@@ -929,10 +1141,17 @@ private const val VOLUME_ARC_MIN_ANGLE_DEGREES = 50f
 private const val VOLUME_ARC_SWEEP_DEGREES = 100f
 private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -62f
 private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 62f
-private const val VOICE_SPEED_ARC_MIN_ANGLE_DEGREES = 130f
+// Speed arc: top-center inner arc; left (-140°) = slowest, right (-40°) = fastest
+private const val VOICE_SPEED_ARC_MIN_ANGLE_DEGREES = -140f
+private const val VOICE_SPEED_ARC_MAX_ANGLE_DEGREES = -40f
 private const val VOICE_SPEED_ARC_SWEEP_DEGREES = 100f
-private const val VOICE_SPEED_ICON_MAX_ANGLE_DEGREES = -118f
-private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = 118f
+private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = -152f  // just outside arc left (slow) end
+private const val VOICE_SPEED_ICON_MAX_ANGLE_DEGREES = -28f   // just outside arc right (fast) end
+// Pitch arc: left edge; bottom (130°) = lowest pitch, top (230°) = highest pitch
+private const val VOICE_PITCH_ARC_MIN_ANGLE_DEGREES = 130f
+private const val VOICE_PITCH_ARC_SWEEP_DEGREES = 100f
+private const val VOICE_PITCH_ICON_MIN_ANGLE_DEGREES = 118f   // just below arc bottom (low) end
+private const val VOICE_PITCH_ICON_MAX_ANGLE_DEGREES = -118f  // just above arc top (high) end
 private val RopeatoPrimary = Color(0xFFBB86FC)
 private val WearReferenceSceneSize = 213.dp
 
@@ -956,6 +1175,17 @@ private fun voiceSpeedFromArcPosition(x: Float, y: Float, size: IntSize): Float 
         sweepDegrees = VOICE_SPEED_ARC_SWEEP_DEGREES,
     )
     return VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * voiceSpeedPercent
+}
+
+private fun voicePitchFromArcPosition(x: Float, y: Float, size: IntSize): Float {
+    val voicePitchPercent = arcPercentFromPosition(
+        x = x,
+        y = y,
+        size = size,
+        startAngleDegrees = VOICE_PITCH_ARC_MIN_ANGLE_DEGREES,
+        sweepDegrees = VOICE_PITCH_ARC_SWEEP_DEGREES,
+    )
+    return VOICE_PITCH_MIN + (VOICE_PITCH_MAX - VOICE_PITCH_MIN) * voicePitchPercent
 }
 
 private fun arcPercentFromPosition(
@@ -1035,7 +1265,7 @@ private fun PushToTalkButton(
         Icon(
             modifier = Modifier.size(42.dp * scale),
             imageVector = Icons.Filled.Mic,
-            contentDescription = if (isListening) "Listening" else "Hold to talk",
+            contentDescription = if (isListening) stringResource(R.string.cd_listening) else stringResource(R.string.cd_hold_to_talk),
             tint = MaterialTheme.colorScheme.primary,
         )
     }

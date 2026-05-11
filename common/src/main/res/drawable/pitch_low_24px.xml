@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+  <!-- Whale silhouette: large = deep-pitched voice -->
+  <!-- Body oval -->
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M50,490 a350,185 0 0,1 700,0 a350,185 0 0,1 -700,0 Z"/>
+  <!-- Tail flukes -->
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M700,435 L910,280 L865,490 L910,700 L700,545 Q760,490 700,435 Z"/>
+  <!-- Dorsal fin -->
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M340,305 Q410,170 490,270 L340,305 Z"/>
+</vector>

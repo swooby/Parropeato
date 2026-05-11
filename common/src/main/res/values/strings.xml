@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mr. Ropeato</string>
+
+    <!-- Status messages shown in the main display -->
+    <string name="status_hold_mic_to_talk">Hold the mic\nto talk</string>
+    <string name="status_listening">Listening…</string>
+    <string name="status_thinking">Thinking…</string>
+    <string name="status_voice_speed">Voice speed %1$.1fx</string>
+    <string name="status_voice_pitch">Voice pitch %1$.1fx</string>
+    <string name="status_volume">Volume %1$d / %2$d</string>
+
+    <!-- Error messages -->
+    <string name="error_no_match">Didn\'t catch that.\nHold the mic to try again.</string>
+    <string name="error_no_speech">No speech heard.\nHold the mic to try again.</string>
+    <string name="error_speech_generic">Speech error %1$s.\nHold the mic to try again.</string>
+    <string name="error_mic_permission">Microphone permission\nis required.</string>
+    <string name="error_tts_init_failed">TextToSpeech init failed.</string>
+    <string name="error_tts_emulator_hint">TTS may not work\nin an emulator.</string>
+
+    <!-- TTS greeting spoken aloud on startup -->
+    <string name="tts_greeting">Talk to me!</string>
+    <!-- Short phrase spoken when the user previews a TTS voice -->
+    <string name="tts_voice_preview">The quick brown fox jumps over the lazy dog.</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_tts_language">Text To Speech</string>
+    <string name="settings_section_stt_language">Speech To Text</string>
+    <string name="settings_section_system">System</string>
+    <string name="settings_tts_initializing">Initializing TTS…</string>
+    <string name="settings_speech_checking">Checking supported languages…</string>
+    <string name="settings_speech_none_found">No supported languages found.</string>
+    <string name="settings_open_tts_settings">Open Device TTS Settings</string>
+    <string name="settings_close">Close</string>
+
+    <!-- Speech locale picker -->
+    <string name="speech_locale_device_default">Device Default</string>
+
+    <!-- Voice descriptors -->
+    <string name="voice_connectivity_online">network</string>
+    <string name="voice_connectivity_offline">local</string>
+    <string name="voice_quality_hd">HD</string>
+    <string name="voice_quality_standard">standard</string>
+    <string name="voice_quality_basic">basic</string>
+    <string name="voice_gender_male">male</string>
+    <string name="voice_gender_female">female</string>
+
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_open_settings">Settings</string>
+    <string name="cd_close_settings">Close settings</string>
+    <string name="cd_selected">Selected</string>
+    <string name="cd_preview_voice">Preview voice</string>
+    <string name="cd_listening">Listening</string>
+    <string name="cd_hold_to_talk">Hold to talk</string>
+    <string name="cd_volume_max">Maximum volume</string>
+    <string name="cd_volume_min">Minimum volume</string>
+    <string name="cd_voice_speed_max">Maximum voice speed</string>
+    <string name="cd_voice_speed_min">Minimum voice speed</string>
+    <string name="cd_voice_pitch_max">Maximum voice pitch</string>
+    <string name="cd_voice_pitch_min">Minimum voice pitch</string>
+</resources>

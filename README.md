@@ -2,6 +2,35 @@
 
 Ropeato is a novelty Android and Wear OS app that listens to what you say and parrots it back in a robotic text-to-speech voice.
 
+## Adding a UI language
+
+`common/src/main/res/xml/locales_config.xml` declares the languages for which the app has complete UI string translations. Android uses this list to populate the per-app language selector in system Settings → Apps → Ropeato → Language (API 33+, safe here because `minSdk = 34`). Both `mobile` and `wear` manifests reference it via `android:localeConfig="@xml/locales_config"`.
+
+> **This file is not related to TTS voices or speech-recognition locales.** Those are runtime capabilities of the device's TTS engine and speech recognizer and are managed separately inside the app's Settings screen.
+
+### Steps to add a new language
+
+1. **Translate the strings.** Create `common/src/main/res/values-<tag>/strings.xml` (e.g. `values-fr/`, `values-ja/`) and provide translations for every string in `common/src/main/res/values/strings.xml`.
+
+2. **Register the locale.** Add a matching `<locale>` entry to `locales_config.xml`:
+
+   ```xml
+   <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+       <locale android:name="en"/>
+       <locale android:name="fr"/>  <!-- example: French -->
+   </locale-config>
+   ```
+
+   The `android:name` value must be a valid BCP 47 language tag and must match the `values-<tag>` folder name exactly.
+
+**Both steps are required and must stay in sync.** Adding a locale to `locales_config.xml` without a translation causes the system language picker to offer a language the app cannot display. Adding a translation folder without updating `locales_config.xml` means the system will never offer that language to users.
+
+### Current supported UI languages
+
+| Tag | Language |
+|-----|----------|
+| `en` | English |
+
 ## Release process
 
 GitHub Actions builds the mobile and Wear OS apps on pull requests, pushes to `main`, and release tag pushes. Tag pushes also build signed Android App Bundles and upload them to Google Play.

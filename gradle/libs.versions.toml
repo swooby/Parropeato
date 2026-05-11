@@ -4,6 +4,7 @@ androidx-activity-compose = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-compose-bom = "2026.05.00"
 androidx-core-ktx = "1.18.0"
+androidx-navigation = "2.9.8"
 androidx-legacy-support-v4 = "1.0.0"
 androidx-lifecycle-runtime-compose = "2.10.0"
 androidx-lifecycle-runtime-ktx = "2.10.0"
@@ -39,6 +40,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }#, version.ref = "androidx-compose-ui" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }#, version.ref = "androidx-compose-ui" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidx-navigation" }
 androidx-legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "androidx-legacy-support-v4" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle-runtime-compose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle-runtime-ktx" }

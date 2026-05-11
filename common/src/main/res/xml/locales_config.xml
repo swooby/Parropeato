@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Languages the app has translated UI strings for.
+    Add a new <locale> entry only when a values-XX/strings.xml translation is complete.
+    This is NOT the list of speech recognition or TTS languages.
+    Requires API 33+; safe since minSdk=34.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en"/>
+</locale-config>

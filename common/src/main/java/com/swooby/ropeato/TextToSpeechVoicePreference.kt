@@ -5,7 +5,51 @@ import android.speech.tts.Voice
 import java.util.Locale
 import java.util.MissingResourceException
 
+/**
+ * A deduplicated voice model: the same underlying voice available in local and/or network form.
+ * [preferredVoice] is the local variant when both exist (avoids network dependency).
+ */
+data class VoiceEntry(
+    val localVoice: Voice?,
+    val networkVoice: Voice?,
+) {
+    val preferredVoice: Voice get() = localVoice ?: networkVoice!!
+    fun isSelected(selectedName: String?): Boolean =
+        selectedName != null && (localVoice?.name == selectedName || networkVoice?.name == selectedName)
+}
+
+data class VoiceLanguageGroup(
+    val languageCode: String,
+    val displayLanguage: String,
+    val voices: List<Voice>,            // sorted by full display name within the group
+) {
+    /**
+     * True when there is more than one distinct voice *model* in the group.
+     * Local + network variants of the same model count as one.
+     */
+    val hasVariants: Boolean get() = voices
+        .map { it.name.removeSuffix("-local").removeSuffix("-network") }
+        .distinct()
+        .size > 1
+}
+
 object TextToSpeechVoicePreference {
+
+    fun groupedVoices(
+        voices: Collection<Voice>,
+        displayLocale: Locale = Locale.getDefault(),
+    ): List<VoiceLanguageGroup> =
+        voices
+            .groupBy { it.locale.language }
+            .map { (_, groupVoices) ->
+                val sorted = groupVoices.sortedBy { it.locale.getDisplayName(displayLocale) }
+                VoiceLanguageGroup(
+                    languageCode = sorted.first().locale.language,
+                    displayLanguage = sorted.first().locale.getDisplayLanguage(displayLocale),
+                    voices = sorted,
+                )
+            }
+            .sortedBy { it.displayLanguage }
     private const val EXACT_LOCALE_SCORE = 1000
     private const val LANGUAGE_ONLY_SCORE = 400
     private const val MALE_SCORE = 300
@@ -15,6 +59,75 @@ object TextToSpeechVoicePreference {
     private const val KNOWN_GOOGLE_FEMALE_PENALTY = 260
     private const val SAMSUNG_FEMALE_PENALTY = 150
     private const val OFFLINE_SCORE = 50
+
+    /**
+     * Returns the voice name with the connectivity suffix ("-local" / "-network") removed.
+     * This is the stable key used to group local and network variants of the same voice model.
+     * Example: "en-au-x-aub-local" → "en-au-x-aub"
+     */
+    fun baseName(voice: Voice): String =
+        voice.name.removeSuffix("-local").removeSuffix("-network")
+
+    /**
+     * Returns a short identifier derived from the voice name by stripping the locale prefix
+     * (e.g. "en-au-") and the connectivity suffix ("-local" / "-network").
+     * Matching is case-insensitive so names like "en-AU-language" are handled correctly.
+     */
+    fun shortId(voice: Voice): String {
+        val localePrefix = "${voice.locale.language}-${voice.locale.country.lowercase(Locale.ROOT)}-"
+        val nameLower = voice.name.lowercase(Locale.ROOT)
+        val stripped = if (nameLower.startsWith(localePrefix)) {
+            voice.name.substring(localePrefix.length)
+        } else {
+            voice.name
+        }
+        return stripped
+            .removeSuffix("-local")
+            .removeSuffix("-network")
+            .ifBlank { voice.name }
+    }
+
+    /**
+     * Returns "male", "female", or null if gender cannot be determined.
+     * Uses the same heuristics as the voice scoring functions.
+     */
+    fun gender(voice: Voice): String? = with(voice) {
+        when {
+            maleScore() > 0     -> "male"
+            femalePenalty() > 0 -> "female"
+            else                -> null
+        }
+    }
+
+    /**
+     * Collapses a flat voice list into deduplicated [VoiceEntry] items, one per voice model.
+     * Local and network variants of the same model are merged; local is preferred when both exist.
+     * Sorted by locale display name first (groups regional variants together), then by short ID
+     * within each locale for a stable secondary order.
+     */
+    fun voiceEntries(
+        voices: List<Voice>,
+        displayLocale: Locale = Locale.getDefault(),
+    ): List<VoiceEntry> =
+        voices
+            .groupBy { baseName(it) }
+            .map { (_, group) ->
+                VoiceEntry(
+                    localVoice   = group.find { !it.isNetworkConnectionRequired },
+                    networkVoice = group.find { it.isNetworkConnectionRequired },
+                )
+            }
+            .sortedWith(
+                compareBy(
+                    { it.preferredVoice.locale.getDisplayName(displayLocale) },
+                    { shortId(it.preferredVoice) },
+                )
+            )
+
+    fun installedVoices(voices: Set<Voice>?): Set<Voice> =
+        voices.orEmpty()
+            .filterNot { it.features?.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED) == true }
+            .toSet()
 
     fun preferredEnglishVoice(voices: Set<Voice>?): Voice? =
         preferredVoice(
@@ -28,11 +141,10 @@ object TextToSpeechVoicePreference {
         preferredLanguage: String,
         preferredCountry: String,
     ): Voice? {
-        val installedVoices = voices.orEmpty()
-            .filterNot { it.features?.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED) == true }
+        val candidates = voices.orEmpty()
             .filter { it.locale.languageMatches(preferredLanguage) }
 
-        return installedVoices.maxWithOrNull(
+        return candidates.maxWithOrNull(
             compareBy<Voice> { voice -> voice.score(preferredLanguage, preferredCountry) }
                 .thenBy { voice -> voice.name }
         )

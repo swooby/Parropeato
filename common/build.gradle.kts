@@ -7,7 +7,7 @@ android {
     namespace = "com.swooby.ropeato.common"
     compileSdk = 36
     defaultConfig {
-        minSdk = 26
+        minSdk = 34
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
