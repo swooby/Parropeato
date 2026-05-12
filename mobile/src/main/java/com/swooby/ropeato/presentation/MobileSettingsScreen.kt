@@ -64,10 +64,8 @@ import com.swooby.ropeato.GroupedLocaleOptions
 import com.swooby.ropeato.LocaleLanguageGroup
 import com.swooby.ropeato.SpeechLocalePreference
 import com.swooby.ropeato.TextToSpeechVoicePreference
-import com.swooby.ropeato.VoiceEntry
 import com.swooby.ropeato.VoiceLanguageGroup
 import com.swooby.ropeato.common.R
-import java.util.Locale
 
 // ─── Route constants ──────────────────────────────────────────────────────────
 
@@ -92,12 +90,15 @@ fun MobileSettingsScreen(
     speechRecognizerLocale: String?,
     supportedSpeechLocales: List<String>,
     speechLocalesSupportChecked: Boolean,
+    installedSpeechLocales: Set<String>,
+    isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
     onVoiceSelected: (String?) -> Unit,
     onPreviewVoice: (String) -> Unit,
     onSpeechLocaleSelected: (String?) -> Unit,
     onOpenTtsSettings: () -> Unit,
+    onOpenSpeechDownloadSettings: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -134,6 +135,8 @@ fun MobileSettingsScreen(
                 currentVoice = currentVoice,
                 defaultVoice = defaultVoice,
                 speechRecognizerLocale = speechRecognizerLocale,
+                installedSpeechLocales = installedSpeechLocales,
+                isNetworkAvailable = isNetworkAvailable,
                 cuteIcons = cuteIcons,
                 accentColor = accentColor,
                 onNavigateTtsLanguages = { navController.navigate(Route.TTS_LANGUAGES) },
@@ -193,6 +196,8 @@ fun MobileSettingsScreen(
                 localeGroups = localeGroups,
                 speechRecognizerLocale = speechRecognizerLocale,
                 speechLocalesSupportChecked = speechLocalesSupportChecked,
+                installedSpeechLocales = installedSpeechLocales,
+                isNetworkAvailable = isNetworkAvailable,
                 onBack = { navController.popBackStack() },
                 onDeviceDefaultSelected = {
                     onSpeechLocaleSelected(null)
@@ -206,6 +211,7 @@ fun MobileSettingsScreen(
                         navController.navigate(Route.speechVariants(group.languageCode))
                     }
                 },
+                onOpenSpeechDownloadSettings = onOpenSpeechDownloadSettings,
             )
         }
 
@@ -236,6 +242,8 @@ private fun SettingsL1Screen(
     currentVoice: Voice?,
     defaultVoice: Voice?,
     speechRecognizerLocale: String?,
+    installedSpeechLocales: Set<String>,
+    isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
     onNavigateTtsLanguages: () -> Unit,
@@ -263,9 +271,16 @@ private fun SettingsL1Screen(
             contentPadding = PaddingValues(bottom = 24.dp),
         ) {
             item {
+                val sttSubtitle = buildString {
+                    append(sttLocaleDisplaySubtitle(speechRecognizerLocale, displayLocale))
+                    if (!isNetworkAvailable && speechRecognizerLocale != null && speechRecognizerLocale !in installedSpeechLocales) {
+                        append(" · ")
+                        append(stringResource(R.string.settings_stt_download_offline))
+                    }
+                }
                 DrillDownRow(
                     label = stringResource(R.string.settings_section_stt_language),
-                    value = sttLocaleDisplaySubtitle(speechRecognizerLocale, displayLocale),
+                    value = sttSubtitle,
                     onClick = onNavigateSpeechLanguages,
                 )
             }
@@ -430,9 +445,12 @@ private fun SpeechLanguagesScreen(
     localeGroups: GroupedLocaleOptions,
     speechRecognizerLocale: String?,
     speechLocalesSupportChecked: Boolean,
+    installedSpeechLocales: Set<String>,
+    isNetworkAvailable: Boolean,
     onBack: () -> Unit,
     onDeviceDefaultSelected: () -> Unit,
     onGroupSelected: (LocaleLanguageGroup) -> Unit,
+    onOpenSpeechDownloadSettings: () -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     // index 0 = Device Default, 1+ = groups
@@ -475,14 +493,28 @@ private fun SpeechLanguagesScreen(
                     val variantSubtitle = if (isGroupSelected && speechRecognizerLocale != null)
                         sttLocaleGroupSubtitle(speechRecognizerLocale, displayLocale)
                     else null
+                    val groupHasOffline = group.options.any { it.tag != null && it.tag in installedSpeechLocales }
+                    val offlineLabel = if (groupHasOffline) stringResource(R.string.settings_stt_offline_ready) else null
+                    val subtitle = listOfNotNull(variantSubtitle, offlineLabel).joinToString(" · ").ifEmpty { null }
                     SelectableRow(
                         label = group.displayLanguage,
-                        subtitle = variantSubtitle,
+                        subtitle = subtitle,
                         isSelected = isGroupSelected,
                         hasChildren = group.hasVariants,
                         onClick = { onGroupSelected(group) },
                     )
                     HorizontalDivider(color = Color.White.copy(alpha = 0.06f))
+                }
+            }
+            if (!isNetworkAvailable && speechRecognizerLocale != null && speechRecognizerLocale !in installedSpeechLocales) {
+                item {
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.15f), modifier = Modifier.padding(vertical = 4.dp))
+                    Button(
+                        onClick = onOpenSpeechDownloadSettings,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        Text(stringResource(R.string.settings_stt_download_offline))
+                    }
                 }
             }
         }

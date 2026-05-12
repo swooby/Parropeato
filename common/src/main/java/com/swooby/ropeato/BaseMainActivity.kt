@@ -7,6 +7,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.AudioManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.provider.Settings as AndroidSettings
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -95,6 +99,11 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected lateinit var audioManager: AudioManager
     protected lateinit var settings: Settings
     protected val mainHandler = Handler(Looper.getMainLooper())
+    private lateinit var connectivityManager: ConnectivityManager
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) { viewModel.isNetworkAvailable = true }
+        override fun onLost(network: Network) { viewModel.isNetworkAvailable = false }
+    }
 
     protected val viewModel by viewModels<RopeatoViewModel>()
 
@@ -140,6 +149,11 @@ abstract class BaseMainActivity : ComponentActivity() {
         audioManager = getSystemService(AudioManager::class.java)
         settings = Settings(this, defaultTtsVoiceSpeed = textToSpeechVoiceSpeed)
         updateMediaVolumeState(updateText = false)
+        connectivityManager = getSystemService(ConnectivityManager::class.java)
+        viewModel.isNetworkAvailable = connectivityManager
+            .getNetworkCapabilities(connectivityManager.activeNetwork)
+            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
         viewModel.voiceSpeed = settings.ttsVoiceSpeed
         viewModel.voicePitch = settings.ttsPitch
         viewModel.speechRecognizerLocale = settings.speechRecognizerLocale
@@ -308,6 +322,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             mainExecutor,
             object : RecognitionSupportCallback {
                 override fun onSupportResult(recognitionSupport: RecognitionSupport) {
+                    viewModel.installedSpeechLocales = recognitionSupport.installedOnDeviceLanguages.toSet()
                     val supportedTags: Set<String> = mutableSetOf<String>().apply {
                         addAll(recognitionSupport.installedOnDeviceLanguages)
                         addAll(recognitionSupport.supportedOnDeviceLanguages)
@@ -347,6 +362,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         super.onDestroy()
         viewModel.state = RopeatoViewModel.State.Shutdown
         tts.stop()
+        connectivityManager.unregisterNetworkCallback(networkCallback)
         speechRecognizerDestroy()
     }
 
@@ -569,7 +585,19 @@ abstract class BaseMainActivity : ComponentActivity() {
         try {
             startActivity(Intent("com.android.settings.TTS_SETTINGS"))
         } catch (_: ActivityNotFoundException) {
-            startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
+            startActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+        }
+    }
+
+    fun openSpeechDownloadSettings() {
+        try {
+            startActivity(Intent(AndroidSettings.ACTION_VOICE_INPUT_SETTINGS))
+        } catch (_: ActivityNotFoundException) {
+            try {
+                startActivity(Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+            } catch (_: ActivityNotFoundException) {
+                // no suitable settings screen available
+            }
         }
     }
 
@@ -630,7 +658,17 @@ abstract class BaseMainActivity : ComponentActivity() {
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MASK_OFFENSIVE_WORDS, false)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false)
+        val selectedLocale = viewModel.speechRecognizerLocale
+        val isOnline = viewModel.isNetworkAvailable
+        val hasOfflineModel = selectedLocale == null || selectedLocale in viewModel.installedSpeechLocales
+        if (!isOnline && !hasOfflineModel) {
+            isListening = false
+            shouldProcessResults = false
+            viewModel.state = RopeatoViewModel.State.Idle
+            viewModel.text = getString(R.string.error_stt_offline_no_model)
+            return
+        }
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, !isOnline)
         speechRecognizer.startListening(recognizerIntent)
         FooLog.i(TAG, "-speechRecognizerStart()")
     }

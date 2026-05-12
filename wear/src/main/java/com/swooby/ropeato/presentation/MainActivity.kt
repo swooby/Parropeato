@@ -1,12 +1,10 @@
 package com.swooby.ropeato.presentation
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.TimeText
 import com.swooby.ropeato.BaseMainActivity
 import com.swooby.ropeato.SettingsGearButton
@@ -36,12 +34,15 @@ class MainActivity : BaseMainActivity() {
             speechRecognizerLocale = viewModel.speechRecognizerLocale,
             supportedSpeechLocales = viewModel.supportedSpeechLocales,
             speechLocalesSupportChecked = viewModel.speechLocalesSupportChecked,
+            installedSpeechLocales = viewModel.installedSpeechLocales,
+            isNetworkAvailable = viewModel.isNetworkAvailable,
             cuteIcons = viewModel.cuteIcons,
             accentColor = viewModel.accentColor,
             onVoiceSelected = ::onSettingsVoiceSelected,
             onPreviewVoice = ::onSettingsVoicePreview,
             onSpeechLocaleSelected = ::onSettingsSpeechLocaleSelected,
             onOpenTtsSettings = ::openTtsSettings,
+            onOpenSpeechDownloadSettings = ::openSpeechDownloadSettings,
             onCuteIconsChanged = ::onSettingsCuteIconsChanged,
             onAccentColorChanged = ::onSettingsAccentColorChanged,
             onDismiss = onDismiss,
