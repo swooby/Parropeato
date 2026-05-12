@@ -290,6 +290,32 @@ object TextToSpeechVoicePreference {
         }
 }
 
+/**
+ * Human-readable subtitle for a single TTS voice.
+ * When [includeLocale] is true (L1), returns e.g. "English (United States) · Male · HD".
+ * When false (L2 group chip), returns e.g. "United States · Male · HD".
+ */
+@Composable
+fun ttsVoiceDisplaySubtitle(voice: Voice, displayLocale: Locale, includeLocale: Boolean = true): String {
+    val localePart = if (includeLocale) {
+        voice.locale.getDisplayName(displayLocale)
+    } else {
+        voice.locale.getDisplayCountry(displayLocale).ifEmpty { voice.locale.getDisplayName(displayLocale) }
+    }
+    val gender = TextToSpeechVoicePreference.gender(voice)
+    val genderLabel = when (gender) {
+        "male"   -> stringResource(R.string.voice_gender_male)
+        "female" -> stringResource(R.string.voice_gender_female)
+        else     -> null
+    }
+    val qualityLabel = when {
+        voice.quality >= 400 -> stringResource(R.string.voice_quality_hd)
+        voice.quality >= 300 -> stringResource(R.string.voice_quality_standard)
+        else                 -> null
+    }
+    return listOfNotNull(localePart, genderLabel, qualityLabel).joinToString(" · ")
+}
+
 @Composable
 fun voiceSubtitle(entry: VoiceEntry): String {
     val localLabel   = stringResource(R.string.voice_connectivity_offline)

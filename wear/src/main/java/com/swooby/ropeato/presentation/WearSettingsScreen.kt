@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -41,6 +43,9 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.swooby.ropeato.ACCENT_COLOR_OPTIONS
+import com.swooby.ropeato.sttLocaleDisplaySubtitle
+import com.swooby.ropeato.sttLocaleGroupSubtitle
+import com.swooby.ropeato.ttsVoiceDisplaySubtitle
 import com.swooby.ropeato.voiceSubtitle
 import com.swooby.ropeato.GroupedLocaleOptions
 import com.swooby.ropeato.LocaleLanguageGroup
@@ -241,10 +246,7 @@ private fun SettingsL1Screen(
         item { ListHeader { Text(stringResource(R.string.settings_title)) } }
 
         item {
-            val subtitle = if (speechRecognizerLocale == null)
-                "${stringResource(R.string.speech_locale_device_default)} [${displayLocale.getDisplayName(displayLocale)}]"
-            else
-                Locale.forLanguageTag(speechRecognizerLocale).getDisplayName(displayLocale)
+            val subtitle = sttLocaleDisplaySubtitle(speechRecognizerLocale, displayLocale)
             Chip(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = onNavigateSpeechLanguages,
@@ -256,14 +258,22 @@ private fun SettingsL1Screen(
                     )
                 },
                 secondaryLabel = {
-                    Text(subtitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        subtitle,
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee(
+                            animationMode = MarqueeAnimationMode.Immediately,
+                            initialDelayMillis = 2_000,
+                            repeatDelayMillis = 1_500,
+                        ),
+                    )
                 },
             )
         }
 
         item {
             val subtitle = when {
-                currentVoice != null -> currentVoice.locale.getDisplayName(displayLocale)
+                currentVoice != null -> ttsVoiceDisplaySubtitle(currentVoice, displayLocale)
                 defaultVoice != null -> "$deviceDefaultLabel [${defaultVoice.locale.getDisplayName(displayLocale)}]"
                 else -> ""
             }
@@ -278,7 +288,15 @@ private fun SettingsL1Screen(
                     )
                 },
                 secondaryLabel = if (subtitle.isNotEmpty()) ({
-                    Text(subtitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        subtitle,
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee(
+                            animationMode = MarqueeAnimationMode.Immediately,
+                            initialDelayMillis = 2_000,
+                            repeatDelayMillis = 1_500,
+                        ),
+                    )
                 }) else null,
             )
         }
@@ -370,11 +388,20 @@ private fun TtsLanguagesScreen(
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
+    // index 0 = header, 1 = Device Default, 2+ = groups
+    val scrollIndex = remember(voiceGroups, selectedVoiceName) {
+        if (selectedVoiceName == null || voiceGroups.isEmpty()) {
+            1
+        } else {
+            val i = voiceGroups.indexOfFirst { g -> g.voices.any { it.name == selectedVoiceName } }
+            if (i >= 0) i + 2 else 1
+        }
+    }
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black),
-        state = rememberScalingLazyListState(),
+        state = rememberScalingLazyListState(initialCenterItemIndex = scrollIndex),
     ) {
         item { ListHeader { Text(stringResource(R.string.settings_section_tts_language)) } }
 
@@ -398,9 +425,15 @@ private fun TtsLanguagesScreen(
         } else {
             items(voiceGroups, key = { it.languageCode }) { group ->
                 val isGroupSelected = group.voices.any { it.name == selectedVoiceName }
+                val variantSubtitle = if (isGroupSelected && selectedVoiceName != null) {
+                    TextToSpeechVoicePreference.voiceEntries(group.voices, displayLocale)
+                        .find { it.isSelected(selectedVoiceName) }
+                        ?.let { ttsVoiceDisplaySubtitle(it.preferredVoice, displayLocale, includeLocale = false) }
+                } else null
                 SelectableChip(
                     label = if (group.hasVariants) "${group.displayLanguage} ›"
                             else group.displayLanguage,
+                    secondaryLabel = variantSubtitle,
                     isSelected = isGroupSelected,
                     onClick = { onGroupSelected(group) },
                 )
@@ -466,7 +499,7 @@ private fun TtsVariantsScreen(
                     contentAlignment = androidx.compose.ui.Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.PlayArrow,
+                        imageVector = Icons.Outlined.PlayCircle,
                         contentDescription = stringResource(R.string.cd_preview_voice),
                         tint = Color.White.copy(alpha = 0.6f),
                         modifier = Modifier.size(20.dp),
@@ -487,20 +520,29 @@ private fun SpeechLanguagesScreen(
     onDeviceDefaultSelected: () -> Unit,
     onGroupSelected: (LocaleLanguageGroup) -> Unit,
 ) {
+    val displayLocale = LocalLocale.current.platformLocale
+    // index 0 = header, 1 = Device Default, 2+ = groups
+    val scrollIndex = remember(localeGroups, speechRecognizerLocale, speechLocalesSupportChecked) {
+        if (speechRecognizerLocale == null || !speechLocalesSupportChecked || localeGroups.languageGroups.isEmpty()) {
+            1
+        } else {
+            val i = localeGroups.languageGroups.indexOfFirst { g -> g.options.any { it.tag == speechRecognizerLocale } }
+            if (i >= 0) i + 2 else 1
+        }
+    }
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black),
-        state = rememberScalingLazyListState(),
+        state = rememberScalingLazyListState(initialCenterItemIndex = scrollIndex),
     ) {
         item { ListHeader { Text(stringResource(R.string.settings_section_stt_language)) } }
 
         // Device Default — always present, no drill-down
         item {
-            val deviceLocaleName = LocalLocale.current.platformLocale.let { it.getDisplayName(it) }
             SelectableChip(
                 label = localeGroups.deviceDefault.displayName,
-                secondaryLabel = deviceLocaleName,
+                secondaryLabel = displayLocale.getDisplayName(displayLocale),
                 isSelected = speechRecognizerLocale == null,
                 onClick = onDeviceDefaultSelected,
             )
@@ -523,9 +565,13 @@ private fun SpeechLanguagesScreen(
         } else {
             items(localeGroups.languageGroups, key = { it.languageCode }) { group ->
                 val isGroupSelected = group.options.any { it.tag == speechRecognizerLocale }
+                val variantSubtitle = if (isGroupSelected && speechRecognizerLocale != null)
+                    sttLocaleGroupSubtitle(speechRecognizerLocale, displayLocale)
+                else null
                 SelectableChip(
                     label = if (group.hasVariants) "${group.displayLanguage} ›"
                             else group.displayLanguage,
+                    secondaryLabel = variantSubtitle,
                     isSelected = isGroupSelected,
                     onClick = { onGroupSelected(group) },
                 )

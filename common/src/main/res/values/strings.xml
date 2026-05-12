@@ -10,11 +10,25 @@
     <string name="status_voice_pitch">Voice pitch %1$.1fx</string>
     <string name="status_volume">Volume %1$d / %2$d</string>
 
-    <!-- Error messages -->
-    <string name="error_no_match">Didn\'t catch that.\nHold the mic to try again.</string>
-    <string name="error_no_speech">No speech heard.\nHold the mic to try again.</string>
-    <string name="error_speech_generic">Speech error %1$s.\nHold the mic to try again.</string>
-    <string name="error_mic_permission">Microphone permission\nis required.</string>
+    <string name="error_mic_insufficient_permission">Microphone permission is required.</string>
+
+    <!-- STT / SpeechRecognizer error messages -->
+    <string name="error_stt_network_timeout">Network timed out.\nTry again.</string>
+    <string name="error_stt_network">Network unavailable.\nTry again.</string>
+    <string name="error_stt_audio">Microphone error.\nTry again.</string>
+    <string name="error_stt_server">Server error.\nTry again.</string>
+    <string name="error_stt_client">Other client side errors.\nTry again.</string>
+    <string name="error_stt_speech_timeout">No speech heard.\nTry again.</string>
+    <string name="error_stt_no_match">Didn\'t catch that.\nTry again.</string>
+    <string name="error_stt_recognizer_busy">Recognizer busy.\nTry again.</string>
+    <string name="error_stt_insufficient_permissions">Insufficient permissions.\nCheck speech settings.</string>
+    <string name="error_stt_too_many_requests">Too many requests.\nTry again.</string>
+    <string name="error_stt_server_disconnected">Server disconnected.\nTry again.</string>
+    <string name="error_stt_language_not_supported">Language not supported.\nCheck speech settings.</string>
+    <string name="error_stt_language_unavailable">Language unavailable.\nCheck speech settings.</string>
+    <string name="error_stt_cannot_check_support">The service does not allow to check for support.\nCheck speech settings.</string>
+    <string name="error_stt_cannot_listen_to_download_events">The service does not support listening to model downloads events.\nCheck speech settings.</string>
+    <string name="error_stt_generic">Speech error %1$s.\nTry again.</string>
     <string name="error_tts_init_failed">TextToSpeech init failed.</string>
     <string name="error_tts_emulator_hint">TTS may not work\nin an emulator.</string>
 

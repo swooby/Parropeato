@@ -191,7 +191,8 @@ abstract class BaseMainActivity : ComponentActivity() {
                 val shouldRetry = isPushToTalkPressed && when (error) {
                     SpeechRecognizer.ERROR_NO_MATCH,
                     SpeechRecognizer.ERROR_SPEECH_TIMEOUT,
-                    SpeechRecognizer.ERROR_CLIENT -> true
+                    SpeechRecognizer.ERROR_CLIENT,
+                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> true
                     else -> false
                 }
                 if (shouldRetry) {
@@ -208,9 +209,22 @@ abstract class BaseMainActivity : ComponentActivity() {
                 resetSpeechRecognizer()
                 viewModel.state = RopeatoViewModel.State.Idle
                 viewModel.text = when (error) {
-                    SpeechRecognizer.ERROR_NO_MATCH -> getString(R.string.error_no_match)
-                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> getString(R.string.error_no_speech)
-                    else -> getString(R.string.error_speech_generic, speechRecognizerErrorToString(error))
+                    SpeechRecognizer.ERROR_NETWORK_TIMEOUT       -> getString(R.string.error_stt_network_timeout)
+                    SpeechRecognizer.ERROR_NETWORK               -> getString(R.string.error_stt_network)
+                    SpeechRecognizer.ERROR_AUDIO                 -> getString(R.string.error_stt_audio)
+                    SpeechRecognizer.ERROR_SERVER                -> getString(R.string.error_stt_server)
+                    SpeechRecognizer.ERROR_CLIENT                -> getString(R.string.error_stt_client)
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT        -> getString(R.string.error_stt_speech_timeout)
+                    SpeechRecognizer.ERROR_NO_MATCH              -> getString(R.string.error_stt_no_match)
+                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY       -> getString(R.string.error_stt_recognizer_busy)
+                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> getString(R.string.error_stt_insufficient_permissions)
+                    SpeechRecognizer.ERROR_TOO_MANY_REQUESTS     -> getString(R.string.error_stt_too_many_requests)
+                    SpeechRecognizer.ERROR_SERVER_DISCONNECTED   -> getString(R.string.error_stt_server_disconnected)
+                    SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED -> getString(R.string.error_stt_language_not_supported)
+                    SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE  -> getString(R.string.error_stt_language_unavailable)
+                    SpeechRecognizer.ERROR_CANNOT_CHECK_SUPPORT  -> getString(R.string.error_stt_cannot_check_support)
+                    SpeechRecognizer.ERROR_CANNOT_LISTEN_TO_DOWNLOAD_EVENTS  -> getString(R.string.error_stt_cannot_listen_to_download_events)
+                    else -> getString(R.string.error_stt_generic, speechRecognizerErrorToString(error))
                 }
             }
 
@@ -242,7 +256,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 val confidenceScores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES) ?: floatArrayOf()
                 if (recognitions.isEmpty()) {
                     viewModel.state = RopeatoViewModel.State.Idle
-                    viewModel.text = getString(R.string.error_no_match)
+                    viewModel.text = getString(R.string.error_stt_no_match)
                     resetSpeechRecognizer()
                     return
                 }
@@ -380,7 +394,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         } else if (!isGranted) {
             pendingStartAfterPermission = false
             viewModel.state = RopeatoViewModel.State.Idle
-            viewModel.text = getString(R.string.error_mic_permission)
+            viewModel.text = getString(R.string.error_mic_insufficient_permission)
         } else {
             viewModel.state = RopeatoViewModel.State.Idle
             viewModel.text = getString(R.string.status_hold_mic_to_talk)
@@ -477,7 +491,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             resetSpeechRecognizer()
         } else {
             viewModel.state = RopeatoViewModel.State.Idle
-            viewModel.text = getString(R.string.error_no_match)
+            viewModel.text = getString(R.string.error_stt_no_match)
         }
         FooLog.i(TAG, "-onPushToTalkReleased()")
     }

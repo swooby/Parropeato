@@ -2,7 +2,9 @@ package com.swooby.ropeato.presentation
 
 import android.speech.tts.Voice
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +25,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -52,6 +56,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.swooby.ropeato.ACCENT_COLOR_OPTIONS
+import com.swooby.ropeato.sttLocaleDisplaySubtitle
+import com.swooby.ropeato.sttLocaleGroupSubtitle
+import com.swooby.ropeato.ttsVoiceDisplaySubtitle
 import com.swooby.ropeato.voiceSubtitle
 import com.swooby.ropeato.GroupedLocaleOptions
 import com.swooby.ropeato.LocaleLanguageGroup
@@ -256,20 +263,16 @@ private fun SettingsL1Screen(
             contentPadding = PaddingValues(bottom = 24.dp),
         ) {
             item {
-                val subtitle = if (speechRecognizerLocale == null)
-                    "${stringResource(R.string.speech_locale_device_default)} [${displayLocale.getDisplayName(displayLocale)}]"
-                else
-                    Locale.forLanguageTag(speechRecognizerLocale).getDisplayName(displayLocale)
                 DrillDownRow(
                     label = stringResource(R.string.settings_section_stt_language),
-                    value = subtitle,
+                    value = sttLocaleDisplaySubtitle(speechRecognizerLocale, displayLocale),
                     onClick = onNavigateSpeechLanguages,
                 )
             }
             item { HorizontalDivider(color = Color.White.copy(alpha = 0.08f)) }
             item {
                 val subtitle = when {
-                    currentVoice != null -> currentVoice.locale.getDisplayName(displayLocale)
+                    currentVoice != null -> ttsVoiceDisplaySubtitle(currentVoice, displayLocale)
                     defaultVoice != null -> "$deviceDefaultLabel [${defaultVoice.locale.getDisplayName(displayLocale)}]"
                     else -> stringResource(R.string.settings_tts_initializing)
                 }
@@ -313,10 +316,25 @@ private fun TtsLanguagesScreen(
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
+    // index 0 = Device Default, 1+ = groups
+    val scrollIndex = remember(voiceGroups, selectedVoiceName) {
+        if (selectedVoiceName == null || voiceGroups.isEmpty()) {
+            0
+        } else {
+            val i = voiceGroups.indexOfFirst { g -> g.voices.any { it.name == selectedVoiceName } }
+            if (i >= 0) i + 1 else 0
+        }
+    }
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(Unit) { lazyListState.scrollToItem(scrollIndex) }
     Column(modifier = Modifier.fillMaxSize()) {
         ScreenHeader(title = stringResource(R.string.settings_section_tts_language), onBack = onBack)
         HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 24.dp),
+        ) {
             // Device Default — always first, directly selectable
             item {
                 SelectableRow(
@@ -332,9 +350,16 @@ private fun TtsLanguagesScreen(
                 item { StatusText(stringResource(R.string.settings_tts_initializing)) }
             } else {
                 items(voiceGroups, key = { it.languageCode }) { group ->
+                    val isGroupSelected = group.voices.any { it.name == selectedVoiceName }
+                    val variantSubtitle = if (isGroupSelected && selectedVoiceName != null) {
+                        TextToSpeechVoicePreference.voiceEntries(group.voices, displayLocale)
+                            .find { it.isSelected(selectedVoiceName) }
+                            ?.let { ttsVoiceDisplaySubtitle(it.preferredVoice, displayLocale, includeLocale = false) }
+                    } else null
                     SelectableRow(
                         label = group.displayLanguage,
-                        isSelected = group.voices.any { it.name == selectedVoiceName },
+                        subtitle = variantSubtitle,
+                        isSelected = isGroupSelected,
                         hasChildren = group.hasVariants,
                         onClick = { onGroupSelected(group) },
                     )
@@ -409,18 +434,31 @@ private fun SpeechLanguagesScreen(
     onDeviceDefaultSelected: () -> Unit,
     onGroupSelected: (LocaleLanguageGroup) -> Unit,
 ) {
+    val displayLocale = LocalLocale.current.platformLocale
+    // index 0 = Device Default, 1+ = groups
+    val scrollIndex = remember(localeGroups, speechRecognizerLocale, speechLocalesSupportChecked) {
+        if (speechRecognizerLocale == null || !speechLocalesSupportChecked || localeGroups.languageGroups.isEmpty()) {
+            0
+        } else {
+            val i = localeGroups.languageGroups.indexOfFirst { g -> g.options.any { it.tag == speechRecognizerLocale } }
+            if (i >= 0) i + 1 else 0
+        }
+    }
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(Unit) { lazyListState.scrollToItem(scrollIndex) }
     Column(modifier = Modifier.fillMaxSize()) {
         ScreenHeader(title = stringResource(R.string.settings_section_stt_language), onBack = onBack)
         HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 24.dp),
+        ) {
             // Device Default — always first, directly selectable
             item {
-                val deviceLocaleName = LocalLocale.current.platformLocale.let {
-                    it.getDisplayName(it)
-                }
                 SelectableRow(
                     label = localeGroups.deviceDefault.displayName,
-                    subtitle = deviceLocaleName,
+                    subtitle = displayLocale.getDisplayName(displayLocale),
                     isSelected = speechRecognizerLocale == null,
                     onClick = onDeviceDefaultSelected,
                 )
@@ -433,9 +471,14 @@ private fun SpeechLanguagesScreen(
                 item { StatusText(stringResource(R.string.settings_speech_none_found)) }
             } else {
                 items(localeGroups.languageGroups, key = { it.languageCode }) { group ->
+                    val isGroupSelected = group.options.any { it.tag == speechRecognizerLocale }
+                    val variantSubtitle = if (isGroupSelected && speechRecognizerLocale != null)
+                        sttLocaleGroupSubtitle(speechRecognizerLocale, displayLocale)
+                    else null
                     SelectableRow(
                         label = group.displayLanguage,
-                        isSelected = group.options.any { it.tag == speechRecognizerLocale },
+                        subtitle = variantSubtitle,
+                        isSelected = isGroupSelected,
                         hasChildren = group.hasVariants,
                         onClick = { onGroupSelected(group) },
                     )
@@ -522,7 +565,17 @@ private fun DrillDownRow(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(label, color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
-            Text(value, color = Color.White.copy(alpha = 0.6f), fontSize = 13.sp)
+            Text(
+                value,
+                color = Color.White.copy(alpha = 0.6f),
+                fontSize = 13.sp,
+                maxLines = 1,
+                modifier = Modifier.basicMarquee(
+                    animationMode = MarqueeAnimationMode.Immediately,
+                    initialDelayMillis = 2_000,
+                    repeatDelayMillis = 1_500,
+                ),
+            )
         }
         Text("›", color = Color.White.copy(alpha = 0.4f), fontSize = 22.sp)
     }

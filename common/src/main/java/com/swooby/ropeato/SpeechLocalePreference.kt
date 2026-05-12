@@ -1,5 +1,8 @@
 package com.swooby.ropeato
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.swooby.ropeato.common.R
 import java.util.Locale
 
 data class SpeechLocaleOption(
@@ -19,6 +22,28 @@ data class GroupedLocaleOptions(
     val deviceDefault: SpeechLocaleOption,
     val languageGroups: List<LocaleLanguageGroup>,
 )
+
+/**
+ * Human-readable L1 subtitle for the current STT locale setting.
+ * Returns e.g. "Device Default [English (United States)]" or "English (United States)".
+ */
+@Composable
+fun sttLocaleDisplaySubtitle(speechRecognizerLocale: String?, displayLocale: Locale): String {
+    val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
+    return if (speechRecognizerLocale == null) {
+        "$deviceDefaultLabel [${displayLocale.getDisplayName(displayLocale)}]"
+    } else {
+        Locale.forLanguageTag(speechRecognizerLocale).getDisplayName(displayLocale)
+    }
+}
+
+/**
+ * Country label for a selected STT locale within a language group.
+ * Returns e.g. "United States" for "en-US".
+ */
+fun sttLocaleGroupSubtitle(tag: String, displayLocale: Locale): String =
+    Locale.forLanguageTag(tag).getDisplayCountry(displayLocale)
+        .ifEmpty { Locale.forLanguageTag(tag).getDisplayName(displayLocale) }
 
 object SpeechLocalePreference {
     val CANDIDATES: Set<String> = setOf(
