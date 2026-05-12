@@ -35,10 +35,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeDown
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +57,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -77,10 +75,12 @@ import com.swooby.ropeato.ReflectionUtils.valueToString
 import com.swooby.ropeato.common.BuildConfig
 import com.swooby.ropeato.common.R
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 abstract class BaseMainActivity : ComponentActivity() {
     companion object {
@@ -143,6 +143,8 @@ abstract class BaseMainActivity : ComponentActivity() {
         viewModel.voiceSpeed = settings.ttsVoiceSpeed
         viewModel.voicePitch = settings.ttsPitch
         viewModel.speechRecognizerLocale = settings.speechRecognizerLocale
+        viewModel.cuteIcons = settings.cuteIcons
+        viewModel.accentColor = settings.accentColor
         setupUI()
         initTextToSpeech()
         initSpeechRecognizer()
@@ -539,6 +541,16 @@ abstract class BaseMainActivity : ComponentActivity() {
         settings.speechRecognizerLocale = locale
     }
 
+    protected fun onSettingsCuteIconsChanged(value: Boolean) {
+        viewModel.cuteIcons = value
+        settings.cuteIcons = value
+    }
+
+    protected fun onSettingsAccentColorChanged(argb: Int) {
+        viewModel.accentColor = argb
+        settings.accentColor = argb
+    }
+
     protected fun openTtsSettings() {
         try {
             startActivity(Intent("com.android.settings.TTS_SETTINGS"))
@@ -691,7 +703,7 @@ private fun RopeatoApp(
 ) {
     MaterialTheme(
         colorScheme = darkColorScheme(
-            primary = RopeatoPrimary,
+            primary = Color(viewModel.accentColor),
             background = Color.Black,
         ),
     ) {
@@ -722,22 +734,15 @@ private fun RopeatoApp(
                     modifier = Modifier.align(Alignment.Center),
                     contentAlignment = Alignment.Center,
                 ) {
-                    VolumeControls(
+                    AllArcControls(
                         modifier = Modifier.size(controlsSize),
                         volumePercent = viewModel.volumePercent,
-                        scale = controlScale,
-                        onVolumeChange = onVolumeChange,
-                    )
-                    VoiceSpeedControls(
-                        modifier = Modifier.size(controlsSize),
                         voiceSpeed = viewModel.voiceSpeed,
-                        scale = controlScale,
-                        onVoiceSpeedChange = onVoiceSpeedChange,
-                    )
-                    VoicePitchControls(
-                        modifier = Modifier.size(controlsSize),
                         voicePitch = viewModel.voicePitch,
                         scale = controlScale,
+                        cuteIcons = viewModel.cuteIcons,
+                        onVolumeChange = onVolumeChange,
+                        onVoiceSpeedChange = onVoiceSpeedChange,
                         onVoicePitchChange = onVoicePitchChange,
                     )
                     PushToTalkButton(
@@ -809,315 +814,397 @@ private fun WatchFaceBorder(
     }
 }
 
+// Returns how far normAngle is clockwise from startAngleDegrees, in [0°, 360°).
+private fun arcAngularOffset(normAngle: Float, startAngleDegrees: Float): Float {
+    val normStart = ((startAngleDegrees % 360f) + 360f) % 360f
+    return ((normAngle - normStart + 360f) % 360f)
+}
+
+// Identifies which arc curve the touch point lands on.
+// Requires BOTH: radial proximity to the arc's drawn radius AND angular position within the sweep.
+// Volume and Pitch sit at outerR; Speed sits at innerR (inset by speedExtraInset).
+// All three composables call this so the radius-proximity tiebreaker works for the tiny
+// overlap zones near the arc endpoints.
+private enum class ActiveArc { NONE, VOLUME, SPEED, PITCH }
+
+private fun identifyTouchedArc(
+    x: Float, y: Float, size: IntSize,
+    strokeWidthF: Float, radiusInsetF: Float, speedExtraInsetF: Float,
+): ActiveArc {
+    val cx = size.width / 2f
+    val cy = size.height / 2f
+    val dx = x - cx
+    val dy = y - cy
+    val r = sqrt(dx * dx + dy * dy)
+    val rawAngle = atan2(dy, dx) * 180f / PI.toFloat()
+    val normAngle = ((rawAngle % 360f) + 360f) % 360f
+    val outerR = size.width / 2f - strokeWidthF - radiusInsetF
+    val innerR = outerR - speedExtraInsetF
+    val hitBand = strokeWidthF * 2f
+    val nearOuter = abs(r - outerR) <= hitBand
+    val nearInner = abs(r - innerR) <= hitBand
+    val inVolumeAngle = arcAngularOffset(normAngle, VOLUME_ARC_START_ANGLE_DEGREES) <= VOLUME_ARC_SWEEP_DEGREES
+    val inSpeedAngle = arcAngularOffset(normAngle, VOICE_SPEED_ARC_START_ANGLE_DEGREES) <= VOICE_SPEED_ARC_SWEEP_DEGREES
+    val inPitchAngle = arcAngularOffset(normAngle, VOICE_PITCH_ARC_START_ANGLE_DEGREES) <= VOICE_PITCH_ARC_SWEEP_DEGREES
+    val hitVolume = nearOuter && inVolumeAngle
+    val hitSpeed = nearInner && inSpeedAngle
+    val hitPitch = nearOuter && inPitchAngle
+    return when {
+        !hitVolume && !hitSpeed && !hitPitch -> ActiveArc.NONE
+        hitVolume && hitSpeed -> if (abs(r - outerR) <= abs(r - innerR)) ActiveArc.VOLUME else ActiveArc.SPEED
+        hitSpeed && hitPitch -> if (abs(r - innerR) <= abs(r - outerR)) ActiveArc.SPEED else ActiveArc.PITCH
+        hitVolume -> ActiveArc.VOLUME
+        hitSpeed -> ActiveArc.SPEED
+        else -> ActiveArc.PITCH
+    }
+}
+
+// Returns true if (x, y) is within iconSizeF pixels of the icon centre at (angleDeg, radius).
+private fun hitsIcon(
+    x: Float, y: Float, size: IntSize,
+    angleDeg: Float, radius: Float, iconSizeF: Float,
+): Boolean {
+    val cx = size.width / 2f
+    val cy = size.height / 2f
+    val rad = Math.toRadians(angleDeg.toDouble())
+    val icx = cx + cos(rad).toFloat() * radius
+    val icy = cy + sin(rad).toFloat() * radius
+    val dx = x - icx
+    val dy = y - icy
+    return sqrt(dx * dx + dy * dy) <= iconSizeF
+}
+
+@Composable
+private fun AllArcControls(
+    volumePercent: Float,
+    voiceSpeed: Float,
+    voicePitch: Float,
+    scale: Float,
+    cuteIcons: Boolean,
+    onVolumeChange: (Float) -> Unit,
+    onVoiceSpeedChange: (Float) -> Unit,
+    onVoicePitchChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier) {
+        VolumeArcControl(
+            modifier = Modifier.fillMaxSize(),
+            volumePercent = volumePercent,
+            scale = scale,
+            cuteIcons = cuteIcons,
+            onVolumeChange = onVolumeChange,
+        )
+        VoiceSpeedArcControl(
+            modifier = Modifier.fillMaxSize(),
+            voiceSpeed = voiceSpeed,
+            scale = scale,
+            cuteIcons = cuteIcons,
+            onVoiceSpeedChange = onVoiceSpeedChange,
+        )
+        VoicePitchArcControl(
+            modifier = Modifier.fillMaxSize(),
+            voicePitch = voicePitch,
+            scale = scale,
+            cuteIcons = cuteIcons,
+            onVoicePitchChange = onVoicePitchChange,
+        )
+    }
+}
+
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-private fun VolumeControls(
+private fun VolumeArcControl(
     volumePercent: Float,
     scale: Float,
+    cuteIcons: Boolean,
     onVolumeChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val primary = MaterialTheme.colorScheme.primary
-    val track = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
-    val boundedVolume = volumePercent.coerceIn(0f, 1f)
+    val track = primary.copy(alpha = 0.22f)
     val density = LocalDensity.current
+    val view = LocalView.current
+    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
+    val isTracking = remember { mutableStateOf(false) }
+
+    val boundedVolume = volumePercent.coerceIn(0f, 1f)
     val iconSize = 24.dp * scale
     val strokeWidth = 8.dp * scale
     val radiusInset = 5.dp * scale
+    val speedExtraInset = VOICE_SPEED_ARC_EXTRA_INSET_DP.dp * scale  // needed for arc disambiguation
+
+    val iconSizeF = with(density) { iconSize.toPx() }
     val iconSizePx = with(density) { iconSize.roundToPx() }
+    val strokeWidthF = with(density) { strokeWidth.toPx() }
     val strokeWidthPx = with(density) { strokeWidth.roundToPx() }
+    val radiusInsetF = with(density) { radiusInset.toPx() }
     val radiusInsetPx = with(density) { radiusInset.roundToPx() }
+    val speedExtraInsetF = with(density) { speedExtraInset.toPx() }
+
+    val maxIconRes = if (cuteIcons) R.drawable.volume_max_elephant_24px else R.drawable.volume_up
+    val minIconRes = if (cuteIcons) R.drawable.volume_min_ladybug_24px else R.drawable.volume_down
 
     Box(
         modifier = modifier
             .onSizeChanged { layoutSize.value = it }
             .pointerInteropFilter { event ->
                 when (event.actionMasked) {
-                    MotionEvent.ACTION_DOWN,
-                    MotionEvent.ACTION_MOVE -> {
-                        if (event.x < layoutSize.value.width * 0.62f) return@pointerInteropFilter false
+                    MotionEvent.ACTION_DOWN -> {
                         val size = layoutSize.value
-                        if (size.width > 0 && size.height > 0) {
-                            onVolumeChange(volumePercentFromArcPosition(event.x, event.y, size))
+                        if (size.width <= 0 || size.height <= 0) return@pointerInteropFilter false
+                        val outerR = size.width / 2f - strokeWidthF - radiusInsetF
+                        if (hitsIcon(event.x, event.y, size, VOLUME_ICON_MAX_ANGLE_DEGREES, outerR, iconSizeF)) {
+                            isTracking.value = true
+                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            onVolumeChange(1f)
+                            return@pointerInteropFilter true
                         }
+                        if (hitsIcon(event.x, event.y, size, VOLUME_ICON_MIN_ANGLE_DEGREES, outerR, iconSizeF)) {
+                            isTracking.value = true
+                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            onVolumeChange(0f)
+                            return@pointerInteropFilter true
+                        }
+                        if (identifyTouchedArc(event.x, event.y, size, strokeWidthF, radiusInsetF, speedExtraInsetF) != ActiveArc.VOLUME) {
+                            return@pointerInteropFilter false
+                        }
+                        isTracking.value = true
+                        view.parent.requestDisallowInterceptTouchEvent(true)
+                        onVolumeChange(arcPercentFromPosition(event.x, event.y, size, VOLUME_ARC_START_ANGLE_DEGREES, VOLUME_ARC_SWEEP_DEGREES, reverse = true))
                         true
                     }
-                    else -> true
+                    MotionEvent.ACTION_MOVE -> {
+                        if (!isTracking.value) return@pointerInteropFilter false
+                        onVolumeChange(arcPercentFromPosition(event.x, event.y, layoutSize.value, VOLUME_ARC_START_ANGLE_DEGREES, VOLUME_ARC_SWEEP_DEGREES, reverse = true))
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        val wasTracking = isTracking.value
+                        if (wasTracking) {
+                            isTracking.value = false
+                            view.parent.requestDisallowInterceptTouchEvent(false)
+                        }
+                        wasTracking
+                    }
+                    else -> false
                 }
             },
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidthPxFloat = strokeWidth.toPx()
-            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx()
-            val center = Offset(size.width / 2f, size.height / 2f)
-            val oval = Rect(
-                left = center.x - radius,
-                top = center.y - radius,
-                right = center.x + radius,
-                bottom = center.y + radius,
-            )
-            drawArc(
-                color = track,
-                startAngle = VOLUME_ARC_MAX_ANGLE_DEGREES,
-                sweepAngle = VOLUME_ARC_SWEEP_DEGREES,
-                useCenter = false,
-                topLeft = oval.topLeft,
-                size = oval.size,
-                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
-            )
-
-            val thumbAngle = Math.toRadians((VOLUME_ARC_MIN_ANGLE_DEGREES - VOLUME_ARC_SWEEP_DEGREES * boundedVolume).toDouble())
-            val thumbCenter = Offset(
-                x = center.x + cos(thumbAngle).toFloat() * radius,
-                y = center.y + sin(thumbAngle).toFloat() * radius,
-            )
-            drawCircle(
-                color = primary.copy(alpha = 0.18f),
-                radius = (17.dp * scale).toPx(),
-                center = thumbCenter,
-            )
-            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumbCenter)
+            val swPx = strokeWidth.toPx()
+            val outerR = size.width / 2f - swPx - radiusInset.toPx()
+            val c = Offset(size.width / 2f, size.height / 2f)
+            val ovalTl = Offset(c.x - outerR, c.y - outerR)
+            val ovalSz = androidx.compose.ui.geometry.Size(outerR * 2, outerR * 2)
+            drawArc(color = track, startAngle = VOLUME_ARC_START_ANGLE_DEGREES, sweepAngle = VOLUME_ARC_SWEEP_DEGREES, useCenter = false, topLeft = ovalTl, size = ovalSz, style = Stroke(width = swPx, cap = StrokeCap.Round))
+            val thumbDeg = VOLUME_ARC_START_ANGLE_DEGREES + VOLUME_ARC_SWEEP_DEGREES * (1f - boundedVolume)
+            val thumbRad = Math.toRadians(thumbDeg.toDouble())
+            val thumb = Offset(c.x + cos(thumbRad).toFloat() * outerR, c.y + sin(thumbRad).toFloat() * outerR)
+            drawCircle(color = primary.copy(alpha = 0.18f), radius = (17.dp * scale).toPx(), center = thumb)
+            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumb)
         }
-        EdgeControlIcon(
-            modifier = Modifier.offset {
-                volumeIconOffset(
-                    size = layoutSize.value,
-                    angleDegrees = VOLUME_ICON_MAX_ANGLE_DEGREES,
-                    iconSizePx = iconSizePx,
-                    strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx,
-                )
-            },
-            icon = Icons.AutoMirrored.Filled.VolumeUp,
-            contentDescription = stringResource(R.string.cd_volume_max),
-            size = iconSize,
-        )
-        EdgeControlIcon(
-            modifier = Modifier.offset {
-                volumeIconOffset(
-                    size = layoutSize.value,
-                    angleDegrees = VOLUME_ICON_MIN_ANGLE_DEGREES,
-                    iconSizePx = iconSizePx,
-                    strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx,
-                )
-            },
-            icon = Icons.AutoMirrored.Filled.VolumeDown,
-            contentDescription = stringResource(R.string.cd_volume_min),
-            size = iconSize,
-        )
+        EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOLUME_ICON_MAX_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(maxIconRes), contentDescription = stringResource(R.string.cd_volume_max), size = iconSize)
+        EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOLUME_ICON_MIN_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(minIconRes), contentDescription = stringResource(R.string.cd_volume_min), size = iconSize)
     }
 }
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-private fun VoiceSpeedControls(
+private fun VoiceSpeedArcControl(
     voiceSpeed: Float,
     scale: Float,
+    cuteIcons: Boolean,
     onVoiceSpeedChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val primary = MaterialTheme.colorScheme.primary
-    val track = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
-    val boundedVoiceSpeed = voiceSpeed.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX)
-    val voiceSpeedPercent = (boundedVoiceSpeed - VOICE_SPEED_MIN) / (VOICE_SPEED_MAX - VOICE_SPEED_MIN)
+    val track = primary.copy(alpha = 0.22f)
     val density = LocalDensity.current
+    val view = LocalView.current
+    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
+    val isTracking = remember { mutableStateOf(false) }
+
+    val speedPercent = (voiceSpeed.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX) - VOICE_SPEED_MIN) / (VOICE_SPEED_MAX - VOICE_SPEED_MIN)
     val iconSize = 24.dp * scale
     val strokeWidth = 8.dp * scale
     val radiusInset = 5.dp * scale
-    val speedExtraInset = 26.dp * scale
+    val speedExtraInset = VOICE_SPEED_ARC_EXTRA_INSET_DP.dp * scale
+
+    val iconSizeF = with(density) { iconSize.toPx() }
     val iconSizePx = with(density) { iconSize.roundToPx() }
+    val strokeWidthF = with(density) { strokeWidth.toPx() }
     val strokeWidthPx = with(density) { strokeWidth.roundToPx() }
+    val radiusInsetF = with(density) { radiusInset.toPx() }
     val radiusInsetPx = with(density) { radiusInset.roundToPx() }
+    val speedExtraInsetF = with(density) { speedExtraInset.toPx() }
     val speedExtraInsetPx = with(density) { speedExtraInset.roundToPx() }
+
+    val maxIconRes = if (cuteIcons) R.drawable.speed_max_rabbit_24px else R.drawable.speed_24px
+    val minIconRes = if (cuteIcons) R.drawable.speed_min_turtle_24px else R.drawable.speed_2_24px
 
     Box(
         modifier = modifier
             .onSizeChanged { layoutSize.value = it }
             .pointerInteropFilter { event ->
                 when (event.actionMasked) {
-                    MotionEvent.ACTION_DOWN,
-                    MotionEvent.ACTION_MOVE -> {
+                    MotionEvent.ACTION_DOWN -> {
                         val size = layoutSize.value
                         if (size.width <= 0 || size.height <= 0) return@pointerInteropFilter false
-                        val cx = size.width / 2f
-                        val cy = size.height / 2f
-                        val rawAngle = atan2(event.y - cy, event.x - cx) * 180f / PI.toFloat()
-                        // Only accept touches within the speed arc zone: -140° to -40° (top center)
-                        if (rawAngle < VOICE_SPEED_ARC_MIN_ANGLE_DEGREES || rawAngle > VOICE_SPEED_ARC_MAX_ANGLE_DEGREES) {
+                        val innerR = size.width / 2f - strokeWidthF - radiusInsetF - speedExtraInsetF
+                        if (hitsIcon(event.x, event.y, size, VOICE_SPEED_ICON_MAX_ANGLE_DEGREES, innerR, iconSizeF)) {
+                            isTracking.value = true
+                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            onVoiceSpeedChange(VOICE_SPEED_MAX)
+                            return@pointerInteropFilter true
+                        }
+                        if (hitsIcon(event.x, event.y, size, VOICE_SPEED_ICON_MIN_ANGLE_DEGREES, innerR, iconSizeF)) {
+                            isTracking.value = true
+                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            onVoiceSpeedChange(VOICE_SPEED_MIN)
+                            return@pointerInteropFilter true
+                        }
+                        if (identifyTouchedArc(event.x, event.y, size, strokeWidthF, radiusInsetF, speedExtraInsetF) != ActiveArc.SPEED) {
                             return@pointerInteropFilter false
                         }
-                        onVoiceSpeedChange(voiceSpeedFromArcPosition(event.x, event.y, size))
+                        isTracking.value = true
+                        view.parent.requestDisallowInterceptTouchEvent(true)
+                        val pct = arcPercentFromPosition(event.x, event.y, size, VOICE_SPEED_ARC_START_ANGLE_DEGREES, VOICE_SPEED_ARC_SWEEP_DEGREES)
+                        onVoiceSpeedChange(VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * pct)
                         true
                     }
-                    else -> true
+                    MotionEvent.ACTION_MOVE -> {
+                        if (!isTracking.value) return@pointerInteropFilter false
+                        val pct = arcPercentFromPosition(event.x, event.y, layoutSize.value, VOICE_SPEED_ARC_START_ANGLE_DEGREES, VOICE_SPEED_ARC_SWEEP_DEGREES)
+                        onVoiceSpeedChange(VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * pct)
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        val wasTracking = isTracking.value
+                        if (wasTracking) {
+                            isTracking.value = false
+                            view.parent.requestDisallowInterceptTouchEvent(false)
+                        }
+                        wasTracking
+                    }
+                    else -> false
                 }
             },
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidthPxFloat = strokeWidth.toPx()
-            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx() - speedExtraInset.toPx()
-            val center = Offset(size.width / 2f, size.height / 2f)
-            val oval = Rect(
-                left = center.x - radius,
-                top = center.y - radius,
-                right = center.x + radius,
-                bottom = center.y + radius,
-            )
-            drawArc(
-                color = track,
-                startAngle = VOICE_SPEED_ARC_MIN_ANGLE_DEGREES,
-                sweepAngle = VOICE_SPEED_ARC_SWEEP_DEGREES,
-                useCenter = false,
-                topLeft = oval.topLeft,
-                size = oval.size,
-                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
-            )
-
-            val thumbAngle = Math.toRadians((VOICE_SPEED_ARC_MIN_ANGLE_DEGREES + VOICE_SPEED_ARC_SWEEP_DEGREES * voiceSpeedPercent).toDouble())
-            val thumbCenter = Offset(
-                x = center.x + cos(thumbAngle).toFloat() * radius,
-                y = center.y + sin(thumbAngle).toFloat() * radius,
-            )
-            drawCircle(
-                color = primary.copy(alpha = 0.18f),
-                radius = (17.dp * scale).toPx(),
-                center = thumbCenter,
-            )
-            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumbCenter)
+            val swPx = strokeWidth.toPx()
+            val outerR = size.width / 2f - swPx - radiusInset.toPx()
+            val innerR = outerR - speedExtraInset.toPx()
+            val c = Offset(size.width / 2f, size.height / 2f)
+            val ovalTl = Offset(c.x - innerR, c.y - innerR)
+            val ovalSz = androidx.compose.ui.geometry.Size(innerR * 2, innerR * 2)
+            drawArc(color = track, startAngle = VOICE_SPEED_ARC_START_ANGLE_DEGREES, sweepAngle = VOICE_SPEED_ARC_SWEEP_DEGREES, useCenter = false, topLeft = ovalTl, size = ovalSz, style = Stroke(width = swPx, cap = StrokeCap.Round))
+            val thumbDeg = VOICE_SPEED_ARC_START_ANGLE_DEGREES + VOICE_SPEED_ARC_SWEEP_DEGREES * speedPercent
+            val thumbRad = Math.toRadians(thumbDeg.toDouble())
+            val thumb = Offset(c.x + cos(thumbRad).toFloat() * innerR, c.y + sin(thumbRad).toFloat() * innerR)
+            drawCircle(color = primary.copy(alpha = 0.18f), radius = (17.dp * scale).toPx(), center = thumb)
+            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumb)
         }
-        EdgeControlIcon(
-            modifier = Modifier.offset {
-                volumeIconOffset(
-                    size = layoutSize.value,
-                    angleDegrees = VOICE_SPEED_ICON_MAX_ANGLE_DEGREES,
-                    iconSizePx = iconSizePx,
-                    strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx + speedExtraInsetPx,
-                )
-            },
-            icon = Icons.Filled.Speed,
-            contentDescription = stringResource(R.string.cd_voice_speed_max),
-            size = iconSize,
-        )
-        EdgeControlIcon(
-            modifier = Modifier.offset {
-                volumeIconOffset(
-                    size = layoutSize.value,
-                    angleDegrees = VOICE_SPEED_ICON_MIN_ANGLE_DEGREES,
-                    iconSizePx = iconSizePx,
-                    strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx + speedExtraInsetPx,
-                )
-            },
-            icon = ImageVector.vectorResource(id = R.drawable.speed_2_24px),
-            contentDescription = stringResource(R.string.cd_voice_speed_min),
-            size = iconSize,
-        )
+        EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_SPEED_ICON_MAX_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx + speedExtraInsetPx) }, icon = ImageVector.vectorResource(maxIconRes), contentDescription = stringResource(R.string.cd_voice_speed_max), size = iconSize)
+        EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_SPEED_ICON_MIN_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx + speedExtraInsetPx) }, icon = ImageVector.vectorResource(minIconRes), contentDescription = stringResource(R.string.cd_voice_speed_min), size = iconSize)
     }
 }
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-private fun VoicePitchControls(
+private fun VoicePitchArcControl(
     voicePitch: Float,
     scale: Float,
+    cuteIcons: Boolean,
     onVoicePitchChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val primary = MaterialTheme.colorScheme.primary
-    val track = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
-    val boundedVoicePitch = voicePitch.coerceIn(VOICE_PITCH_MIN, VOICE_PITCH_MAX)
-    val voicePitchPercent = (boundedVoicePitch - VOICE_PITCH_MIN) / (VOICE_PITCH_MAX - VOICE_PITCH_MIN)
+    val track = primary.copy(alpha = 0.22f)
     val density = LocalDensity.current
+    val view = LocalView.current
+    val layoutSize = remember { mutableStateOf(IntSize.Zero) }
+    val isTracking = remember { mutableStateOf(false) }
+
+    val pitchPercent = (voicePitch.coerceIn(VOICE_PITCH_MIN, VOICE_PITCH_MAX) - VOICE_PITCH_MIN) / (VOICE_PITCH_MAX - VOICE_PITCH_MIN)
     val iconSize = 24.dp * scale
     val strokeWidth = 8.dp * scale
     val radiusInset = 5.dp * scale
+    val speedExtraInset = VOICE_SPEED_ARC_EXTRA_INSET_DP.dp * scale  // needed for arc disambiguation
+
+    val iconSizeF = with(density) { iconSize.toPx() }
     val iconSizePx = with(density) { iconSize.roundToPx() }
+    val strokeWidthF = with(density) { strokeWidth.toPx() }
     val strokeWidthPx = with(density) { strokeWidth.roundToPx() }
+    val radiusInsetF = with(density) { radiusInset.toPx() }
     val radiusInsetPx = with(density) { radiusInset.roundToPx() }
+    val speedExtraInsetF = with(density) { speedExtraInset.toPx() }
+
+    val maxIconRes = if (cuteIcons) R.drawable.pitch_max_mouse_24px else R.drawable.music_clef_treble
+    val minIconRes = if (cuteIcons) R.drawable.pitch_min_whale_24px else R.drawable.music_clef_bass
 
     Box(
         modifier = modifier
             .onSizeChanged { layoutSize.value = it }
             .pointerInteropFilter { event ->
                 when (event.actionMasked) {
-                    MotionEvent.ACTION_DOWN,
-                    MotionEvent.ACTION_MOVE -> {
-                        if (event.x > layoutSize.value.width * 0.38f) return@pointerInteropFilter false
+                    MotionEvent.ACTION_DOWN -> {
                         val size = layoutSize.value
-                        if (size.width > 0 && size.height > 0) {
-                            onVoicePitchChange(voicePitchFromArcPosition(event.x, event.y, size))
+                        if (size.width <= 0 || size.height <= 0) return@pointerInteropFilter false
+                        val outerR = size.width / 2f - strokeWidthF - radiusInsetF
+                        if (hitsIcon(event.x, event.y, size, VOICE_PITCH_ICON_MAX_ANGLE_DEGREES, outerR, iconSizeF)) {
+                            isTracking.value = true
+                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            onVoicePitchChange(VOICE_PITCH_MAX)
+                            return@pointerInteropFilter true
                         }
+                        if (hitsIcon(event.x, event.y, size, VOICE_PITCH_ICON_MIN_ANGLE_DEGREES, outerR, iconSizeF)) {
+                            isTracking.value = true
+                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            onVoicePitchChange(VOICE_PITCH_MIN)
+                            return@pointerInteropFilter true
+                        }
+                        if (identifyTouchedArc(event.x, event.y, size, strokeWidthF, radiusInsetF, speedExtraInsetF) != ActiveArc.PITCH) {
+                            return@pointerInteropFilter false
+                        }
+                        isTracking.value = true
+                        view.parent.requestDisallowInterceptTouchEvent(true)
+                        val pct = arcPercentFromPosition(event.x, event.y, size, VOICE_PITCH_ARC_START_ANGLE_DEGREES, VOICE_PITCH_ARC_SWEEP_DEGREES)
+                        onVoicePitchChange(VOICE_PITCH_MIN + (VOICE_PITCH_MAX - VOICE_PITCH_MIN) * pct)
                         true
                     }
-                    else -> true
+                    MotionEvent.ACTION_MOVE -> {
+                        if (!isTracking.value) return@pointerInteropFilter false
+                        val pct = arcPercentFromPosition(event.x, event.y, layoutSize.value, VOICE_PITCH_ARC_START_ANGLE_DEGREES, VOICE_PITCH_ARC_SWEEP_DEGREES)
+                        onVoicePitchChange(VOICE_PITCH_MIN + (VOICE_PITCH_MAX - VOICE_PITCH_MIN) * pct)
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        val wasTracking = isTracking.value
+                        if (wasTracking) {
+                            isTracking.value = false
+                            view.parent.requestDisallowInterceptTouchEvent(false)
+                        }
+                        wasTracking
+                    }
+                    else -> false
                 }
             },
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidthPxFloat = strokeWidth.toPx()
-            val radius = size.width / 2f - strokeWidthPxFloat - radiusInset.toPx()
-            val center = Offset(size.width / 2f, size.height / 2f)
-            val oval = Rect(
-                left = center.x - radius,
-                top = center.y - radius,
-                right = center.x + radius,
-                bottom = center.y + radius,
-            )
-            drawArc(
-                color = track,
-                startAngle = VOICE_PITCH_ARC_MIN_ANGLE_DEGREES,
-                sweepAngle = VOICE_PITCH_ARC_SWEEP_DEGREES,
-                useCenter = false,
-                topLeft = oval.topLeft,
-                size = oval.size,
-                style = Stroke(width = strokeWidthPxFloat, cap = StrokeCap.Round),
-            )
-
-            val thumbAngle = Math.toRadians((VOICE_PITCH_ARC_MIN_ANGLE_DEGREES + VOICE_PITCH_ARC_SWEEP_DEGREES * voicePitchPercent).toDouble())
-            val thumbCenter = Offset(
-                x = center.x + cos(thumbAngle).toFloat() * radius,
-                y = center.y + sin(thumbAngle).toFloat() * radius,
-            )
-            drawCircle(
-                color = primary.copy(alpha = 0.18f),
-                radius = (17.dp * scale).toPx(),
-                center = thumbCenter,
-            )
-            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumbCenter)
+            val swPx = strokeWidth.toPx()
+            val outerR = size.width / 2f - swPx - radiusInset.toPx()
+            val c = Offset(size.width / 2f, size.height / 2f)
+            val ovalTl = Offset(c.x - outerR, c.y - outerR)
+            val ovalSz = androidx.compose.ui.geometry.Size(outerR * 2, outerR * 2)
+            drawArc(color = track, startAngle = VOICE_PITCH_ARC_START_ANGLE_DEGREES, sweepAngle = VOICE_PITCH_ARC_SWEEP_DEGREES, useCenter = false, topLeft = ovalTl, size = ovalSz, style = Stroke(width = swPx, cap = StrokeCap.Round))
+            val thumbDeg = VOICE_PITCH_ARC_START_ANGLE_DEGREES + VOICE_PITCH_ARC_SWEEP_DEGREES * pitchPercent
+            val thumbRad = Math.toRadians(thumbDeg.toDouble())
+            val thumb = Offset(c.x + cos(thumbRad).toFloat() * outerR, c.y + sin(thumbRad).toFloat() * outerR)
+            drawCircle(color = primary.copy(alpha = 0.18f), radius = (17.dp * scale).toPx(), center = thumb)
+            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumb)
         }
-        EdgeControlIcon(
-            modifier = Modifier.offset {
-                volumeIconOffset(
-                    size = layoutSize.value,
-                    angleDegrees = VOICE_PITCH_ICON_MAX_ANGLE_DEGREES,
-                    iconSizePx = iconSizePx,
-                    strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx,
-                )
-            },
-            icon = ImageVector.vectorResource(id = R.drawable.pitch_high_24px),
-            contentDescription = stringResource(R.string.cd_voice_pitch_max),
-            size = iconSize,
-        )
-        EdgeControlIcon(
-            modifier = Modifier.offset {
-                volumeIconOffset(
-                    size = layoutSize.value,
-                    angleDegrees = VOICE_PITCH_ICON_MIN_ANGLE_DEGREES,
-                    iconSizePx = iconSizePx,
-                    strokeWidthPx = strokeWidthPx,
-                    radiusInsetPx = radiusInsetPx,
-                )
-            },
-            icon = ImageVector.vectorResource(id = R.drawable.pitch_low_24px),
-            contentDescription = stringResource(R.string.cd_voice_pitch_min),
-            size = iconSize,
-        )
+        EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_PITCH_ICON_MAX_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(maxIconRes), contentDescription = stringResource(R.string.cd_voice_pitch_max), size = iconSize)
+        EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_PITCH_ICON_MIN_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(minIconRes), contentDescription = stringResource(R.string.cd_voice_pitch_min), size = iconSize)
     }
 }
 
@@ -1136,57 +1223,28 @@ private fun EdgeControlIcon(
     )
 }
 
-private const val VOLUME_ARC_MAX_ANGLE_DEGREES = -50f
-private const val VOLUME_ARC_MIN_ANGLE_DEGREES = 50f
+// Volume arc: right edge; draws from top-right (-50°) clockwise to bottom-right (50°)
+// Reverse-mapped: top = max volume, bottom = min volume
+private const val VOLUME_ARC_START_ANGLE_DEGREES = -50f
 private const val VOLUME_ARC_SWEEP_DEGREES = 100f
-private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -62f
-private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 62f
-// Speed arc: top-center inner arc; left (-140°) = slowest, right (-40°) = fastest
-private const val VOICE_SPEED_ARC_MIN_ANGLE_DEGREES = -140f
-private const val VOICE_SPEED_ARC_MAX_ANGLE_DEGREES = -40f
+private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -64f   // 14° before arc start
+private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 64f    // 14° after arc end
+
+// Speed arc: top-center inner arc; draws from left (-140°) clockwise to right (-40°)
+// Min speed at start, max speed at end
+private const val VOICE_SPEED_ARC_START_ANGLE_DEGREES = -140f
 private const val VOICE_SPEED_ARC_SWEEP_DEGREES = 100f
-private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = -152f  // just outside arc left (slow) end
-private const val VOICE_SPEED_ICON_MAX_ANGLE_DEGREES = -28f   // just outside arc right (fast) end
-// Pitch arc: left edge; bottom (130°) = lowest pitch, top (230°) = highest pitch
-private const val VOICE_PITCH_ARC_MIN_ANGLE_DEGREES = 130f
+private const val VOICE_SPEED_ARC_EXTRA_INSET_DP = 32f
+private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = -160f  // 20° before arc start
+private const val VOICE_SPEED_ICON_MAX_ANGLE_DEGREES = -20f   // 20° after arc end
+
+// Pitch arc: left edge; draws from bottom-left (130°) clockwise to top-left (230°)
+// Min pitch at start, max pitch at end — arc crosses the ±180° boundary
+private const val VOICE_PITCH_ARC_START_ANGLE_DEGREES = 130f
 private const val VOICE_PITCH_ARC_SWEEP_DEGREES = 100f
-private const val VOICE_PITCH_ICON_MIN_ANGLE_DEGREES = 118f   // just below arc bottom (low) end
-private const val VOICE_PITCH_ICON_MAX_ANGLE_DEGREES = -118f  // just above arc top (high) end
-private val RopeatoPrimary = Color(0xFFBB86FC)
+private const val VOICE_PITCH_ICON_MIN_ANGLE_DEGREES = 116f   // 14° before arc start
+private const val VOICE_PITCH_ICON_MAX_ANGLE_DEGREES = -116f  // 14° after arc end (244°)
 private val WearReferenceSceneSize = 213.dp
-
-private fun volumePercentFromArcPosition(x: Float, y: Float, size: IntSize): Float {
-    return arcPercentFromPosition(
-        x = x,
-        y = y,
-        size = size,
-        startAngleDegrees = VOLUME_ARC_MAX_ANGLE_DEGREES,
-        sweepDegrees = VOLUME_ARC_SWEEP_DEGREES,
-        reverse = true,
-    )
-}
-
-private fun voiceSpeedFromArcPosition(x: Float, y: Float, size: IntSize): Float {
-    val voiceSpeedPercent = arcPercentFromPosition(
-        x = x,
-        y = y,
-        size = size,
-        startAngleDegrees = VOICE_SPEED_ARC_MIN_ANGLE_DEGREES,
-        sweepDegrees = VOICE_SPEED_ARC_SWEEP_DEGREES,
-    )
-    return VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * voiceSpeedPercent
-}
-
-private fun voicePitchFromArcPosition(x: Float, y: Float, size: IntSize): Float {
-    val voicePitchPercent = arcPercentFromPosition(
-        x = x,
-        y = y,
-        size = size,
-        startAngleDegrees = VOICE_PITCH_ARC_MIN_ANGLE_DEGREES,
-        sweepDegrees = VOICE_PITCH_ARC_SWEEP_DEGREES,
-    )
-    return VOICE_PITCH_MIN + (VOICE_PITCH_MAX - VOICE_PITCH_MIN) * voicePitchPercent
-}
 
 private fun arcPercentFromPosition(
     x: Float,
@@ -1196,20 +1254,26 @@ private fun arcPercentFromPosition(
     sweepDegrees: Float,
     reverse: Boolean = false,
 ): Float {
-    val centerX = size.width / 2f
-    val centerY = size.height / 2f
-    val rawAngleDegrees = atan2(y - centerY, x - centerX) * 180f / PI.toFloat()
-    val endAngleDegrees = startAngleDegrees + sweepDegrees
-    val angleDegrees = if (endAngleDegrees > 180f && rawAngleDegrees < startAngleDegrees) {
-        rawAngleDegrees + 360f
-    } else {
-        rawAngleDegrees
+    val cx = size.width / 2f
+    val cy = size.height / 2f
+    val rawAngle = atan2(y - cy, x - cx) * 180f / PI.toFloat()
+    // Normalize both to [0°, 360°) so ±180° wrap never causes sign-flip jumps
+    val normAngle = ((rawAngle % 360f) + 360f) % 360f
+    val normStart = ((startAngleDegrees % 360f) + 360f) % 360f
+    // Offset from arc start, wrapped into [0°, 360°)
+    val offset = (((normAngle - normStart) % 360f) + 360f) % 360f
+    // If within arc: use directly. If past arc end (<180° overshoot): snap to end.
+    // If before arc start (>=180° wrap): snap to start, not end.
+    val clampedOffset = when {
+        offset <= sweepDegrees -> offset
+        offset < 180f -> sweepDegrees
+        else -> 0f
     }
-    val percent = ((angleDegrees - startAngleDegrees) / sweepDegrees).coerceIn(0f, 1f)
+    val percent = clampedOffset / sweepDegrees
     return if (reverse) 1f - percent else percent
 }
 
-private fun volumeIconOffset(
+private fun arcIconOffset(
     size: IntSize,
     angleDegrees: Float,
     iconSizePx: Int,

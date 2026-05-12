@@ -33,6 +33,16 @@
     <string name="settings_speech_none_found">No supported languages found.</string>
     <string name="settings_open_tts_settings">Open Device TTS Settings</string>
     <string name="settings_close">Close</string>
+    <string name="settings_cute_icons">Cute Icons</string>
+    <string name="settings_accent_color">Accent Color</string>
+    <string name="accent_color_purple">Purple</string>
+    <string name="accent_color_teal">Teal</string>
+    <string name="accent_color_blue">Blue</string>
+    <string name="accent_color_green">Green</string>
+    <string name="accent_color_yellow">Yellow</string>
+    <string name="accent_color_orange">Orange</string>
+    <string name="accent_color_pink">Pink</string>
+    <string name="accent_color_red">Red</string>
 
     <!-- Speech locale picker -->
     <string name="speech_locale_device_default">Device Default</string>

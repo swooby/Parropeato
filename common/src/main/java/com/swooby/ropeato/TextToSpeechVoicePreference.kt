@@ -2,6 +2,9 @@ package com.swooby.ropeato
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.swooby.ropeato.common.R
 import java.util.Locale
 import java.util.MissingResourceException
 
@@ -285,4 +288,23 @@ object TextToSpeechVoicePreference {
         } catch (_: MissingResourceException) {
             null
         }
+}
+
+@Composable
+fun voiceSubtitle(entry: VoiceEntry): String {
+    val localLabel   = stringResource(R.string.voice_connectivity_offline)
+    val networkLabel = stringResource(R.string.voice_connectivity_online)
+    val connectivity = when {
+        entry.localVoice != null && entry.networkVoice != null -> "$localLabel + $networkLabel"
+        entry.localVoice != null  -> localLabel
+        else                      -> networkLabel
+    }
+    val voice = entry.preferredVoice
+    val quality = when {
+        voice.quality >= 400 -> stringResource(R.string.voice_quality_hd)
+        voice.quality >= 300 -> stringResource(R.string.voice_quality_standard)
+        else                 -> stringResource(R.string.voice_quality_basic)
+    }
+    val id = TextToSpeechVoicePreference.shortId(voice)
+    return "$connectivity · $quality · $id"
 }

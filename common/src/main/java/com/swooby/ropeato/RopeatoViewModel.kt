@@ -101,6 +101,16 @@ class RopeatoViewModel : ViewModel() {
         get() = _speechLocalesSupportChecked.value
         set(value) { _speechLocalesSupportChecked.value = value }
 
+    private val _cuteIcons = mutableStateOf(false)
+    var cuteIcons: Boolean
+        get() = _cuteIcons.value
+        set(value) { _cuteIcons.value = value }
+
+    private val _accentColor = mutableStateOf(ACCENT_COLOR_DEFAULT_ARGB)
+    var accentColor: Int
+        get() = _accentColor.value
+        set(value) { _accentColor.value = value }
+
     fun appendText(text: String) {
         _text.value += " $text"
     }

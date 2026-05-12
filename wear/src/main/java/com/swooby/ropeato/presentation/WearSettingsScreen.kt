@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLocale
@@ -33,9 +35,13 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.swooby.ropeato.ACCENT_COLOR_OPTIONS
+import com.swooby.ropeato.voiceSubtitle
 import com.swooby.ropeato.GroupedLocaleOptions
 import com.swooby.ropeato.LocaleLanguageGroup
 import com.swooby.ropeato.SpeechLocalePreference
@@ -53,6 +59,7 @@ private object Route {
     const val TTS_VARIANTS     = "tts_variants/{code}"
     const val SPEECH_LANGUAGES = "speech_languages"
     const val SPEECH_VARIANTS  = "speech_variants/{code}"
+    const val ACCENT_COLOR     = "accent_color"
 
     fun ttsVariants(code: String)    = "tts_variants/$code"
     fun speechVariants(code: String) = "speech_variants/$code"
@@ -68,10 +75,14 @@ fun WearSettingsScreen(
     speechRecognizerLocale: String?,
     supportedSpeechLocales: List<String>,
     speechLocalesSupportChecked: Boolean,
+    cuteIcons: Boolean,
+    accentColor: Int,
     onVoiceSelected: (String?) -> Unit,
     onPreviewVoice: (String) -> Unit,
     onSpeechLocaleSelected: (String?) -> Unit,
     onOpenTtsSettings: () -> Unit,
+    onCuteIconsChanged: (Boolean) -> Unit,
+    onAccentColorChanged: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val navController = rememberSwipeDismissableNavController()
@@ -90,6 +101,8 @@ fun WearSettingsScreen(
     val defaultVoice = remember(availableVoices, ttsDefaultVoiceName) {
         availableVoices.find { it.name == ttsDefaultVoiceName }
     }
+    val cuteIconsState = rememberUpdatedState(cuteIcons)
+    val accentColorState = rememberUpdatedState(accentColor)
 
     SwipeDismissableNavHost(
         navController = navController,
@@ -102,8 +115,23 @@ fun WearSettingsScreen(
                 currentVoice = currentVoice,
                 defaultVoice = defaultVoice,
                 speechRecognizerLocale = speechRecognizerLocale,
+                cuteIcons = cuteIconsState.value,
+                accentColor = accentColorState.value,
                 onNavigateTtsLanguages = { navController.navigate(Route.TTS_LANGUAGES) },
                 onNavigateSpeechLanguages = { navController.navigate(Route.SPEECH_LANGUAGES) },
+                onNavigateAccentColor = { navController.navigate(Route.ACCENT_COLOR) },
+                onCuteIconsChanged = onCuteIconsChanged,
+            )
+        }
+
+        // ── Accent color picker ───────────────────────────────────────────────
+        composable(Route.ACCENT_COLOR) {
+            AccentColorScreen(
+                accentColor = accentColorState.value,
+                onAccentColorSelected = { argb ->
+                    onAccentColorChanged(argb)
+                    navController.popBackStack(Route.SETTINGS, inclusive = false)
+                },
             )
         }
 
@@ -195,16 +223,43 @@ private fun SettingsL1Screen(
     currentVoice: Voice?,
     defaultVoice: Voice?,
     speechRecognizerLocale: String?,
+    cuteIcons: Boolean,
+    accentColor: Int,
     onNavigateTtsLanguages: () -> Unit,
     onNavigateSpeechLanguages: () -> Unit,
+    onNavigateAccentColor: () -> Unit,
+    onCuteIconsChanged: (Boolean) -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
         state = rememberScalingLazyListState(),
     ) {
         item { ListHeader { Text(stringResource(R.string.settings_title)) } }
+
+        item {
+            val subtitle = if (speechRecognizerLocale == null)
+                "${stringResource(R.string.speech_locale_device_default)} [${displayLocale.getDisplayName(displayLocale)}]"
+            else
+                Locale.forLanguageTag(speechRecognizerLocale).getDisplayName(displayLocale)
+            Chip(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onNavigateSpeechLanguages,
+                colors = ChipDefaults.secondaryChipColors(),
+                label = {
+                    Text(
+                        stringResource(R.string.settings_section_stt_language),
+                        maxLines = 1,
+                    )
+                },
+                secondaryLabel = {
+                    Text(subtitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                },
+            )
+        }
 
         item {
             val subtitle = when {
@@ -229,22 +284,73 @@ private fun SettingsL1Screen(
         }
 
         item {
-            val subtitle = if (speechRecognizerLocale == null)
-                "${stringResource(R.string.speech_locale_device_default)} [${displayLocale.getDisplayName(displayLocale)}]"
-            else
-                Locale.forLanguageTag(speechRecognizerLocale).getDisplayName(displayLocale)
+            val currentOption = ACCENT_COLOR_OPTIONS.find { it.argb == accentColor }
             Chip(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = onNavigateSpeechLanguages,
+                onClick = onNavigateAccentColor,
                 colors = ChipDefaults.secondaryChipColors(),
-                label = {
-                    Text(
-                        stringResource(R.string.settings_section_stt_language),
-                        maxLines = 1,
+                label = { Text(stringResource(R.string.settings_accent_color), maxLines = 1) },
+                secondaryLabel = currentOption?.let { opt ->
+                    { Text(stringResource(opt.nameResId), maxLines = 1) }
+                },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(currentOption?.color ?: Color.Transparent, CircleShape),
                     )
                 },
-                secondaryLabel = {
-                    Text(subtitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            )
+        }
+
+        item {
+            ToggleChip(
+                modifier = Modifier.fillMaxWidth(),
+                checked = cuteIcons,
+                onCheckedChange = onCuteIconsChanged,
+                label = { Text(stringResource(R.string.settings_cute_icons), maxLines = 1) },
+                toggleControl = {
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(cuteIcons),
+                        contentDescription = if (cuteIcons) stringResource(com.swooby.ropeato.R.string.on)
+                        else stringResource(com.swooby.ropeato.R.string.off),
+                    )
+                },
+                colors = ToggleChipDefaults.toggleChipColors(
+                    checkedToggleControlColor = Color(accentColor),
+                ),
+            )
+        }
+    }
+}
+
+// ─── Accent color picker ──────────────────────────────────────────────────────
+
+@Composable
+private fun AccentColorScreen(
+    accentColor: Int,
+    onAccentColorSelected: (Int) -> Unit,
+) {
+    ScalingLazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        state = rememberScalingLazyListState(),
+    ) {
+        item { ListHeader { Text(stringResource(R.string.settings_accent_color)) } }
+        items(ACCENT_COLOR_OPTIONS) { option ->
+            val isSelected = option.argb == accentColor
+            Chip(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onAccentColorSelected(option.argb) },
+                colors = if (isSelected) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
+                label = { Text(stringResource(option.nameResId), maxLines = 1) },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(option.color, CircleShape),
+                    )
                 },
             )
         }
@@ -265,7 +371,9 @@ private fun TtsLanguagesScreen(
     val displayLocale = LocalLocale.current.platformLocale
     val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
         state = rememberScalingLazyListState(),
     ) {
         item { ListHeader { Text(stringResource(R.string.settings_section_tts_language)) } }
@@ -324,7 +432,9 @@ private fun TtsVariantsScreen(
         TextToSpeechVoicePreference.voiceEntries(group.voices, displayLocale)
     }
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
         state = rememberScalingLazyListState(),
     ) {
         item { ListHeader { Text(group.displayLanguage) } }
@@ -378,7 +488,9 @@ private fun SpeechLanguagesScreen(
     onGroupSelected: (LocaleLanguageGroup) -> Unit,
 ) {
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
         state = rememberScalingLazyListState(),
     ) {
         item { ListHeader { Text(stringResource(R.string.settings_section_stt_language)) } }
@@ -431,7 +543,9 @@ private fun SpeechVariantsScreen(
     onLocaleSelected: (String?) -> Unit,
 ) {
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
         state = rememberScalingLazyListState(),
     ) {
         item { ListHeader { Text(group.displayLanguage) } }
@@ -487,23 +601,3 @@ private fun SelectableChip(
     )
 }
 
-// ─── Voice subtitle ───────────────────────────────────────────────────────────
-
-@Composable
-private fun voiceSubtitle(entry: VoiceEntry): String {
-    val localLabel   = stringResource(R.string.voice_connectivity_offline)
-    val networkLabel = stringResource(R.string.voice_connectivity_online)
-    val connectivity = when {
-        entry.localVoice != null && entry.networkVoice != null -> "$localLabel + $networkLabel"
-        entry.localVoice != null  -> localLabel
-        else                      -> networkLabel
-    }
-    val voice = entry.preferredVoice
-    val quality = when {
-        voice.quality >= 400 -> stringResource(R.string.voice_quality_hd)
-        voice.quality >= 300 -> stringResource(R.string.voice_quality_standard)
-        else                 -> stringResource(R.string.voice_quality_basic)
-    }
-    val id = TextToSpeechVoicePreference.shortId(voice)
-    return "$connectivity · $quality · $id"
-}

@@ -36,10 +36,14 @@ class MainActivity : BaseMainActivity() {
             speechRecognizerLocale = viewModel.speechRecognizerLocale,
             supportedSpeechLocales = viewModel.supportedSpeechLocales,
             speechLocalesSupportChecked = viewModel.speechLocalesSupportChecked,
+            cuteIcons = viewModel.cuteIcons,
+            accentColor = viewModel.accentColor,
             onVoiceSelected = ::onSettingsVoiceSelected,
             onPreviewVoice = ::onSettingsVoicePreview,
             onSpeechLocaleSelected = ::onSettingsSpeechLocaleSelected,
             onOpenTtsSettings = ::openTtsSettings,
+            onCuteIconsChanged = ::onSettingsCuteIconsChanged,
+            onAccentColorChanged = ::onSettingsAccentColorChanged,
             onDismiss = onDismiss,
         )
     }
