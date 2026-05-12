@@ -1,4 +1,4 @@
-# Mr. Parropeato – docs site
+# M. Parropeato – docs site
 
 The files in this folder are published as a GitHub Pages site from the `main` branch:
 
