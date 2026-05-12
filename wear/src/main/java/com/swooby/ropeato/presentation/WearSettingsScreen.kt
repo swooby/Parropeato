@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -51,10 +49,8 @@ import com.swooby.ropeato.GroupedLocaleOptions
 import com.swooby.ropeato.LocaleLanguageGroup
 import com.swooby.ropeato.SpeechLocalePreference
 import com.swooby.ropeato.TextToSpeechVoicePreference
-import com.swooby.ropeato.VoiceEntry
 import com.swooby.ropeato.VoiceLanguageGroup
 import com.swooby.ropeato.common.R
-import java.util.Locale
 
 // ─── Route constants ────────────────────────────────────────────────────────
 
@@ -80,12 +76,15 @@ fun WearSettingsScreen(
     speechRecognizerLocale: String?,
     supportedSpeechLocales: List<String>,
     speechLocalesSupportChecked: Boolean,
+    installedSpeechLocales: Set<String>,
+    isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
     onVoiceSelected: (String?) -> Unit,
     onPreviewVoice: (String) -> Unit,
     onSpeechLocaleSelected: (String?) -> Unit,
     onOpenTtsSettings: () -> Unit,
+    onOpenSpeechDownloadSettings: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -108,6 +107,8 @@ fun WearSettingsScreen(
     }
     val cuteIconsState = rememberUpdatedState(cuteIcons)
     val accentColorState = rememberUpdatedState(accentColor)
+    val installedSpeechLocalesState = rememberUpdatedState(installedSpeechLocales)
+    val isNetworkAvailableState = rememberUpdatedState(isNetworkAvailable)
 
     SwipeDismissableNavHost(
         navController = navController,
@@ -120,6 +121,8 @@ fun WearSettingsScreen(
                 currentVoice = currentVoice,
                 defaultVoice = defaultVoice,
                 speechRecognizerLocale = speechRecognizerLocale,
+                installedSpeechLocales = installedSpeechLocalesState.value,
+                isNetworkAvailable = isNetworkAvailableState.value,
                 cuteIcons = cuteIconsState.value,
                 accentColor = accentColorState.value,
                 onNavigateTtsLanguages = { navController.navigate(Route.TTS_LANGUAGES) },
@@ -187,6 +190,8 @@ fun WearSettingsScreen(
                 localeGroups = localeGroups,
                 speechRecognizerLocale = speechRecognizerLocale,
                 speechLocalesSupportChecked = speechLocalesSupportChecked,
+                installedSpeechLocales = installedSpeechLocalesState.value,
+                isNetworkAvailable = isNetworkAvailableState.value,
                 onDeviceDefaultSelected = {
                     onSpeechLocaleSelected(null)
                     navController.popBackStack(Route.SETTINGS, inclusive = false)
@@ -199,6 +204,7 @@ fun WearSettingsScreen(
                         navController.navigate(Route.speechVariants(group.languageCode))
                     }
                 },
+                onOpenSpeechDownloadSettings = onOpenSpeechDownloadSettings,
             )
         }
 
@@ -228,6 +234,8 @@ private fun SettingsL1Screen(
     currentVoice: Voice?,
     defaultVoice: Voice?,
     speechRecognizerLocale: String?,
+    installedSpeechLocales: Set<String>,
+    isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
     onNavigateTtsLanguages: () -> Unit,
@@ -246,7 +254,13 @@ private fun SettingsL1Screen(
         item { ListHeader { Text(stringResource(R.string.settings_title)) } }
 
         item {
-            val subtitle = sttLocaleDisplaySubtitle(speechRecognizerLocale, displayLocale)
+            val subtitle = buildString {
+                append(sttLocaleDisplaySubtitle(speechRecognizerLocale, displayLocale))
+                if (!isNetworkAvailable && speechRecognizerLocale != null && speechRecognizerLocale !in installedSpeechLocales) {
+                    append(" · ")
+                    append(stringResource(R.string.settings_stt_download_offline))
+                }
+            }
             Chip(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = onNavigateSpeechLanguages,
@@ -517,8 +531,11 @@ private fun SpeechLanguagesScreen(
     localeGroups: GroupedLocaleOptions,
     speechRecognizerLocale: String?,
     speechLocalesSupportChecked: Boolean,
+    installedSpeechLocales: Set<String>,
+    isNetworkAvailable: Boolean,
     onDeviceDefaultSelected: () -> Unit,
     onGroupSelected: (LocaleLanguageGroup) -> Unit,
+    onOpenSpeechDownloadSettings: () -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     // index 0 = header, 1 = Device Default, 2+ = groups
@@ -568,12 +585,25 @@ private fun SpeechLanguagesScreen(
                 val variantSubtitle = if (isGroupSelected && speechRecognizerLocale != null)
                     sttLocaleGroupSubtitle(speechRecognizerLocale, displayLocale)
                 else null
+                val groupHasOffline = group.options.any { it.tag != null && it.tag in installedSpeechLocales }
+                val offlineLabel = if (groupHasOffline) stringResource(R.string.settings_stt_offline_ready) else null
+                val secondaryLabel = listOfNotNull(variantSubtitle, offlineLabel).joinToString(" · ").ifEmpty { null }
                 SelectableChip(
                     label = if (group.hasVariants) "${group.displayLanguage} ›"
                             else group.displayLanguage,
-                    secondaryLabel = variantSubtitle,
+                    secondaryLabel = secondaryLabel,
                     isSelected = isGroupSelected,
                     onClick = { onGroupSelected(group) },
+                )
+            }
+        }
+        if (!isNetworkAvailable && speechRecognizerLocale != null && speechRecognizerLocale !in installedSpeechLocales) {
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onOpenSpeechDownloadSettings,
+                    colors = ChipDefaults.secondaryChipColors(),
+                    label = { Text(stringResource(R.string.settings_stt_download_offline), maxLines = 2) },
                 )
             }
         }

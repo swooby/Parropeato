@@ -101,6 +101,16 @@ class RopeatoViewModel : ViewModel() {
         get() = _speechLocalesSupportChecked.value
         set(value) { _speechLocalesSupportChecked.value = value }
 
+    private val _installedSpeechLocales = mutableStateOf<Set<String>>(emptySet())
+    var installedSpeechLocales: Set<String>
+        get() = _installedSpeechLocales.value
+        set(value) { _installedSpeechLocales.value = value }
+
+    private val _isNetworkAvailable = mutableStateOf(true)
+    var isNetworkAvailable: Boolean
+        get() = _isNetworkAvailable.value
+        set(value) { _isNetworkAvailable.value = value }
+
     private val _cuteIcons = mutableStateOf(false)
     var cuteIcons: Boolean
         get() = _cuteIcons.value
