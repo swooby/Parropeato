@@ -1,0 +1,41 @@
+name: Docs Build
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate HTML files
+        run: |
+          for f in docs/*.html; do
+            echo "Checking $f"
+            python3 -c "
+import html.parser, sys
+class StrictParser(html.parser.HTMLParser):
+    pass
+with open('$f', encoding='utf-8') as fh:
+    StrictParser().feed(fh.read())
+print('OK')
+"
+          done
