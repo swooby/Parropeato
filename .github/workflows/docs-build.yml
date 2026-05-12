@@ -31,11 +31,9 @@ jobs:
           for f in docs/*.html; do
             echo "Checking $f"
             python3 -c "
-import html.parser, sys
-class StrictParser(html.parser.HTMLParser):
-    pass
+import html.parser
 with open('$f', encoding='utf-8') as fh:
-    StrictParser().feed(fh.read())
+    html.parser.HTMLParser().feed(fh.read())
 print('OK')
 "
           done
