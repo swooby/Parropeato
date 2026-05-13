@@ -801,6 +801,7 @@ private fun RopeatoApp(
                         modifier = Modifier.align(Alignment.Center),
                         isListening = viewModel.state == RopeatoViewModel.State.Listening,
                         scale = controlScale,
+                        cuteIcons = viewModel.cuteIcons,
                         logTag = logTag,
                         onPushToTalkPressed = onPushToTalkPressed,
                         onPushToTalkReleased = onPushToTalkReleased,
@@ -1347,6 +1348,7 @@ private fun arcIconOffset(
 private fun PushToTalkButton(
     isListening: Boolean,
     scale: Float,
+    cuteIcons: Boolean,
     logTag: String,
     onPushToTalkPressed: () -> Unit,
     onPushToTalkReleased: () -> Unit,
@@ -1380,7 +1382,7 @@ private fun PushToTalkButton(
     ) {
         Icon(
             modifier = Modifier.size(42.dp * scale),
-            imageVector = Icons.Filled.Mic,
+            imageVector = if (cuteIcons) ImageVector.vectorResource(R.drawable.mic_parrot_24px) else Icons.Filled.Mic,
             contentDescription = if (isListening) stringResource(R.string.cd_listening) else stringResource(R.string.cd_hold_to_talk),
             tint = MaterialTheme.colorScheme.primary,
         )
