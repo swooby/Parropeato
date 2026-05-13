@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.swooby.ropeato.common"
+    namespace = "com.swooby.parropeato.common"
     compileSdk = 36
     defaultConfig {
         minSdk = 34

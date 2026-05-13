@@ -1,4 +1,4 @@
-This is an Android/Kotlin Gradle repo for Ropeato.
+This is an Android/Kotlin Gradle repo for Parropeato.
 
 Use Java 17. The main modules are `mobile`, `wear`, `common`, and `smartfoo`.
 Build PR-equivalent debug artifacts with `./gradlew :wear:assembleDebug :mobile:assembleDebug`.

@@ -2,7 +2,7 @@
 
 ## Project
 
-Ropeato is an Android and Wear OS Kotlin app that listens to speech and repeats it back using text-to-speech.
+Parropeato is an Android and Wear OS Kotlin app that listens to speech using speech-to-text and repeats it back using text-to-speech.
 
 ## Modules
 

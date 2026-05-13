@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mr. Ropeato</string>
+    <string name="app_name">M. Parropeato</string>
 
     <!-- Status messages shown in the main display -->
     <string name="status_hold_mic_to_talk">Hold the mic\nto talk</string>

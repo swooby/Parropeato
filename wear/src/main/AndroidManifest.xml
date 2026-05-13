@@ -3,12 +3,12 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- <- Needed for Ropeato? What is this specifically used for? -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- <- Needed for Parropeato? What is this specifically used for? -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".RopeatoApp"
+        android:name=".ParropeatoApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
@@ -58,7 +58,7 @@
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
-            android:taskAffinity="com.swooby.ropeato"
+            android:taskAffinity="com.swooby.parropeato"
             android:theme="@style/MainActivityTheme.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

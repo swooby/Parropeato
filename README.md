@@ -1,10 +1,12 @@
-# Ropeato
+# M. Parropeato
 
-Ropeato is a novelty Android and Wear OS app that listens to what you say and parrots it back in a robotic text-to-speech voice.
+M. Parropeato is a novelty Android and Wear OS app that uses speech-to-text to listen to what you say and then parrots it back using text-to-speech.
 
 ## Adding a UI language
 
-`common/src/main/res/xml/locales_config.xml` declares the languages for which the app has complete UI string translations. Android uses this list to populate the per-app language selector in system Settings → Apps → Ropeato → Language (API 33+, safe here because `minSdk = 34`). Both `mobile` and `wear` manifests reference it via `android:localeConfig="@xml/locales_config"`.
+`common/src/main/res/xml/locales_config.xml` declares the languages for which the app has complete UI string translations.
+Android uses this list to populate the per-app language selector in system Settings → Apps → M. Parropeato → Language (API 33+, safe here because `minSdk = 34`).
+Both `mobile` and `wear` manifests reference it via `android:localeConfig="@xml/locales_config"`.
 
 > **This file is not related to TTS voices or speech-recognition locales.** Those are runtime capabilities of the device's TTS engine and speech recognizer and are managed separately inside the app's Settings screen.
 
@@ -23,7 +25,9 @@ Ropeato is a novelty Android and Wear OS app that listens to what you say and pa
 
    The `android:name` value must be a valid BCP 47 language tag and must match the `values-<tag>` folder name exactly.
 
-**Both steps are required and must stay in sync.** Adding a locale to `locales_config.xml` without a translation causes the system language picker to offer a language the app cannot display. Adding a translation folder without updating `locales_config.xml` means the system will never offer that language to users.
+**Both steps are required and must stay in sync.**
+Adding a locale to `locales_config.xml` without a translation causes the system language picker to offer a language the app cannot display.
+Adding a translation folder without updating `locales_config.xml` means the system will never offer that language to users.
 
 ### Current supported UI languages
 
@@ -33,7 +37,8 @@ Ropeato is a novelty Android and Wear OS app that listens to what you say and pa
 
 ## Release process
 
-GitHub Actions builds the mobile and Wear OS apps on pull requests, pushes to `main`, and release tag pushes. Tag pushes also build signed Android App Bundles and upload them to Google Play.
+GitHub Actions builds the mobile and Wear OS apps on pull requests, pushes to `main`, and release tag pushes.
+Tag pushes also build signed Android App Bundles and upload them to Google Play.
 
 ### GitHub secrets
 
@@ -50,10 +55,11 @@ GOOGLE_PLAY_SERVICE_ACCOUNT_JSON
 `ANDROID_KEYSTORE_BASE64` is the base64-encoded release keystore:
 
 ```sh
-base64 -i ropeato-release.jks | pbcopy
+base64 -i parropeato-release.jks | pbcopy
 ```
 
-`GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` is the full JSON key for the Google Cloud service account that has app-level release access in Google Play Console.
+`GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` is the full JSON key for the Google Cloud service account
+that has app-level release access in Google Play Console.
 
 Do not commit keystores or service account JSON files. They are ignored by `.gitignore`.
 
@@ -62,7 +68,7 @@ Do not commit keystores or service account JSON files. They are ignored by `.git
 1. Enable the Google Play Android Developer API in the Google Cloud project that owns the release service account.
 2. Create a service account and JSON key.
 3. Add the service account email in Google Play Console under `Users and permissions`.
-4. Grant app-level release permissions for both Ropeato package names: `com.swooby.ropeato.mobile` and `com.swooby.ropeato.wear`.
+4. Grant app-level release permissions for the M. Parropeato package: `com.swooby.parropeato`.
 5. Add the JSON key contents to GitHub as `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`.
 
 ### Creating a release
@@ -84,16 +90,17 @@ On tag pushes, the workflow:
 The Google Play uploads currently target:
 
 ```text
-packageName: com.swooby.ropeato.mobile
+packageName: com.swooby.parropeato
 tracks: internal
 status: draft
 
-packageName: com.swooby.ropeato.wear
+packageName: com.swooby.parropeato
 tracks: wear:internal
 status: draft
 ```
 
-This creates draft mobile and Wear OS internal-track releases in Play Console. Review them manually before rollout.
+This creates draft mobile and Wear OS internal-track releases in Play Console.
+Review them manually before rollout.
 
 Before the first Wear OS upload, enable the dedicated Wear OS release track in Play Console:
 
@@ -103,7 +110,8 @@ Before the first Wear OS upload, enable the dedicated Wear OS release track in P
 4. Add or enable `Wear OS`.
 5. Create the dedicated Wear OS testing/release track.
 
-Wear OS bundles must be published to form-factor tracks such as `wear:internal`, `wear:beta`, or `wear:production`. Mobile bundles use the normal tracks such as `internal`, `beta`, or `production`.
+Wear OS bundles must be published to form-factor tracks such as `wear:internal`, `wear:beta`, or `wear:production`.
+Mobile bundles use the normal tracks such as `internal`, `beta`, or `production`.
 
 ### Versioning
 

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.swooby.ropeato"
+    namespace = "com.swooby.parropeato"
     compileSdk = 36
 
     val releaseKeystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
@@ -19,7 +19,7 @@ android {
     ).all { !it.isNullOrBlank() }
 
     defaultConfig {
-        applicationId = "com.swooby.ropeato"
+        applicationId = "com.swooby.parropeato"
         minSdk = 34
         targetSdk = 36
         versionCode = System.getenv("MOBILE_VERSION_CODE")?.toIntOrNull()

@@ -1,9 +1,9 @@
 # How to test offline STT
 
 ## Setup
-1. Open **Settings → System → Languages & input → Voice input** (or tap "Download offline speech model" inside Ropeato's settings).
+1. Open **Settings → System → Languages & input → Voice input** (or tap "Download offline speech model" inside Parropeato's settings).
 2. Download an offline pack for your target language (e.g. English).
-3. Confirm the locale shows **"offline ready"** in Ropeato's Speech To Text settings screen.
+3. Confirm the locale shows **"offline ready"** in Parropeato's Speech To Text settings screen.
 
 ## Happy path — offline with model
 1. Enable airplane mode (or disable Wi-Fi + mobile data).

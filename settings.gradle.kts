@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Ropeato"
+rootProject.name = "Parropeato"
 include(":smartfoo")
 include(":common")
 include(":wear")
