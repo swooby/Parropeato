@@ -100,6 +100,11 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected lateinit var settings: Settings
     protected val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var connectivityManager: ConnectivityManager
+    private val ttsCallbacks = object : FooTextToSpeech.FooTextToSpeechCallbacks {
+        override fun onTextToSpeechInitialized(status: Int) {
+            this@BaseMainActivity.onTextToSpeechInitialized(status)
+        }
+    }
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) { viewModel.isNetworkAvailable = true }
         override fun onLost(network: Network) { viewModel.isNetworkAvailable = false }
@@ -169,11 +174,6 @@ abstract class BaseMainActivity : ComponentActivity() {
         tts = FooTextToSpeech.instance
         tts.dedupe = false
         tts.setAudioAttributes(AudioAttributes.USAGE_MEDIA)
-        tts.attach(object : FooTextToSpeech.FooTextToSpeechCallbacks {
-            override fun onTextToSpeechInitialized(status: Int) {
-                this@BaseMainActivity.onTextToSpeechInitialized(status)
-            }
-        })
     }
 
     protected fun initSpeechRecognizer(updatePrompt: Boolean = true) {
@@ -353,12 +353,21 @@ abstract class BaseMainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         connectivityManager.registerDefaultNetworkCallback(networkCallback)
-        tts.start(this)
+        tts.start(this, ttsCallbacks)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Re-attach silently after a brief onPause/onResume (e.g. notification shade)
+        // where onStop was never called. tts.start() is intentionally NOT called here
+        // to avoid re-firing onTextToSpeechInitialized (and replaying the greeting).
+        tts.attach(ttsCallbacks)
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.state = ParropeatoViewModel.State.ShuttingDown
+        tts.detach(ttsCallbacks)
         speechRecognizerStop()
     }
 
