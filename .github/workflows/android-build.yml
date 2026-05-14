@@ -2,17 +2,35 @@ name: Android Build
 
 on:
   pull_request:
-    paths-ignore:
-      - ".github/workflows/pages-www.yml"
-      - "www/**"
+    paths:
+      - ".github/workflows/android-build.yml"
+      - "mobile/**"
+      - "wear/**"
+      - "common/**"
+      - "smartfoo/**"
+      - "gradle/**"
+      - "gradle.properties"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - "gradlew"
+      - "gradlew.bat"
   push:
     branches:
       - main
     tags:
       - "*"
-    paths-ignore:
-      - ".github/workflows/pages-www.yml"
-      - "www/**"
+    paths:
+      - ".github/workflows/android-build.yml"
+      - "mobile/**"
+      - "wear/**"
+      - "common/**"
+      - "smartfoo/**"
+      - "gradle/**"
+      - "gradle.properties"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - "gradlew"
+      - "gradlew.bat"
 
 permissions:
   contents: read
