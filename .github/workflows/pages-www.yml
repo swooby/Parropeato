@@ -32,6 +32,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Validate HTML files
+        run: |
+          python3 -c "
+          import glob
+          import html.parser
+
+          for f in sorted(glob.glob('www/**/*.html', recursive=True)):
+              print('Checking', f)
+              try:
+                  with open(f, encoding='utf-8') as fh:
+                      html.parser.HTMLParser().feed(fh.read())
+              except Exception as exc:
+                  raise RuntimeError(f'Invalid HTML in {f}: {exc}') from exc
+              print('OK')
+          "
+
       - name: Deploy to gh-pages root
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -47,6 +63,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Validate HTML files
+        run: |
+          python3 -c "
+          import glob
+          import html.parser
+
+          for f in sorted(glob.glob('www/**/*.html', recursive=True)):
+              print('Checking', f)
+              try:
+                  with open(f, encoding='utf-8') as fh:
+                      html.parser.HTMLParser().feed(fh.read())
+              except Exception as exc:
+                  raise RuntimeError(f'Invalid HTML in {f}: {exc}') from exc
+              print('OK')
+          "
 
       - name: Deploy PR preview folder
         uses: JamesIves/github-pages-deploy-action@v4
