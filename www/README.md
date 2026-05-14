@@ -3,7 +3,7 @@
 The files in this folder are published to GitHub Pages.
 
 - **Production site:** https://swooby.github.io/Parropeato/
-- **PR preview pattern:** https://swooby.github.io/Parropeato/pr-preview/pr-<PR number>/
+- **PR preview pattern:** `https://swooby.github.io/Parropeato/pr-preview/pr-<PR number>/`
 
 ## Automatic deploy behavior
 
