@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,6 +56,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.ACCENT_COLOR_OPTIONS
 import com.swooby.parropeato.sttLocaleDisplaySubtitle
 import com.swooby.parropeato.sttLocaleGroupSubtitle
@@ -312,6 +314,22 @@ private fun SettingsL1Screen(
                     checked = cuteIcons,
                     onCheckedChange = onCuteIconsChanged,
                 )
+            }
+            if (BuildConfig.DEBUG) {
+                item { HorizontalDivider(color = Color.White.copy(alpha = 0.08f)) }
+                item {
+                    Button(
+                        onClick = { throw RuntimeException("Test Crash") },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                    ) {
+                        Text("Test Crash")
+                    }
+                }
             }
         }
     }

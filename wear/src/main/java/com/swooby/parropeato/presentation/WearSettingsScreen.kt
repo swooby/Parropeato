@@ -40,6 +40,7 @@ import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.ACCENT_COLOR_OPTIONS
 import com.swooby.parropeato.sttLocaleDisplaySubtitle
 import com.swooby.parropeato.sttLocaleGroupSubtitle
@@ -352,6 +353,16 @@ private fun SettingsL1Screen(
                     checkedToggleControlColor = Color(accentColor),
                 ),
             )
+        }
+        if (BuildConfig.DEBUG) {
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { throw RuntimeException("Test Crash") },
+                    colors = ChipDefaults.primaryChipColors(backgroundColor = Color.Red.copy(alpha = 0.8f)),
+                    label = { Text("Test Crash", maxLines = 1) },
+                )
+            }
         }
     }
 }

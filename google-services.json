@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "650853047523",
+    "project_id": "parropeato",
+    "storage_bucket": "parropeato.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:650853047523:android:8578073488d1fc2ba839d6",
+        "android_client_info": {
+          "package_name": "com.swooby.parropeato"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArWYjNcGOJm7qN9kwLyJ9C5fu3_noebhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
