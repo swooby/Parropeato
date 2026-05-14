@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_label">Mosaico de ejemplo</string>
+    <string name="complication_label">Complicación de ejemplo</string>
+    <string name="settings_speech_checking">Verificando idiomas…</string>
+    <string name="settings_open_tts_settings">Configuración de TTS</string>
+    <string name="voice_quality_standard">std</string>
+    <string name="on">Activado</string>
+    <string name="off">Desactivado</string>
+</resources>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">초기화 중…</string>
+    <string name="state_initializing_error">오류</string>
+    <string name="state_initialized">초기화됨</string>
+    <string name="state_listening">듣는 중</string>
+    <string name="state_speaking">말하는 중</string>
+    <string name="state_idle">대기 중</string>
+    <string name="state_shutting_down">종료 중</string>
+    <string name="state_shutdown">종료됨</string>
+
+    <string name="status_hold_mic_to_talk">마이크를 누르고\n말하세요</string>
+    <string name="status_listening">듣고 있습니다…</string>
+    <string name="status_thinking">생각 중…</string>
+    <string name="status_voice_speed">음성 속도 %1$.1fx</string>
+    <string name="status_voice_pitch">음성 음정 %1$.1fx</string>
+    <string name="status_volume">볼륨 %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">마이크 권한이 필요합니다.</string>
+
+    <string name="error_stt_network_timeout">네트워크 시간 초과.\n다시 시도하세요.</string>
+    <string name="error_stt_network">네트워크를 사용할 수 없습니다.\n다시 시도하세요.</string>
+    <string name="error_stt_audio">마이크 오류.\n다시 시도하세요.</string>
+    <string name="error_stt_server">서버 오류.\n다시 시도하세요.</string>
+    <string name="error_stt_client">기타 클라이언트 오류.\n다시 시도하세요.</string>
+    <string name="error_stt_speech_timeout">음성이 감지되지 않았습니다.\n다시 시도하세요.</string>
+    <string name="error_stt_no_match">알아듣지 못했습니다.\n다시 시도하세요.</string>
+    <string name="error_stt_recognizer_busy">인식기가 사용 중입니다.\n다시 시도하세요.</string>
+    <string name="error_stt_insufficient_permissions">권한이 부족합니다.\n음성 설정을 확인하세요.</string>
+    <string name="error_stt_too_many_requests">요청이 너무 많습니다.\n다시 시도하세요.</string>
+    <string name="error_stt_server_disconnected">서버가 연결 해제되었습니다.\n다시 시도하세요.</string>
+    <string name="error_stt_language_not_supported">지원하지 않는 언어입니다.\n음성 설정을 확인하세요.</string>
+    <string name="error_stt_language_unavailable">언어를 사용할 수 없습니다.\n음성 설정을 확인하세요.</string>
+    <string name="error_stt_cannot_check_support">서비스가 지원 확인을 허용하지 않습니다.\n음성 설정을 확인하세요.</string>
+    <string name="error_stt_cannot_listen_to_download_events">서비스가 모델 다운로드 이벤트를 지원하지 않습니다.\n음성 설정을 확인하세요.</string>
+    <string name="error_stt_generic">음성 오류 %1$s.\n다시 시도하세요.</string>
+    <string name="error_stt_offline_no_model">오프라인 모델이 없습니다.\n네트워크에 연결하거나\n오프라인 팩을 다운로드하세요.</string>
+    <string name="settings_stt_offline_ready">오프라인 준비 완료</string>
+    <string name="settings_stt_download_offline">오프라인 음성 모델 다운로드</string>
+    <string name="error_tts_init_failed">TTS 초기화에 실패했습니다.</string>
+    <string name="error_tts_emulator_hint">에뮬레이터에서\nTTS가 작동하지 않을 수 있습니다.</string>
+
+    <string name="tts_greeting">말을 걸어 보세요!</string>
+    <string name="tts_voice_preview">다람쥐 헌 쳇바퀴에 타고파.</string>
+
+    <string name="settings_title">설정</string>
+    <string name="settings_section_tts_language">텍스트 음성 변환</string>
+    <string name="settings_section_stt_language">음성 텍스트 변환</string>
+    <string name="settings_section_system">시스템</string>
+    <string name="settings_tts_initializing">TTS 초기화 중…</string>
+    <string name="settings_speech_checking">지원 언어 확인 중…</string>
+    <string name="settings_speech_none_found">지원 언어를 찾을 수 없습니다.</string>
+    <string name="settings_open_tts_settings">기기 TTS 설정 열기</string>
+    <string name="settings_close">닫기</string>
+    <string name="settings_cute_icons">귀여운 아이콘</string>
+    <string name="settings_accent_color">강조 색상</string>
+    <string name="accent_color_purple">보라색</string>
+    <string name="accent_color_teal">청록색</string>
+    <string name="accent_color_blue">파란색</string>
+    <string name="accent_color_green">초록색</string>
+    <string name="accent_color_yellow">노란색</string>
+    <string name="accent_color_orange">주황색</string>
+    <string name="accent_color_pink">분홍색</string>
+    <string name="accent_color_red">빨간색</string>
+
+    <string name="speech_locale_device_default">기기 기본값</string>
+
+    <string name="voice_connectivity_online">네트워크</string>
+    <string name="voice_connectivity_offline">로컬</string>
+    <string name="voice_quality_standard">표준</string>
+    <string name="voice_quality_basic">기본</string>
+    <string name="voice_gender_male">남성</string>
+    <string name="voice_gender_female">여성</string>
+
+    <string name="cd_open_settings">설정</string>
+    <string name="cd_close_settings">설정 닫기</string>
+    <string name="cd_selected">선택됨</string>
+    <string name="cd_preview_voice">음성 미리 보기</string>
+    <string name="cd_listening">듣고 있습니다</string>
+    <string name="cd_hold_to_talk">눌러서 말하기</string>
+    <string name="cd_volume_max">최대 볼륨</string>
+    <string name="cd_volume_min">최소 볼륨</string>
+    <string name="cd_voice_speed_max">최대 음성 속도</string>
+    <string name="cd_voice_speed_min">최소 음성 속도</string>
+    <string name="cd_voice_pitch_max">최대 음성 음정</string>
+    <string name="cd_voice_pitch_min">최소 음성 음정</string>
+</resources>

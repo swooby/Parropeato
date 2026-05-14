@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">初期化中…</string>
+    <string name="state_initializing_error">エラー</string>
+    <string name="state_initialized">初期化完了</string>
+    <string name="state_listening">聴いています</string>
+    <string name="state_speaking">話しています</string>
+    <string name="state_idle">待機中</string>
+    <string name="state_shutting_down">終了中</string>
+    <string name="state_shutdown">終了</string>
+
+    <string name="status_hold_mic_to_talk">マイクを押しながら\n話してください</string>
+    <string name="status_listening">聞いています…</string>
+    <string name="status_thinking">考えています…</string>
+    <string name="status_voice_speed">音声速度 %1$.1fx</string>
+    <string name="status_voice_pitch">音程 %1$.1fx</string>
+    <string name="status_volume">音量 %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">マイクの権限が必要です。</string>
+
+    <string name="error_stt_network_timeout">ネットワークがタイムアウトしました。\nもう一度お試しください。</string>
+    <string name="error_stt_network">ネットワークが利用できません。\nもう一度お試しください。</string>
+    <string name="error_stt_audio">マイクエラー。\nもう一度お試しください。</string>
+    <string name="error_stt_server">サーバーエラー。\nもう一度お試しください。</string>
+    <string name="error_stt_client">その他のクライアントエラー。\nもう一度お試しください。</string>
+    <string name="error_stt_speech_timeout">音声が聞こえませんでした。\nもう一度お試しください。</string>
+    <string name="error_stt_no_match">聞き取れませんでした。\nもう一度お試しください。</string>
+    <string name="error_stt_recognizer_busy">認識システムが混んでいます。\nもう一度お試しください。</string>
+    <string name="error_stt_insufficient_permissions">権限が不足しています。\n音声設定を確認してください。</string>
+    <string name="error_stt_too_many_requests">リクエストが多すぎます。\nもう一度お試しください。</string>
+    <string name="error_stt_server_disconnected">サーバーが切断されました。\nもう一度お試しください。</string>
+    <string name="error_stt_language_not_supported">言語がサポートされていません。\n音声設定を確認してください。</string>
+    <string name="error_stt_language_unavailable">言語が利用できません。\n音声設定を確認してください。</string>
+    <string name="error_stt_cannot_check_support">サービスがサポート確認を許可していません。\n音声設定を確認してください。</string>
+    <string name="error_stt_cannot_listen_to_download_events">サービスがモデルダウンロードイベントをサポートしていません。\n音声設定を確認してください。</string>
+    <string name="error_stt_generic">音声エラー %1$s。\nもう一度お試しください。</string>
+    <string name="error_stt_offline_no_model">オフラインモデルが利用できません。\nネットワークに接続するか、\nオフラインパックをダウンロードしてください。</string>
+    <string name="settings_stt_offline_ready">オフライン対応</string>
+    <string name="settings_stt_download_offline">オフライン音声モデルをダウンロード</string>
+    <string name="error_tts_init_failed">TTSの初期化に失敗しました。</string>
+    <string name="error_tts_emulator_hint">エミュレーターでは\nTTSが動作しない場合があります。</string>
+
+    <string name="tts_greeting">話しかけてください！</string>
+    <string name="tts_voice_preview">いろはにほへとちりぬるをわかよたれそつねならむ。</string>
+
+    <string name="settings_title">設定</string>
+    <string name="settings_section_tts_language">テキスト読み上げ</string>
+    <string name="settings_section_stt_language">音声認識</string>
+    <string name="settings_section_system">システム</string>
+    <string name="settings_tts_initializing">TTSを初期化しています…</string>
+    <string name="settings_speech_checking">対応言語を確認しています…</string>
+    <string name="settings_speech_none_found">対応言語が見つかりません。</string>
+    <string name="settings_open_tts_settings">デバイスのTTS設定を開く</string>
+    <string name="settings_close">閉じる</string>
+    <string name="settings_cute_icons">かわいいアイコン</string>
+    <string name="settings_accent_color">アクセントカラー</string>
+    <string name="accent_color_purple">紫</string>
+    <string name="accent_color_teal">ティール</string>
+    <string name="accent_color_blue">青</string>
+    <string name="accent_color_green">緑</string>
+    <string name="accent_color_yellow">黄</string>
+    <string name="accent_color_orange">オレンジ</string>
+    <string name="accent_color_pink">ピンク</string>
+    <string name="accent_color_red">赤</string>
+
+    <string name="speech_locale_device_default">デバイスのデフォルト</string>
+
+    <string name="voice_connectivity_online">ネットワーク</string>
+    <string name="voice_connectivity_offline">ローカル</string>
+    <string name="voice_quality_standard">標準</string>
+    <string name="voice_quality_basic">基本</string>
+    <string name="voice_gender_male">男性</string>
+    <string name="voice_gender_female">女性</string>
+
+    <string name="cd_open_settings">設定</string>
+    <string name="cd_close_settings">設定を閉じる</string>
+    <string name="cd_selected">選択済み</string>
+    <string name="cd_preview_voice">音声を試聴</string>
+    <string name="cd_listening">聞いています</string>
+    <string name="cd_hold_to_talk">押して話す</string>
+    <string name="cd_volume_max">最大音量</string>
+    <string name="cd_volume_min">最小音量</string>
+    <string name="cd_voice_speed_max">最大音声速度</string>
+    <string name="cd_voice_speed_min">最小音声速度</string>
+    <string name="cd_voice_pitch_max">最大音程</string>
+    <string name="cd_voice_pitch_min">最小音程</string>
+</resources>

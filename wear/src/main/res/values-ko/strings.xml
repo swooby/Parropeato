@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_label">예시 타일</string>
+    <string name="complication_label">예시 컴플리케이션</string>
+    <string name="settings_speech_checking">언어 확인 중…</string>
+    <string name="settings_open_tts_settings">TTS 설정</string>
+    <string name="voice_quality_standard">표준</string>
+    <string name="on">켜기</string>
+    <string name="off">끄기</string>
+</resources>

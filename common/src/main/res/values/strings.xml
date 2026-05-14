@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">M. Parropeato</string>
+    <string name="app_name" translatable="false">M. Parropeato</string>
+
+    <!-- ViewModel state labels -->
+    <string name="state_initializing">Initializing…</string>
+    <string name="state_initializing_error">Error</string>
+    <string name="state_initialized">Initialized</string>
+    <string name="state_listening">Listening</string>
+    <string name="state_speaking">Speaking</string>
+    <string name="state_idle">Idle</string>
+    <string name="state_shutting_down">Shutting Down</string>
+    <string name="state_shutdown">Shutdown</string>
 
     <!-- Status messages shown in the main display -->
     <string name="status_hold_mic_to_talk">Hold the mic\nto talk</string>
@@ -67,7 +77,7 @@
     <!-- Voice descriptors -->
     <string name="voice_connectivity_online">network</string>
     <string name="voice_connectivity_offline">local</string>
-    <string name="voice_quality_hd">HD</string>
+    <string name="voice_quality_hd" translatable="false">HD</string>
     <string name="voice_quality_standard">standard</string>
     <string name="voice_quality_basic">basic</string>
     <string name="voice_gender_male">male</string>

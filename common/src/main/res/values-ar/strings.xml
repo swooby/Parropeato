@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">جارٍ التهيئة…</string>
+    <string name="state_initializing_error">خطأ</string>
+    <string name="state_initialized">تم التهيئة</string>
+    <string name="state_listening">يستمع</string>
+    <string name="state_speaking">يتحدث</string>
+    <string name="state_idle">خامل</string>
+    <string name="state_shutting_down">جارٍ الإيقاف</string>
+    <string name="state_shutdown">متوقف</string>
+
+    <string name="status_hold_mic_to_talk">اضغط على الميكروفون\nللتحدث</string>
+    <string name="status_listening">جارٍ الاستماع…</string>
+    <string name="status_thinking">جارٍ التفكير…</string>
+    <string name="status_voice_speed">سرعة الصوت %1$.1fx</string>
+    <string name="status_voice_pitch">نبرة الصوت %1$.1fx</string>
+    <string name="status_volume">مستوى الصوت %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">إذن الميكروفون مطلوب.</string>
+
+    <string name="error_stt_network_timeout">انتهت مهلة الشبكة.\nحاول مجدداً.</string>
+    <string name="error_stt_network">الشبكة غير متاحة.\nحاول مجدداً.</string>
+    <string name="error_stt_audio">خطأ في الميكروفون.\nحاول مجدداً.</string>
+    <string name="error_stt_server">خطأ في الخادم.\nحاول مجدداً.</string>
+    <string name="error_stt_client">أخطاء أخرى في العميل.\nحاول مجدداً.</string>
+    <string name="error_stt_speech_timeout">لم يُسمع أي كلام.\nحاول مجدداً.</string>
+    <string name="error_stt_no_match">لم أفهم.\nحاول مجدداً.</string>
+    <string name="error_stt_recognizer_busy">المعرِّف مشغول.\nحاول مجدداً.</string>
+    <string name="error_stt_insufficient_permissions">صلاحيات غير كافية.\nتحقق من إعدادات الكلام.</string>
+    <string name="error_stt_too_many_requests">طلبات كثيرة جداً.\nحاول مجدداً.</string>
+    <string name="error_stt_server_disconnected">انقطع اتصال الخادم.\nحاول مجدداً.</string>
+    <string name="error_stt_language_not_supported">اللغة غير مدعومة.\nتحقق من إعدادات الكلام.</string>
+    <string name="error_stt_language_unavailable">اللغة غير متاحة.\nتحقق من إعدادات الكلام.</string>
+    <string name="error_stt_cannot_check_support">لا تسمح الخدمة بالتحقق من الدعم.\nتحقق من إعدادات الكلام.</string>
+    <string name="error_stt_cannot_listen_to_download_events">لا تدعم الخدمة الاستماع لأحداث تنزيل النموذج.\nتحقق من إعدادات الكلام.</string>
+    <string name="error_stt_generic">خطأ في الكلام %1$s.\nحاول مجدداً.</string>
+    <string name="error_stt_offline_no_model">لا يوجد نموذج غير متصل.\nاتصل بالشبكة\nأو نزِّل حزمة غير متصل.</string>
+    <string name="settings_stt_offline_ready">جاهز بدون اتصال</string>
+    <string name="settings_stt_download_offline">تنزيل نموذج الكلام غير المتصل</string>
+    <string name="error_tts_init_failed">فشل تهيئة تحويل النص إلى كلام.</string>
+    <string name="error_tts_emulator_hint">قد لا يعمل تحويل النص إلى كلام\nفي محاكٍ.</string>
+
+    <string name="tts_greeting">تحدث إليّ!</string>
+    <string name="tts_voice_preview">نص تجريبي لمعاينة الصوت بالعربية الجميلة.</string>
+
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_section_tts_language">تحويل النص إلى كلام</string>
+    <string name="settings_section_stt_language">تحويل الكلام إلى نص</string>
+    <string name="settings_section_system">النظام</string>
+    <string name="settings_tts_initializing">جارٍ تهيئة تحويل النص إلى كلام…</string>
+    <string name="settings_speech_checking">جارٍ التحقق من اللغات المدعومة…</string>
+    <string name="settings_speech_none_found">لم يتم العثور على لغات مدعومة.</string>
+    <string name="settings_open_tts_settings">فتح إعدادات تحويل النص إلى كلام بالجهاز</string>
+    <string name="settings_close">إغلاق</string>
+    <string name="settings_cute_icons">أيقونات لطيفة</string>
+    <string name="settings_accent_color">لون التمييز</string>
+    <string name="accent_color_purple">بنفسجي</string>
+    <string name="accent_color_teal">أزرق مخضر</string>
+    <string name="accent_color_blue">أزرق</string>
+    <string name="accent_color_green">أخضر</string>
+    <string name="accent_color_yellow">أصفر</string>
+    <string name="accent_color_orange">برتقالي</string>
+    <string name="accent_color_pink">وردي</string>
+    <string name="accent_color_red">أحمر</string>
+
+    <string name="speech_locale_device_default">افتراضي الجهاز</string>
+
+    <string name="voice_connectivity_online">شبكة</string>
+    <string name="voice_connectivity_offline">محلي</string>
+    <string name="voice_quality_standard">عادي</string>
+    <string name="voice_quality_basic">أساسي</string>
+    <string name="voice_gender_male">ذكر</string>
+    <string name="voice_gender_female">أنثى</string>
+
+    <string name="cd_open_settings">الإعدادات</string>
+    <string name="cd_close_settings">إغلاق الإعدادات</string>
+    <string name="cd_selected">محدد</string>
+    <string name="cd_preview_voice">معاينة الصوت</string>
+    <string name="cd_listening">جارٍ الاستماع</string>
+    <string name="cd_hold_to_talk">اضغط باستمرار للتحدث</string>
+    <string name="cd_volume_max">أقصى مستوى صوت</string>
+    <string name="cd_volume_min">أدنى مستوى صوت</string>
+    <string name="cd_voice_speed_max">أقصى سرعة صوت</string>
+    <string name="cd_voice_speed_min">أدنى سرعة صوت</string>
+    <string name="cd_voice_pitch_max">أقصى نبرة صوت</string>
+    <string name="cd_voice_pitch_min">أدنى نبرة صوت</string>
+</resources>

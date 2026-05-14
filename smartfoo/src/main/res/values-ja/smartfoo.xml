@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <plurals name="days">
+        <item quantity="other">%1$d 日</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="other">%1$d 時間</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="other">%1$d 分</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="other">%1$d 秒</item>
+    </plurals>
+    <plurals name="milliseconds">
+        <item quantity="other">%1$d ミリ秒</item>
+    </plurals>
+
+    <string name="audio_stream_voice_call">音声通話</string>
+    <string name="audio_stream_system" tools:ignore="DuplicateStrings">システム</string>
+    <string name="audio_stream_ring">着信音</string>
+    <string name="audio_stream_media">メディア</string>
+    <string name="audio_stream_alarm">アラーム</string>
+    <string name="audio_stream_notification" tools:ignore="DuplicateStrings">通知</string>
+    <string name="audio_stream_bluetooth_sco">Bluetooth SCO</string>
+    <string name="audio_stream_system_enforced">システム強制</string>
+    <string name="audio_stream_dtmf">DTMF</string>
+    <string name="audio_stream_text_to_speech" tools:ignore="DuplicateStrings">テキスト読み上げ</string>
+    <string name="audio_stream_unknown">不明</string>
+
+</resources>

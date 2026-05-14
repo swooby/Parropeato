@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">正在初始化…</string>
+    <string name="state_initializing_error">錯誤</string>
+    <string name="state_initialized">已初始化</string>
+    <string name="state_listening">正在聆聽</string>
+    <string name="state_speaking">正在說話</string>
+    <string name="state_idle">閒置</string>
+    <string name="state_shutting_down">正在關閉</string>
+    <string name="state_shutdown">已關閉</string>
+
+    <string name="status_hold_mic_to_talk">按住麥克風\n說話</string>
+    <string name="status_listening">聆聽中…</string>
+    <string name="status_thinking">思考中…</string>
+    <string name="status_voice_speed">語音速度 %1$.1fx</string>
+    <string name="status_voice_pitch">語音音調 %1$.1fx</string>
+    <string name="status_volume">音量 %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">需要麥克風權限。</string>
+
+    <string name="error_stt_network_timeout">網路逾時。\n請再試一次。</string>
+    <string name="error_stt_network">網路無法使用。\n請再試一次。</string>
+    <string name="error_stt_audio">麥克風錯誤。\n請再試一次。</string>
+    <string name="error_stt_server">伺服器錯誤。\n請再試一次。</string>
+    <string name="error_stt_client">其他用戶端錯誤。\n請再試一次。</string>
+    <string name="error_stt_speech_timeout">未偵測到語音。\n請再試一次。</string>
+    <string name="error_stt_no_match">聽不清楚。\n請再試一次。</string>
+    <string name="error_stt_recognizer_busy">識別器忙碌中。\n請再試一次。</string>
+    <string name="error_stt_insufficient_permissions">權限不足。\n請檢查語音設定。</string>
+    <string name="error_stt_too_many_requests">請求太多。\n請再試一次。</string>
+    <string name="error_stt_server_disconnected">伺服器已斷線。\n請再試一次。</string>
+    <string name="error_stt_language_not_supported">不支援此語言。\n請檢查語音設定。</string>
+    <string name="error_stt_language_unavailable">語言無法使用。\n請檢查語音設定。</string>
+    <string name="error_stt_cannot_check_support">服務不允許檢查支援。\n請檢查語音設定。</string>
+    <string name="error_stt_cannot_listen_to_download_events">服務不支援監聽模型下載事件。\n請檢查語音設定。</string>
+    <string name="error_stt_generic">語音錯誤 %1$s。\n請再試一次。</string>
+    <string name="error_stt_offline_no_model">沒有可用的離線模型。\n請連接網路\n或下載離線套件。</string>
+    <string name="settings_stt_offline_ready">離線就緒</string>
+    <string name="settings_stt_download_offline">下載離線語音模型</string>
+    <string name="error_tts_init_failed">語音合成初始化失敗。</string>
+    <string name="error_tts_emulator_hint">語音合成可能在\n模擬器中無法使用。</string>
+
+    <string name="tts_greeting">和我說話吧！</string>
+    <string name="tts_voice_preview">視聽語言學習讓人感到快樂與滿足。</string>
+
+    <string name="settings_title">設定</string>
+    <string name="settings_section_tts_language">文字轉語音</string>
+    <string name="settings_section_stt_language">語音轉文字</string>
+    <string name="settings_section_system">系統</string>
+    <string name="settings_tts_initializing">正在初始化語音合成…</string>
+    <string name="settings_speech_checking">正在確認支援的語言…</string>
+    <string name="settings_speech_none_found">找不到支援的語言。</string>
+    <string name="settings_open_tts_settings">開啟裝置語音設定</string>
+    <string name="settings_close">關閉</string>
+    <string name="settings_cute_icons">可愛圖示</string>
+    <string name="settings_accent_color">強調色</string>
+    <string name="accent_color_purple">紫色</string>
+    <string name="accent_color_teal">藍綠色</string>
+    <string name="accent_color_blue">藍色</string>
+    <string name="accent_color_green">綠色</string>
+    <string name="accent_color_yellow">黃色</string>
+    <string name="accent_color_orange">橙色</string>
+    <string name="accent_color_pink">粉紅色</string>
+    <string name="accent_color_red">紅色</string>
+
+    <string name="speech_locale_device_default">裝置預設</string>
+
+    <string name="voice_connectivity_online">網路</string>
+    <string name="voice_connectivity_offline">本地</string>
+    <string name="voice_quality_standard">標準</string>
+    <string name="voice_quality_basic">基本</string>
+    <string name="voice_gender_male">男性</string>
+    <string name="voice_gender_female">女性</string>
+
+    <string name="cd_open_settings">設定</string>
+    <string name="cd_close_settings">關閉設定</string>
+    <string name="cd_selected">已選取</string>
+    <string name="cd_preview_voice">預覽語音</string>
+    <string name="cd_listening">聆聽中</string>
+    <string name="cd_hold_to_talk">按住說話</string>
+    <string name="cd_volume_max">最大音量</string>
+    <string name="cd_volume_min">最小音量</string>
+    <string name="cd_voice_speed_max">最大語音速度</string>
+    <string name="cd_voice_speed_min">最小語音速度</string>
+    <string name="cd_voice_pitch_max">最大語音音調</string>
+    <string name="cd_voice_pitch_min">最小語音音調</string>
+</resources>

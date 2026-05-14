@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">Menginisialisasi…</string>
+    <string name="state_initializing_error">Kesalahan</string>
+    <string name="state_initialized">Diinisialisasi</string>
+    <string name="state_listening">Mendengarkan</string>
+    <string name="state_speaking">Berbicara</string>
+    <string name="state_idle">Diam</string>
+    <string name="state_shutting_down">Menutup</string>
+    <string name="state_shutdown">Ditutup</string>
+
+    <string name="status_hold_mic_to_talk">Tahan mikrofon\nuntuk berbicara</string>
+    <string name="status_listening">Mendengarkan…</string>
+    <string name="status_thinking">Berpikir…</string>
+    <string name="status_voice_speed">Kecepatan suara %1$.1fx</string>
+    <string name="status_voice_pitch">Nada suara %1$.1fx</string>
+    <string name="status_volume">Volume %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">Izin mikrofon diperlukan.</string>
+
+    <string name="error_stt_network_timeout">Jaringan habis waktu.\nCoba lagi.</string>
+    <string name="error_stt_network">Jaringan tidak tersedia.\nCoba lagi.</string>
+    <string name="error_stt_audio">Kesalahan mikrofon.\nCoba lagi.</string>
+    <string name="error_stt_server">Kesalahan server.\nCoba lagi.</string>
+    <string name="error_stt_client">Kesalahan sisi klien lainnya.\nCoba lagi.</string>
+    <string name="error_stt_speech_timeout">Tidak ada suara terdengar.\nCoba lagi.</string>
+    <string name="error_stt_no_match">Tidak terdengar jelas.\nCoba lagi.</string>
+    <string name="error_stt_recognizer_busy">Pengenal sibuk.\nCoba lagi.</string>
+    <string name="error_stt_insufficient_permissions">Izin tidak cukup.\nPeriksa pengaturan ucapan.</string>
+    <string name="error_stt_too_many_requests">Terlalu banyak permintaan.\nCoba lagi.</string>
+    <string name="error_stt_server_disconnected">Server terputus.\nCoba lagi.</string>
+    <string name="error_stt_language_not_supported">Bahasa tidak didukung.\nPeriksa pengaturan ucapan.</string>
+    <string name="error_stt_language_unavailable">Bahasa tidak tersedia.\nPeriksa pengaturan ucapan.</string>
+    <string name="error_stt_cannot_check_support">Layanan tidak mengizinkan pemeriksaan dukungan.\nPeriksa pengaturan ucapan.</string>
+    <string name="error_stt_cannot_listen_to_download_events">Layanan tidak mendukung acara unduhan model.\nPeriksa pengaturan ucapan.</string>
+    <string name="error_stt_generic">Kesalahan ucapan %1$s.\nCoba lagi.</string>
+    <string name="error_stt_offline_no_model">Tidak ada model offline tersedia.\nHubungkan ke jaringan\natau unduh paket offline.</string>
+    <string name="settings_stt_offline_ready">siap offline</string>
+    <string name="settings_stt_download_offline">Unduh model ucapan offline</string>
+    <string name="error_tts_init_failed">Gagal menginisialisasi TTS.</string>
+    <string name="error_tts_emulator_hint">TTS mungkin tidak berfungsi\ndi emulator.</string>
+
+    <string name="tts_greeting">Bicara padaku!</string>
+    <string name="tts_voice_preview">Saya pikir semua orang harus belajar bahasa baru setiap hari.</string>
+
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_section_tts_language">Teks ke Suara</string>
+    <string name="settings_section_stt_language">Suara ke Teks</string>
+    <string name="settings_section_system">Sistem</string>
+    <string name="settings_tts_initializing">Menginisialisasi TTS…</string>
+    <string name="settings_speech_checking">Memeriksa bahasa yang didukung…</string>
+    <string name="settings_speech_none_found">Tidak ada bahasa yang didukung ditemukan.</string>
+    <string name="settings_open_tts_settings">Buka Pengaturan TTS Perangkat</string>
+    <string name="settings_close">Tutup</string>
+    <string name="settings_cute_icons">Ikon Lucu</string>
+    <string name="settings_accent_color">Warna Aksen</string>
+    <string name="accent_color_purple">Ungu</string>
+    <string name="accent_color_teal">Teal</string>
+    <string name="accent_color_blue">Biru</string>
+    <string name="accent_color_green">Hijau</string>
+    <string name="accent_color_yellow">Kuning</string>
+    <string name="accent_color_orange">Oranye</string>
+    <string name="accent_color_pink">Merah Muda</string>
+    <string name="accent_color_red">Merah</string>
+
+    <string name="speech_locale_device_default">Default Perangkat</string>
+
+    <string name="voice_connectivity_online">jaringan</string>
+    <string name="voice_connectivity_offline">lokal</string>
+    <string name="voice_quality_standard">standar</string>
+    <string name="voice_quality_basic">dasar</string>
+    <string name="voice_gender_male">pria</string>
+    <string name="voice_gender_female">wanita</string>
+
+    <string name="cd_open_settings">Pengaturan</string>
+    <string name="cd_close_settings">Tutup pengaturan</string>
+    <string name="cd_selected">Dipilih</string>
+    <string name="cd_preview_voice">Pratinjau suara</string>
+    <string name="cd_listening">Mendengarkan</string>
+    <string name="cd_hold_to_talk">Tahan untuk berbicara</string>
+    <string name="cd_volume_max">Volume maksimum</string>
+    <string name="cd_volume_min">Volume minimum</string>
+    <string name="cd_voice_speed_max">Kecepatan suara maksimum</string>
+    <string name="cd_voice_speed_min">Kecepatan suara minimum</string>
+    <string name="cd_voice_pitch_max">Nada suara maksimum</string>
+    <string name="cd_voice_pitch_min">Nada suara minimum</string>
+</resources>

@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="i18n-title" content="prv_title">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -62,37 +63,54 @@
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     footer a {
       color: #0b57d0;
     }
+
+    #lang-picker {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      background: #fff;
+      color: #1f2933;
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    [dir="rtl"] .back-link::before { content: '\2192\00a0'; }
+    [dir="ltr"] .back-link::before { content: '\2190\00a0'; }
+    .back-link::before { display: inline; }
   </style>
 </head>
 <body>
   <main>
-    <h1>M. Parropeato Privacy Policy</h1>
-    <p class="updated">Last updated: May 9, 2026</p>
+    <h1 data-i18n="prv_h1">M. Parropeato Privacy Policy</h1>
+    <p class="updated" data-i18n="prv_updated">Last updated: May 9, 2026</p>
 
-    <p>
+    <p data-i18n="prv_intro">
       This Privacy Policy describes how M. Parropeato handles information when you use the M. Parropeato Android or Wear OS app.
       M. Parropeato is designed to run on your phone or watch and provide voice-driven interaction using Android speech
       recognition and text-to-speech features.
     </p>
 
-    <h2>Information M. Parropeato Accesses</h2>
-    <p>
+    <h2 data-i18n="prv_s1_h">Information M. Parropeato Accesses</h2>
+    <p data-i18n-html="prv_s1_p1_html">
       M. Parropeato requests microphone access through the Android <code>RECORD_AUDIO</code> permission. The app uses
       this access when you choose to speak to the app so Android speech recognition can convert your speech into
       text.
     </p>
-    <p>
+    <p data-i18n="prv_s1_p2">
       M. Parropeato also uses Android text-to-speech to speak responses aloud. Text-to-speech output may be processed
       by the text-to-speech engine installed on your device.
     </p>
 
-    <h2>How Audio Is Used</h2>
-    <p>
+    <h2 data-i18n="prv_s2_h">How Audio Is Used</h2>
+    <p data-i18n="prv_s2_p">
       Microphone audio is used for speech recognition. M. Parropeato does not record, store, sell, or
       share your microphone audio with the app developer. Speech recognition is handled by the Android speech
       recognition service available on your device. Depending on your device settings, installed speech service,
@@ -100,62 +118,64 @@
       on-device or by the user selected speech service provider.
     </p>
 
-    <h2>Information M. Parropeato Collects</h2>
-    <p>
+    <h2 data-i18n="prv_s3_h">Information M. Parropeato Collects</h2>
+    <p data-i18n="prv_s3_p">
       The current app does not create user accounts and does not collect personal information for
       the app developer. The app does not operate a developer-controlled server for storing microphone audio,
       speech transcripts, or text-to-speech content.
     </p>
 
-    <h2>Third-Party Services</h2>
-    <p>
+    <h2 data-i18n="prv_s4_h">Third-Party Services</h2>
+    <p data-i18n="prv_s4_p">
       M. Parropeato relies on Android and Wear OS system services, including speech recognition and text-to-speech.
       These services are provided by your device, Google, or another service provider configured on your device.
       Their handling of data is governed by their own privacy policies and your device settings.
     </p>
 
-    <h2>Data Sharing</h2>
-    <p>
+    <h2 data-i18n="prv_s5_h">Data Sharing</h2>
+    <p data-i18n="prv_s5_p">
       M. Parropeato does not collect, retain, or sell personal information. M. Parropeato does not share microphone audio,
       speech transcripts, or text-to-speech content with the app developer or advertisers. System speech and
       text-to-speech services may process data as described by their providers.
     </p>
 
-    <h2>Data Retention and Deletion</h2>
-    <p>
+    <h2 data-i18n="prv_s6_h">Data Retention and Deletion</h2>
+    <p data-i18n="prv_s6_p">
       Because M. Parropeato does not store microphone audio, speech transcripts, or user accounts for
       the app developer, there is no developer-hosted account data to delete. You can revoke microphone access
       at any time in Android or Wear OS app permission settings. You can also uninstall the app to remove its
       local app data from your device.
     </p>
 
-    <h2>Security</h2>
-    <p>
+    <h2 data-i18n="prv_s7_h">Security</h2>
+    <p data-i18n="prv_s7_p">
       M. Parropeato uses Android platform permission controls for microphone access. No method of electronic
       processing is perfectly secure, but the app is designed to avoid collecting or storing microphone audio
       for the app developer.
     </p>
 
-    <h2>Children</h2>
-    <p>
+    <h2 data-i18n="prv_s8_h">Children</h2>
+    <p data-i18n="prv_s8_p">
       M. Parropeato is not directed to children. The app does not knowingly collect personal information from children.
     </p>
 
-    <h2>Changes</h2>
-    <p>
+    <h2 data-i18n="prv_s9_h">Changes</h2>
+    <p data-i18n="prv_s9_p">
       This Privacy Policy may be updated as M. Parropeato changes. Updates will be posted on this page with a revised
       last updated date.
     </p>
 
-    <h2>Contact</h2>
-    <p>
+    <h2 data-i18n="prv_s10_h">Contact</h2>
+    <p data-i18n-html="prv_s10_p_html">
       For privacy questions, open an issue at
       <a href="https://github.com/swooby/Parropeato/issues">github.com/swooby/Parropeato/issues</a>.
     </p>
   </main>
   <footer>
-    <span>&copy; 2026 swooby</span>
-    <a href="index.html">&larr; Back to M. Parropeato</a>
+    <span data-i18n="prv_footer_copy">&copy; 2026 swooby</span>
+    <select id="lang-picker" aria-label="Select language"></select>
+    <a class="back-link" href="index.html" data-i18n="prv_back">← Back to M. Parropeato</a>
   </footer>
+  <script src="i18n.js"></script>
 </body>
 </html>

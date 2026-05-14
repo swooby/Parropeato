@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <plurals name="days">
+        <item quantity="one">%1$d jour</item>
+        <item quantity="other">%1$d jours</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%1$d heure</item>
+        <item quantity="other">%1$d heures</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="one">%1$d seconde</item>
+        <item quantity="other">%1$d secondes</item>
+    </plurals>
+    <plurals name="milliseconds">
+        <item quantity="one">%1$d milliseconde</item>
+        <item quantity="other">%1$d millisecondes</item>
+    </plurals>
+
+    <string name="audio_stream_voice_call">Appel vocal</string>
+    <string name="audio_stream_system" tools:ignore="DuplicateStrings">Système</string>
+    <string name="audio_stream_ring">Sonnerie</string>
+    <string name="audio_stream_media">Média</string>
+    <string name="audio_stream_alarm">Alarme</string>
+    <string name="audio_stream_notification" tools:ignore="DuplicateStrings">Notification</string>
+    <string name="audio_stream_bluetooth_sco">Bluetooth SCO</string>
+    <string name="audio_stream_system_enforced">Système imposé</string>
+    <string name="audio_stream_dtmf">DTMF</string>
+    <string name="audio_stream_text_to_speech" tools:ignore="DuplicateStrings">Synthèse vocale</string>
+    <string name="audio_stream_unknown">Inconnu</string>
+
+</resources>

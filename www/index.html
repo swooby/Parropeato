@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="i18n-title" content="idx_title">
   <meta
     name="description"
     content="M. Parropeato is a dumb fun toy app that confidently parrots back what [it thought] you said.">
@@ -108,6 +109,26 @@
       opacity: 1;
       text-decoration: underline;
       text-underline-offset: 4px;
+    }
+
+    /* Language picker */
+    #lang-picker {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.10);
+      color: #fffdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      cursor: pointer;
+      max-width: 140px;
+    }
+
+    #lang-picker option {
+      background: #003a3e;
+      color: #fffdf8;
     }
 
     .hero {
@@ -357,7 +378,7 @@
       color: var(--muted);
     }
 
-.closing {
+    .closing {
       display: grid;
       grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
       align-items: center;
@@ -490,8 +511,30 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    @media (max-width: 400px) {
-      .nav-links a:first-child {
+    @media (max-width: 600px) {
+      .nav {
+        justify-content: flex-start;
+        gap: 10px;
+        min-height: 56px;
+        width: calc(100% - 24px);
+      }
+
+      .brand {
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+
+      .brand img {
+        width: 34px;
+        height: 34px;
+      }
+
+      .nav-links {
+        margin-left: auto;
+        gap: 8px;
+      }
+
+      .nav-links a {
         display: none;
       }
 
@@ -531,21 +574,23 @@
   </style>
 </head>
 <body>
-  <header class="site-header" aria-label="Primary navigation">
+  <header class="site-header" data-i18n-attr="aria-label:nav_aria">
     <nav class="nav">
-      <a class="brand" href="#top" aria-label="M. Parropeato home">
+      <a class="brand" href="#top" data-i18n-attr="aria-label:nav_home_aria">
         <img src="M%20Parropeato%20Icon%202.png" alt="" width="42" height="42">
-        <span>M. Parropeato</span>
+        <span>M.&nbsp;Parropeato</span>
       </a>
-      <div class="nav-links" aria-label="Page links">
-        <a href="#what-it-does">What it does</a>
-        <a href="#privacy">Privacy</a>
+      <div class="nav-links" data-i18n-attr="aria-label:nav_links_aria">
+        <a href="#what-it-does" data-i18n="nav_what">What it does</a>
+        <a href="#privacy" data-i18n="nav_privacy">Privacy</a>
+        <select id="lang-picker" data-i18n-attr="aria-label:lang_aria"></select>
       </div>
-      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+      <button class="menu-toggle" data-i18n-attr="aria-label:menu_open" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
       <div class="nav-dropdown" role="menu">
-        <a href="#what-it-does" role="menuitem">What it does</a>
+        <a href="#what-it-does" role="menuitem" data-i18n="nav_what">What it does</a>
+        <a href="#privacy" role="menuitem" data-i18n="nav_privacy">Privacy</a>
       </div>
     </nav>
   </header>
@@ -554,20 +599,23 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-inner">
         <div class="hero-copy">
-          <p class="eyebrow">Android + Wear OS</p>
+          <p class="eyebrow" data-i18n="eyebrow">Android + Wear OS</p>
           <h1 id="hero-title">M.&nbsp;Parropeato</h1>
-          <p class="lede">
+          <p class="lede" data-i18n="lede">
             A dumb fun app that confidently parrots back what [it thought] you said.
           </p>
           <div class="actions">
-            <a class="store-link" href="https://play.google.com/store/apps/details?id=com.swooby.parropeato" aria-label="Get M. Parropeato on Google Play">
+            <a class="store-link"
+               href="https://play.google.com/store/apps/details?id=com.swooby.parropeato"
+               data-i18n-attr="aria-label:store_aria">
               <img
                 src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                data-i18n-attr="alt:store_alt"
                 alt="Get it on Google Play"
                 width="646"
                 height="250">
             </a>
-            <a class="button secondary" href="https://github.com/swooby/Parropeato">View on GitHub</a>
+            <a class="button secondary" href="https://github.com/swooby/Parropeato" data-i18n="github">View on GitHub</a>
           </div>
         </div>
       </div>
@@ -575,9 +623,9 @@
 
     <section class="section" id="what-it-does">
       <div class="wrap">
-        <p class="section-kicker">What it does</p>
-        <h2>Low fuss, quick laughs, proudly ridiculous.</h2>
-        <p class="section-copy">
+        <p class="section-kicker" data-i18n="s1_kicker">What it does</p>
+        <h2 data-i18n="s1_h2">Low fuss, quick laughs, proudly ridiculous.</h2>
+        <p class="section-copy" data-i18n="s1_copy">
           Built for tiny moments of audio nonsense: a family room game, a party trick,
           a bored-in-line experiment, or a very serious investigation into how wrong
           one little robot can be.
@@ -586,18 +634,18 @@
         <div class="feature-grid">
           <article class="feature">
             <div class="feature-mark">1</div>
-            <h3>Tap and speak</h3>
-            <p>Open the app, tap to start, then say a phrase, a joke, a name, or a noise with no known spelling.</p>
+            <h3 data-i18n="f1_h3">Tap and speak</h3>
+            <p data-i18n="f1_p">Open the app, tap to start, then say a phrase, a joke, a name, or a noise with no known spelling.</p>
           </article>
           <article class="feature">
             <div class="feature-mark">2</div>
-            <h3>It takes a guess</h3>
-            <p>Speech recognition turns the audio into text. Sometimes brilliant. Sometimes baffled. Always confident.</p>
+            <h3 data-i18n="f2_h3">It takes a guess</h3>
+            <p data-i18n="f2_p">Speech recognition turns the audio into text. Sometimes brilliant. Sometimes baffled. Always confident.</p>
           </article>
           <article class="feature">
             <div class="feature-mark">3</div>
-            <h3>Hear it back</h3>
-            <p>Release and hear what the recognizer decided you said — read aloud on your phone or Wear OS watch.</p>
+            <h3 data-i18n="f3_h3">Hear it back</h3>
+            <p data-i18n="f3_p">Release and hear what the recognizer decided you said — read aloud on your phone or Wear OS watch.</p>
           </article>
         </div>
       </div>
@@ -605,17 +653,17 @@
 
     <section class="section" id="privacy">
       <div class="wrap closing">
-        <img src="M%20Parropeato%20Icon%202.png" alt="M. Parropeato mascot artwork" width="1254" height="1254">
+        <img src="M%20Parropeato%20Icon%202.png" data-i18n-attr="alt:mascot_alt" alt="M. Parropeato mascot artwork" width="1254" height="1254">
         <div>
-          <p class="section-kicker">Privacy</p>
-          <h2>A toy app shouldn't be complicated.</h2>
-          <p class="section-copy">
+          <p class="section-kicker" data-i18n="s2_kicker">Privacy</p>
+          <h2 data-i18n="s2_h2">A toy app shouldn't be complicated.</h2>
+          <p class="section-copy" data-i18n="s2_copy">
             M. Parropeato does not run a developer-controlled server for storing microphone audio,
             speech transcripts, or text-to-speech content. The app relies on the speech
             services already available on your device.
           </p>
           <p class="actions" style="margin-top: 28px;">
-            <a class="button primary" href="privacy-policy.html">Read the privacy policy</a>
+            <a class="button primary" href="privacy-policy.html" data-i18n="privacy_btn">Read the privacy policy</a>
           </p>
         </div>
       </div>
@@ -624,7 +672,7 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <span>&copy; 2026 swooby &middot; M. Parropeato, a small app for big silly echoes.</span>
+      <span data-i18n="footer_copy">&copy; 2026 swooby &middot; M. Parropeato, a small app for big silly echoes.</span>
       <a href="https://github.com/swooby/Parropeato">github.com/swooby/Parropeato</a>
     </div>
   </footer>
@@ -640,5 +688,6 @@
       toggle.setAttribute('aria-expanded', false);
     }));
   </script>
+  <script src="i18n.js"></script>
 </body>
 </html>

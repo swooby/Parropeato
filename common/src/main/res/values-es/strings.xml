@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">Inicializando…</string>
+    <string name="state_initializing_error">Error</string>
+    <string name="state_initialized">Inicializado</string>
+    <string name="state_listening">Escuchando</string>
+    <string name="state_speaking">Hablando</string>
+    <string name="state_idle">En espera</string>
+    <string name="state_shutting_down">Cerrando</string>
+    <string name="state_shutdown">Cerrado</string>
+
+    <string name="status_hold_mic_to_talk">Mantén el micrófono\npara hablar</string>
+    <string name="status_listening">Escuchando…</string>
+    <string name="status_thinking">Pensando…</string>
+    <string name="status_voice_speed">Velocidad de voz %1$.1fx</string>
+    <string name="status_voice_pitch">Tono de voz %1$.1fx</string>
+    <string name="status_volume">Volumen %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">Se requiere permiso de micrófono.</string>
+
+    <string name="error_stt_network_timeout">Tiempo de red agotado.\nInténtalo de nuevo.</string>
+    <string name="error_stt_network">Red no disponible.\nInténtalo de nuevo.</string>
+    <string name="error_stt_audio">Error de micrófono.\nInténtalo de nuevo.</string>
+    <string name="error_stt_server">Error del servidor.\nInténtalo de nuevo.</string>
+    <string name="error_stt_client">Otros errores del cliente.\nInténtalo de nuevo.</string>
+    <string name="error_stt_speech_timeout">No se escuchó voz.\nInténtalo de nuevo.</string>
+    <string name="error_stt_no_match">No se entendió.\nInténtalo de nuevo.</string>
+    <string name="error_stt_recognizer_busy">Reconocedor ocupado.\nInténtalo de nuevo.</string>
+    <string name="error_stt_insufficient_permissions">Permisos insuficientes.\nRevisa la configuración de voz.</string>
+    <string name="error_stt_too_many_requests">Demasiadas solicitudes.\nInténtalo de nuevo.</string>
+    <string name="error_stt_server_disconnected">Servidor desconectado.\nInténtalo de nuevo.</string>
+    <string name="error_stt_language_not_supported">Idioma no compatible.\nRevisa la configuración de voz.</string>
+    <string name="error_stt_language_unavailable">Idioma no disponible.\nRevisa la configuración de voz.</string>
+    <string name="error_stt_cannot_check_support">El servicio no permite verificar la compatibilidad.\nRevisa la configuración de voz.</string>
+    <string name="error_stt_cannot_listen_to_download_events">El servicio no admite escuchar eventos de descarga de modelos.\nRevisa la configuración de voz.</string>
+    <string name="error_stt_generic">Error de voz %1$s.\nInténtalo de nuevo.</string>
+    <string name="error_stt_offline_no_model">No hay modelo sin conexión disponible.\nConéctate a la red\no descarga un paquete sin conexión.</string>
+    <string name="settings_stt_offline_ready">listo sin conexión</string>
+    <string name="settings_stt_download_offline">Descargar modelo de voz sin conexión</string>
+    <string name="error_tts_init_failed">Error al inicializar el sintetizador de voz.</string>
+    <string name="error_tts_emulator_hint">El sintetizador de voz puede no funcionar\nen un emulador.</string>
+
+    <string name="tts_greeting">¡Háblame!</string>
+    <string name="tts_voice_preview">El veloz murciélago hindú comía feliz cardillo y kiwi.</string>
+
+    <string name="settings_title">Configuración</string>
+    <string name="settings_section_tts_language">Texto a voz</string>
+    <string name="settings_section_stt_language">Voz a texto</string>
+    <string name="settings_section_system">Sistema</string>
+    <string name="settings_tts_initializing">Inicializando síntesis de voz…</string>
+    <string name="settings_speech_checking">Verificando idiomas compatibles…</string>
+    <string name="settings_speech_none_found">No se encontraron idiomas compatibles.</string>
+    <string name="settings_open_tts_settings">Abrir configuración de voz del dispositivo</string>
+    <string name="settings_close">Cerrar</string>
+    <string name="settings_cute_icons">Iconos bonitos</string>
+    <string name="settings_accent_color">Color de acento</string>
+    <string name="accent_color_purple">Morado</string>
+    <string name="accent_color_teal">Verde azulado</string>
+    <string name="accent_color_blue">Azul</string>
+    <string name="accent_color_green">Verde</string>
+    <string name="accent_color_yellow">Amarillo</string>
+    <string name="accent_color_orange">Naranja</string>
+    <string name="accent_color_pink">Rosa</string>
+    <string name="accent_color_red">Rojo</string>
+
+    <string name="speech_locale_device_default">Predeterminado del dispositivo</string>
+
+    <string name="voice_connectivity_online">red</string>
+    <string name="voice_connectivity_offline">local</string>
+    <string name="voice_quality_standard">estándar</string>
+    <string name="voice_quality_basic">básico</string>
+    <string name="voice_gender_male">masculino</string>
+    <string name="voice_gender_female">femenino</string>
+
+    <string name="cd_open_settings">Configuración</string>
+    <string name="cd_close_settings">Cerrar configuración</string>
+    <string name="cd_selected">Seleccionado</string>
+    <string name="cd_preview_voice">Vista previa de voz</string>
+    <string name="cd_listening">Escuchando</string>
+    <string name="cd_hold_to_talk">Mantén para hablar</string>
+    <string name="cd_volume_max">Volumen máximo</string>
+    <string name="cd_volume_min">Volumen mínimo</string>
+    <string name="cd_voice_speed_max">Velocidad de voz máxima</string>
+    <string name="cd_voice_speed_min">Velocidad de voz mínima</string>
+    <string name="cd_voice_pitch_max">Tono de voz máximo</string>
+    <string name="cd_voice_pitch_min">Tono de voz mínimo</string>
+</resources>
