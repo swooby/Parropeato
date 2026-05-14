@@ -11,6 +11,14 @@ The files in this folder are published to GitHub Pages.
 - Pull requests that change `www/**` deploy a preview to `pr-preview/pr-<PR number>/`.
 - The workflow comments the preview URL on the PR.
 
+## Required GitHub Pages settings
+
+In `Settings` → `Pages`, configure:
+
+- **Source:** `Deploy from a branch`
+- **Branch:** `gh-pages`
+- **Folder:** `/(root)`
+
 ## Local preview
 
 Use any static HTTP server from this folder:
