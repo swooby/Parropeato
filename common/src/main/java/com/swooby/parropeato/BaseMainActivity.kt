@@ -620,6 +620,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
     }
 
+    @Suppress("unused")
     private fun speechRecognizerCancel() {
         if (::speechRecognizer.isInitialized) {
             speechRecognizer.cancel()
@@ -738,6 +739,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             ?: latestPartialRecognition?.takeIf { it.isNotBlank() }
 }
 
+@Suppress("SameParameterValue")
 @Composable
 private fun ParropeatoApp(
     viewModel: ParropeatoViewModel,
