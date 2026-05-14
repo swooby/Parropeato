@@ -65,6 +65,27 @@ android {
         compose = true
         buildConfig = true
     }
+    packaging {
+        resources {
+            excludes += setOf(
+                "LICENSE",
+                "LICENSE.txt",
+                "LICENSE.md",
+                "NOTICE",
+                "NOTICE.txt",
+                "NOTICE.md",
+                "README.md",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/LICENSE.md",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/NOTICE.md",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+            )
+        }
+    }
 }
 
 dependencies {
