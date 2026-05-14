@@ -14,6 +14,11 @@ class MainActivity : BaseMainActivity() {
     override val watchFaceControlsScale: Float = 1f
     override val watchFaceBorderOutset: Boolean = true
 
+    override fun onStop() {
+        super.onStop()
+        finish()
+    }
+
     @Composable
     override fun PlatformOverlay(onSettingsClick: () -> Unit) {
         TimeText()

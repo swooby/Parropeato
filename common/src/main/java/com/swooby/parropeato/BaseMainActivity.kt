@@ -153,7 +153,6 @@ abstract class BaseMainActivity : ComponentActivity() {
         viewModel.isNetworkAvailable = connectivityManager
             .getNetworkCapabilities(connectivityManager.activeNetwork)
             ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
-        connectivityManager.registerDefaultNetworkCallback(networkCallback)
         viewModel.voiceSpeed = settings.ttsVoiceSpeed
         viewModel.voicePitch = settings.ttsPitch
         viewModel.speechRecognizerLocale = settings.speechRecognizerLocale
@@ -175,7 +174,6 @@ abstract class BaseMainActivity : ComponentActivity() {
                 this@BaseMainActivity.onTextToSpeechInitialized(status)
             }
         })
-        tts.start(this)
     }
 
     protected fun initSpeechRecognizer(updatePrompt: Boolean = true) {
@@ -352,17 +350,27 @@ abstract class BaseMainActivity : ComponentActivity() {
         )
     }
 
+    override fun onStart() {
+        super.onStart()
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        tts.start(this)
+    }
+
     override fun onPause() {
         super.onPause()
         viewModel.state = ParropeatoViewModel.State.ShuttingDown
         speechRecognizerStop()
     }
 
+    override fun onStop() {
+        super.onStop()
+        tts.stop()
+        connectivityManager.unregisterNetworkCallback(networkCallback)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         viewModel.state = ParropeatoViewModel.State.Shutdown
-        tts.stop()
-        connectivityManager.unregisterNetworkCallback(networkCallback)
         speechRecognizerDestroy()
     }
 
