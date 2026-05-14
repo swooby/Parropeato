@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <plurals name="days">
+        <item quantity="one">%1$d दिन</item>
+        <item quantity="other">%1$d दिन</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%1$d घंटा</item>
+        <item quantity="other">%1$d घंटे</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%1$d मिनट</item>
+        <item quantity="other">%1$d मिनट</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="one">%1$d सेकंड</item>
+        <item quantity="other">%1$d सेकंड</item>
+    </plurals>
+    <plurals name="milliseconds">
+        <item quantity="one">%1$d मिलीसेकंड</item>
+        <item quantity="other">%1$d मिलीसेकंड</item>
+    </plurals>
+
+    <string name="audio_stream_voice_call">वॉइस कॉल</string>
+    <string name="audio_stream_system" tools:ignore="DuplicateStrings">सिस्टम</string>
+    <string name="audio_stream_ring">रिंग</string>
+    <string name="audio_stream_media">मीडिया</string>
+    <string name="audio_stream_alarm">अलार्म</string>
+    <string name="audio_stream_notification" tools:ignore="DuplicateStrings">सूचना</string>
+    <string name="audio_stream_bluetooth_sco">Bluetooth SCO</string>
+    <string name="audio_stream_system_enforced">सिस्टम प्रवर्तित</string>
+    <string name="audio_stream_dtmf">DTMF</string>
+    <string name="audio_stream_text_to_speech" tools:ignore="DuplicateStrings">टेक्स्ट से वाणी</string>
+    <string name="audio_stream_unknown">अज्ञात</string>
+
+</resources>

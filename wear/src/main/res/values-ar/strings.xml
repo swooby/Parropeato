@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_label">بلاطة مثال</string>
+    <string name="complication_label">تعقيد مثال</string>
+    <string name="settings_speech_checking">التحقق من اللغات…</string>
+    <string name="settings_open_tts_settings">إعدادات TTS</string>
+    <string name="voice_quality_standard">عادي</string>
+    <string name="on">تشغيل</string>
+    <string name="off">إيقاف</string>
+</resources>

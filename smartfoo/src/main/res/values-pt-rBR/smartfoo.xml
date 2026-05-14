@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <plurals name="days">
+        <item quantity="one">%1$d dia</item>
+        <item quantity="other">%1$d dias</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%1$d hora</item>
+        <item quantity="other">%1$d horas</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%1$d minuto</item>
+        <item quantity="other">%1$d minutos</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="one">%1$d segundo</item>
+        <item quantity="other">%1$d segundos</item>
+    </plurals>
+    <plurals name="milliseconds">
+        <item quantity="one">%1$d milissegundo</item>
+        <item quantity="other">%1$d milissegundos</item>
+    </plurals>
+
+    <string name="audio_stream_voice_call">Chamada de voz</string>
+    <string name="audio_stream_system" tools:ignore="DuplicateStrings">Sistema</string>
+    <string name="audio_stream_ring">Toque</string>
+    <string name="audio_stream_media">Mídia</string>
+    <string name="audio_stream_alarm">Alarme</string>
+    <string name="audio_stream_notification" tools:ignore="DuplicateStrings">Notificação</string>
+    <string name="audio_stream_bluetooth_sco">Bluetooth SCO</string>
+    <string name="audio_stream_system_enforced">Sistema forçado</string>
+    <string name="audio_stream_dtmf">DTMF</string>
+    <string name="audio_stream_text_to_speech" tools:ignore="DuplicateStrings">Texto para fala</string>
+    <string name="audio_stream_unknown">Desconhecido</string>
+
+</resources>

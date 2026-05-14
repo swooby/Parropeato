@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_label">Beispiel-Kachel</string>
+    <string name="complication_label">Beispiel-Komplikation</string>
+    <string name="settings_speech_checking">Sprachen prüfen…</string>
+    <string name="settings_open_tts_settings">TTS-Einstellungen</string>
+    <string name="voice_quality_standard">std</string>
+    <string name="on">Ein</string>
+    <string name="off">Aus</string>
+</resources>

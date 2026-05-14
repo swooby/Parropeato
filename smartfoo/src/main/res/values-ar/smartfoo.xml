@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <plurals name="days">
+        <item quantity="zero">%1$d أيام</item>
+        <item quantity="one">%1$d يوم</item>
+        <item quantity="two">%1$d يومان</item>
+        <item quantity="few">%1$d أيام</item>
+        <item quantity="many">%1$d يومًا</item>
+        <item quantity="other">%1$d يوم</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="zero">%1$d ساعات</item>
+        <item quantity="one">%1$d ساعة</item>
+        <item quantity="two">%1$d ساعتان</item>
+        <item quantity="few">%1$d ساعات</item>
+        <item quantity="many">%1$d ساعةً</item>
+        <item quantity="other">%1$d ساعة</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="zero">%1$d دقائق</item>
+        <item quantity="one">%1$d دقيقة</item>
+        <item quantity="two">%1$d دقيقتان</item>
+        <item quantity="few">%1$d دقائق</item>
+        <item quantity="many">%1$d دقيقةً</item>
+        <item quantity="other">%1$d دقيقة</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="zero">%1$d ثوانٍ</item>
+        <item quantity="one">%1$d ثانية</item>
+        <item quantity="two">%1$d ثانيتان</item>
+        <item quantity="few">%1$d ثوانٍ</item>
+        <item quantity="many">%1$d ثانيةً</item>
+        <item quantity="other">%1$d ثانية</item>
+    </plurals>
+    <plurals name="milliseconds">
+        <item quantity="zero">%1$d مللي ثانية</item>
+        <item quantity="one">%1$d مللي ثانية</item>
+        <item quantity="two">%1$d مللي ثانيتان</item>
+        <item quantity="few">%1$d مللي ثوانٍ</item>
+        <item quantity="many">%1$d مللي ثانيةً</item>
+        <item quantity="other">%1$d مللي ثانية</item>
+    </plurals>
+
+    <string name="audio_stream_voice_call">مكالمة صوتية</string>
+    <string name="audio_stream_system" tools:ignore="DuplicateStrings">النظام</string>
+    <string name="audio_stream_ring">رنين</string>
+    <string name="audio_stream_media">وسائط</string>
+    <string name="audio_stream_alarm">منبه</string>
+    <string name="audio_stream_notification" tools:ignore="DuplicateStrings">إشعار</string>
+    <string name="audio_stream_bluetooth_sco">Bluetooth SCO</string>
+    <string name="audio_stream_system_enforced">نظام مفروض</string>
+    <string name="audio_stream_dtmf">DTMF</string>
+    <string name="audio_stream_text_to_speech" tools:ignore="DuplicateStrings">تحويل النص إلى كلام</string>
+    <string name="audio_stream_unknown">غير معروف</string>
+
+</resources>

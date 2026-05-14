@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">Инициализация…</string>
+    <string name="state_initializing_error">Ошибка</string>
+    <string name="state_initialized">Инициализировано</string>
+    <string name="state_listening">Слушаю</string>
+    <string name="state_speaking">Говорю</string>
+    <string name="state_idle">В ожидании</string>
+    <string name="state_shutting_down">Завершение…</string>
+    <string name="state_shutdown">Завершено</string>
+
+    <string name="status_hold_mic_to_talk">Удерживайте микрофон\nдля разговора</string>
+    <string name="status_listening">Слушаю…</string>
+    <string name="status_thinking">Думаю…</string>
+    <string name="status_voice_speed">Скорость голоса %1$.1fx</string>
+    <string name="status_voice_pitch">Тон голоса %1$.1fx</string>
+    <string name="status_volume">Громкость %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">Необходимо разрешение на использование микрофона.</string>
+
+    <string name="error_stt_network_timeout">Время ожидания сети истекло.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_network">Сеть недоступна.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_audio">Ошибка микрофона.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_server">Ошибка сервера.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_client">Другие ошибки клиента.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_speech_timeout">Речь не обнаружена.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_no_match">Не распознано.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_recognizer_busy">Распознаватель занят.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_insufficient_permissions">Недостаточно прав.\nПроверьте настройки речи.</string>
+    <string name="error_stt_too_many_requests">Слишком много запросов.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_server_disconnected">Сервер отключился.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_language_not_supported">Язык не поддерживается.\nПроверьте настройки речи.</string>
+    <string name="error_stt_language_unavailable">Язык недоступен.\nПроверьте настройки речи.</string>
+    <string name="error_stt_cannot_check_support">Сервис не позволяет проверить поддержку.\nПроверьте настройки речи.</string>
+    <string name="error_stt_cannot_listen_to_download_events">Сервис не поддерживает события загрузки моделей.\nПроверьте настройки речи.</string>
+    <string name="error_stt_generic">Ошибка речи %1$s.\nПопробуйте ещё раз.</string>
+    <string name="error_stt_offline_no_model">Нет доступных офлайн-моделей.\nПодключитесь к сети\nили загрузите офлайн-пакет.</string>
+    <string name="settings_stt_offline_ready">готово офлайн</string>
+    <string name="settings_stt_download_offline">Скачать офлайн-модель речи</string>
+    <string name="error_tts_init_failed">Ошибка инициализации синтеза речи.</string>
+    <string name="error_tts_emulator_hint">Синтез речи может не работать\nв эмуляторе.</string>
+
+    <string name="tts_greeting">Поговори со мной!</string>
+    <string name="tts_voice_preview">Съешь же ещё этих мягких французских булок да выпей чаю.</string>
+
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_tts_language">Синтез речи</string>
+    <string name="settings_section_stt_language">Распознавание речи</string>
+    <string name="settings_section_system">Система</string>
+    <string name="settings_tts_initializing">Инициализация синтеза речи…</string>
+    <string name="settings_speech_checking">Проверка поддерживаемых языков…</string>
+    <string name="settings_speech_none_found">Поддерживаемые языки не найдены.</string>
+    <string name="settings_open_tts_settings">Открыть настройки синтеза речи устройства</string>
+    <string name="settings_close">Закрыть</string>
+    <string name="settings_cute_icons">Милые иконки</string>
+    <string name="settings_accent_color">Акцентный цвет</string>
+    <string name="accent_color_purple">Фиолетовый</string>
+    <string name="accent_color_teal">Бирюзовый</string>
+    <string name="accent_color_blue">Синий</string>
+    <string name="accent_color_green">Зелёный</string>
+    <string name="accent_color_yellow">Жёлтый</string>
+    <string name="accent_color_orange">Оранжевый</string>
+    <string name="accent_color_pink">Розовый</string>
+    <string name="accent_color_red">Красный</string>
+
+    <string name="speech_locale_device_default">По умолчанию устройства</string>
+
+    <string name="voice_connectivity_online">сеть</string>
+    <string name="voice_connectivity_offline">локально</string>
+    <string name="voice_quality_standard">стандарт</string>
+    <string name="voice_quality_basic">базовый</string>
+    <string name="voice_gender_male">мужской</string>
+    <string name="voice_gender_female">женский</string>
+
+    <string name="cd_open_settings">Настройки</string>
+    <string name="cd_close_settings">Закрыть настройки</string>
+    <string name="cd_selected">Выбрано</string>
+    <string name="cd_preview_voice">Предпросмотр голоса</string>
+    <string name="cd_listening">Слушаю</string>
+    <string name="cd_hold_to_talk">Удерживайте для разговора</string>
+    <string name="cd_volume_max">Максимальная громкость</string>
+    <string name="cd_volume_min">Минимальная громкость</string>
+    <string name="cd_voice_speed_max">Максимальная скорость голоса</string>
+    <string name="cd_voice_speed_min">Минимальная скорость голоса</string>
+    <string name="cd_voice_pitch_max">Максимальный тон голоса</string>
+    <string name="cd_voice_pitch_min">Минимальный тон голоса</string>
+</resources>

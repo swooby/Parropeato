@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_label">Ubin contoh</string>
+    <string name="complication_label">Komplikasi contoh</string>
+    <string name="settings_speech_checking">Memeriksa bahasa…</string>
+    <string name="settings_open_tts_settings">Pengaturan TTS</string>
+    <string name="voice_quality_standard">std</string>
+    <string name="on">Aktif</string>
+    <string name="off">Nonaktif</string>
+</resources>

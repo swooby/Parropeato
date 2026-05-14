@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_label">サンプルタイル</string>
+    <string name="complication_label">サンプルコンプリケーション</string>
+    <string name="settings_speech_checking">言語を確認中…</string>
+    <string name="settings_open_tts_settings">TTS設定</string>
+    <string name="voice_quality_standard">標準</string>
+    <string name="on">オン</string>
+    <string name="off">オフ</string>
+</resources>

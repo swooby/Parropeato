@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">Initialisation…</string>
+    <string name="state_initializing_error">Erreur</string>
+    <string name="state_initialized">Initialisé</string>
+    <string name="state_listening">À l\'écoute</string>
+    <string name="state_speaking">Parle</string>
+    <string name="state_idle">Inactif</string>
+    <string name="state_shutting_down">Fermeture…</string>
+    <string name="state_shutdown">Fermé</string>
+
+    <string name="status_hold_mic_to_talk">Maintenez le micro\npour parler</string>
+    <string name="status_listening">À l\'écoute…</string>
+    <string name="status_thinking">Réflexion…</string>
+    <string name="status_voice_speed">Vitesse vocale %1$.1fx</string>
+    <string name="status_voice_pitch">Tonalité vocale %1$.1fx</string>
+    <string name="status_volume">Volume %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">L\'autorisation du microphone est requise.</string>
+
+    <string name="error_stt_network_timeout">Délai réseau dépassé.\nRéessayez.</string>
+    <string name="error_stt_network">Réseau indisponible.\nRéessayez.</string>
+    <string name="error_stt_audio">Erreur de microphone.\nRéessayez.</string>
+    <string name="error_stt_server">Erreur du serveur.\nRéessayez.</string>
+    <string name="error_stt_client">Autres erreurs client.\nRéessayez.</string>
+    <string name="error_stt_speech_timeout">Aucune parole détectée.\nRéessayez.</string>
+    <string name="error_stt_no_match">Non compris.\nRéessayez.</string>
+    <string name="error_stt_recognizer_busy">Reconnaissance occupée.\nRéessayez.</string>
+    <string name="error_stt_insufficient_permissions">Autorisations insuffisantes.\nVérifiez les paramètres vocaux.</string>
+    <string name="error_stt_too_many_requests">Trop de requêtes.\nRéessayez.</string>
+    <string name="error_stt_server_disconnected">Serveur déconnecté.\nRéessayez.</string>
+    <string name="error_stt_language_not_supported">Langue non prise en charge.\nVérifiez les paramètres vocaux.</string>
+    <string name="error_stt_language_unavailable">Langue indisponible.\nVérifiez les paramètres vocaux.</string>
+    <string name="error_stt_cannot_check_support">Le service ne permet pas de vérifier la prise en charge.\nVérifiez les paramètres vocaux.</string>
+    <string name="error_stt_cannot_listen_to_download_events">Le service ne prend pas en charge les événements de téléchargement de modèles.\nVérifiez les paramètres vocaux.</string>
+    <string name="error_stt_generic">Erreur vocale %1$s.\nRéessayez.</string>
+    <string name="error_stt_offline_no_model">Aucun modèle hors ligne disponible.\nConnectez-vous au réseau\nou téléchargez un pack hors ligne.</string>
+    <string name="settings_stt_offline_ready">prêt hors ligne</string>
+    <string name="settings_stt_download_offline">Télécharger le modèle vocal hors ligne</string>
+    <string name="error_tts_init_failed">Échec d\'initialisation de la synthèse vocale.</string>
+    <string name="error_tts_emulator_hint">La synthèse vocale peut ne pas fonctionner\ndans un émulateur.</string>
+
+    <string name="tts_greeting">Parlez-moi !</string>
+    <string name="tts_voice_preview">Portez ce vieux whisky au juge blond qui fume.</string>
+
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_section_tts_language">Synthèse vocale</string>
+    <string name="settings_section_stt_language">Reconnaissance vocale</string>
+    <string name="settings_section_system">Système</string>
+    <string name="settings_tts_initializing">Initialisation de la synthèse vocale…</string>
+    <string name="settings_speech_checking">Vérification des langues prises en charge…</string>
+    <string name="settings_speech_none_found">Aucune langue prise en charge trouvée.</string>
+    <string name="settings_open_tts_settings">Ouvrir les paramètres TTS du périphérique</string>
+    <string name="settings_close">Fermer</string>
+    <string name="settings_cute_icons">Icônes mignonnes</string>
+    <string name="settings_accent_color">Couleur d\'accentuation</string>
+    <string name="accent_color_purple">Violet</string>
+    <string name="accent_color_teal">Sarcelle</string>
+    <string name="accent_color_blue">Bleu</string>
+    <string name="accent_color_green">Vert</string>
+    <string name="accent_color_yellow">Jaune</string>
+    <string name="accent_color_orange">Orange</string>
+    <string name="accent_color_pink">Rose</string>
+    <string name="accent_color_red">Rouge</string>
+
+    <string name="speech_locale_device_default">Par défaut de l\'appareil</string>
+
+    <string name="voice_connectivity_online">réseau</string>
+    <string name="voice_connectivity_offline">local</string>
+    <string name="voice_quality_standard">standard</string>
+    <string name="voice_quality_basic">basique</string>
+    <string name="voice_gender_male">masculin</string>
+    <string name="voice_gender_female">féminin</string>
+
+    <string name="cd_open_settings">Paramètres</string>
+    <string name="cd_close_settings">Fermer les paramètres</string>
+    <string name="cd_selected">Sélectionné</string>
+    <string name="cd_preview_voice">Aperçu de la voix</string>
+    <string name="cd_listening">À l\'écoute</string>
+    <string name="cd_hold_to_talk">Maintenez pour parler</string>
+    <string name="cd_volume_max">Volume maximum</string>
+    <string name="cd_volume_min">Volume minimum</string>
+    <string name="cd_voice_speed_max">Vitesse vocale maximum</string>
+    <string name="cd_voice_speed_min">Vitesse vocale minimum</string>
+    <string name="cd_voice_pitch_max">Tonalité vocale maximum</string>
+    <string name="cd_voice_pitch_min">Tonalité vocale minimum</string>
+</resources>

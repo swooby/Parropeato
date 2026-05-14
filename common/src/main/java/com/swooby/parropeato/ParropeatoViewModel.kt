@@ -1,11 +1,13 @@
 package com.swooby.parropeato
 
+import android.app.Application
 import android.speech.tts.Voice
+import com.swooby.parropeato.common.R
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import com.smartfoo.android.core.texttospeech.FooTextToSpeech
 
-class ParropeatoViewModel : ViewModel() {
+class ParropeatoViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ParropeatoViewModel"
     }
@@ -26,19 +28,20 @@ class ParropeatoViewModel : ViewModel() {
         get() = _state.value
         set(value) {
             _state.value = value
-            when (state) {
-                State.Initializing -> text = "Initializing..."
-                State.InitializingError -> text = "Error"
-                State.Initialized -> text = "Initialized"
-                State.Listening -> text = "Listening"
-                State.Speaking -> text = "Speaking"
-                State.Idle -> text = "Idle"
-                State.ShuttingDown -> text = "Shutting Down"
-                State.Shutdown -> text = "Shutdown"
+            val ctx = getApplication<Application>()
+            text = when (state) {
+                State.Initializing      -> ctx.getString(R.string.state_initializing)
+                State.InitializingError -> ctx.getString(R.string.state_initializing_error)
+                State.Initialized       -> ctx.getString(R.string.state_initialized)
+                State.Listening         -> ctx.getString(R.string.state_listening)
+                State.Speaking          -> ctx.getString(R.string.state_speaking)
+                State.Idle              -> ctx.getString(R.string.state_idle)
+                State.ShuttingDown      -> ctx.getString(R.string.state_shutting_down)
+                State.Shutdown          -> ctx.getString(R.string.state_shutdown)
             }
         }
 
-    val _text = mutableStateOf("Initializing...")
+    val _text = mutableStateOf(application.getString(R.string.state_initializing))
     var text: String
         get() = _text.value
         set(value) {

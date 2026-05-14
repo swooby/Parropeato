@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_label">範例磁貼</string>
+    <string name="complication_label">範例複雜功能</string>
+    <string name="settings_speech_checking">確認語言中…</string>
+    <string name="settings_open_tts_settings">TTS 設定</string>
+    <string name="voice_quality_standard">標準</string>
+    <string name="on">開啟</string>
+    <string name="off">關閉</string>
+</resources>

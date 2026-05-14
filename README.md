@@ -12,7 +12,7 @@ Both `mobile` and `wear` manifests reference it via `android:localeConfig="@xml/
 
 ### Steps to add a new language
 
-1. **Translate the strings.** Create `common/src/main/res/values-<tag>/strings.xml` (e.g. `values-fr/`, `values-ja/`) and provide translations for every string in `common/src/main/res/values/strings.xml`.
+1. **Translate the strings.** Create `common/src/main/res/values-<tag>/strings.xml` (e.g. `values-fr/`, `values-ja/`) and provide translations for every **translatable** string in `common/src/main/res/values/strings.xml`. Strings marked `translatable="false"` (proper nouns, acronyms) must not be included — Android falls back to the base value automatically.
 
 2. **Register the locale.** Add a matching `<locale>` entry to `locales_config.xml`:
 
@@ -34,6 +34,22 @@ Adding a translation folder without updating `locales_config.xml` means the syst
 | Tag | Language |
 |-----|----------|
 | `en` | English |
+| `ar` | Arabic (العربية) |
+| `de` | German (Deutsch) |
+| `es` | Spanish (Español) |
+| `fr` | French (Français) |
+| `hi` | Hindi (हिन्दी) |
+| `id` | Indonesian (Bahasa Indonesia) |
+| `ja` | Japanese (日本語) |
+| `ko` | Korean (한국어) |
+| `pt-BR` | Portuguese — Brazil (Português Brasil) |
+| `ru` | Russian (Русский) |
+| `zh-TW` | Chinese — Traditional (繁體中文) |
+| `zh-CN` | Chinese — Simplified (简体中文) |
+
+## Developer tools
+
+If you use Claude Code, slash commands for locale auditing, website device sweeps, docs review, and pre-release checks are documented in [`AGENTS.md`](AGENTS.md).
 
 ## Release process
 

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="state_initializing">आरंभ हो रहा है…</string>
+    <string name="state_initializing_error">त्रुटि</string>
+    <string name="state_initialized">आरंभ हो गया</string>
+    <string name="state_listening">सुन रहा है</string>
+    <string name="state_speaking">बोल रहा है</string>
+    <string name="state_idle">निष्क्रिय</string>
+    <string name="state_shutting_down">बंद हो रहा है</string>
+    <string name="state_shutdown">बंद</string>
+
+    <string name="status_hold_mic_to_talk">बोलने के लिए\nमाइक दबाएं</string>
+    <string name="status_listening">सुन रहे हैं…</string>
+    <string name="status_thinking">सोच रहे हैं…</string>
+    <string name="status_voice_speed">आवाज़ की गति %1$.1fx</string>
+    <string name="status_voice_pitch">आवाज़ का स्वर %1$.1fx</string>
+    <string name="status_volume">वॉल्यूम %1$d / %2$d</string>
+
+    <string name="error_mic_insufficient_permission">माइक्रोफ़ोन की अनुमति आवश्यक है.</string>
+
+    <string name="error_stt_network_timeout">नेटवर्क समय समाप्त हो गया.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_network">नेटवर्क उपलब्ध नहीं है.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_audio">माइक्रोफ़ोन त्रुटि.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_server">सर्वर त्रुटि.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_client">अन्य क्लाइंट त्रुटियाँ.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_speech_timeout">कोई भाषण नहीं सुना.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_no_match">समझ नहीं आया.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_recognizer_busy">पहचानकर्ता व्यस्त है.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_insufficient_permissions">अपर्याप्त अनुमतियाँ.\nभाषण सेटिंग जाँचें.</string>
+    <string name="error_stt_too_many_requests">बहुत अधिक अनुरोध.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_server_disconnected">सर्वर डिस्कनेक्ट हो गया.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_language_not_supported">भाषा समर्थित नहीं है.\nभाषण सेटिंग जाँचें.</string>
+    <string name="error_stt_language_unavailable">भाषा उपलब्ध नहीं है.\nभाषण सेटिंग जाँचें.</string>
+    <string name="error_stt_cannot_check_support">सेवा समर्थन की जाँच की अनुमति नहीं देती.\nभाषण सेटिंग जाँचें.</string>
+    <string name="error_stt_cannot_listen_to_download_events">सेवा मॉडल डाउनलोड ईवेंट नहीं सुनती.\nभाषण सेटिंग जाँचें.</string>
+    <string name="error_stt_generic">भाषण त्रुटि %1$s.\nपुनः प्रयास करें.</string>
+    <string name="error_stt_offline_no_model">कोई ऑफ़लाइन मॉडल उपलब्ध नहीं.\nनेटवर्क से जुड़ें\nया ऑफ़लाइन पैक डाउनलोड करें.</string>
+    <string name="settings_stt_offline_ready">ऑफ़लाइन तैयार</string>
+    <string name="settings_stt_download_offline">ऑफ़लाइन भाषण मॉडल डाउनलोड करें</string>
+    <string name="error_tts_init_failed">TTS प्रारंभ विफल.</string>
+    <string name="error_tts_emulator_hint">एमुलेटर में TTS\nकाम नहीं कर सकता.</string>
+
+    <string name="tts_greeting">मुझसे बात करें!</string>
+    <string name="tts_voice_preview">ऊँट पर बैठा ज़ोरदार खरगोश गाना गाता है.</string>
+
+    <string name="settings_title">सेटिंग</string>
+    <string name="settings_section_tts_language">टेक्स्ट से वाणी</string>
+    <string name="settings_section_stt_language">वाणी से टेक्स्ट</string>
+    <string name="settings_section_system">सिस्टम</string>
+    <string name="settings_tts_initializing">TTS आरंभ हो रहा है…</string>
+    <string name="settings_speech_checking">समर्थित भाषाएँ जाँच रहे हैं…</string>
+    <string name="settings_speech_none_found">कोई समर्थित भाषा नहीं मिली.</string>
+    <string name="settings_open_tts_settings">डिवाइस TTS सेटिंग खोलें</string>
+    <string name="settings_close">बंद करें</string>
+    <string name="settings_cute_icons">प्यारे आइकन</string>
+    <string name="settings_accent_color">एक्सेंट रंग</string>
+    <string name="accent_color_purple">बैंगनी</string>
+    <string name="accent_color_teal">टील</string>
+    <string name="accent_color_blue">नीला</string>
+    <string name="accent_color_green">हरा</string>
+    <string name="accent_color_yellow">पीला</string>
+    <string name="accent_color_orange">नारंगी</string>
+    <string name="accent_color_pink">गुलाबी</string>
+    <string name="accent_color_red">लाल</string>
+
+    <string name="speech_locale_device_default">डिवाइस डिफ़ॉल्ट</string>
+
+    <string name="voice_connectivity_online">नेटवर्क</string>
+    <string name="voice_connectivity_offline">स्थानीय</string>
+    <string name="voice_quality_standard">मानक</string>
+    <string name="voice_quality_basic">बुनियादी</string>
+    <string name="voice_gender_male">पुरुष</string>
+    <string name="voice_gender_female">महिला</string>
+
+    <string name="cd_open_settings">सेटिंग</string>
+    <string name="cd_close_settings">सेटिंग बंद करें</string>
+    <string name="cd_selected">चुना गया</string>
+    <string name="cd_preview_voice">आवाज़ का पूर्वावलोकन</string>
+    <string name="cd_listening">सुन रहे हैं</string>
+    <string name="cd_hold_to_talk">बोलने के लिए दबाएं</string>
+    <string name="cd_volume_max">अधिकतम वॉल्यूम</string>
+    <string name="cd_volume_min">न्यूनतम वॉल्यूम</string>
+    <string name="cd_voice_speed_max">अधिकतम आवाज़ गति</string>
+    <string name="cd_voice_speed_min">न्यूनतम आवाज़ गति</string>
+    <string name="cd_voice_pitch_max">अधिकतम आवाज़ स्वर</string>
+    <string name="cd_voice_pitch_min">न्यूनतम आवाज़ स्वर</string>
+</resources>
