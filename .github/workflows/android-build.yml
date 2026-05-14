@@ -110,6 +110,7 @@ jobs:
           releaseFiles: wear/build/outputs/bundle/release/*.aab
           tracks: wear:internal
           status: draft
+          mappingFile: wear/build/outputs/mapping/release/mapping.txt
 
       - name: Upload mobile release bundle to Google Play
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
@@ -120,6 +121,7 @@ jobs:
           releaseFiles: mobile/build/outputs/bundle/release/*.aab
           tracks: internal
           status: draft
+          mappingFile: mobile/build/outputs/mapping/release/mapping.txt
 
       - name: Upload debug APK
         if: github.event_name == 'pull_request' && success()
