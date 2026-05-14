@@ -62,8 +62,7 @@ jobs:
           script: |
             const marker = '<!-- Parropeato-pages-preview -->';
             const previewUrl = `https://swooby.github.io/Parropeato/pr-preview/pr-${context.payload.pull_request.number}/`;
-            const body = `${marker}
-            ✅ Pages preview deployed: ${previewUrl}`;
+            const body = `${marker}\n✅ Pages preview deployed: ${previewUrl}`;
 
             const { owner, repo } = context.repo;
             const issue_number = context.payload.pull_request.number;
