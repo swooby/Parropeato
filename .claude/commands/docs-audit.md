@@ -14,7 +14,7 @@ Read all of these before drawing conclusions:
 
 ## Things to cross-check against the actual repo state
 
-**Module list** — does every module named in docs (`mobile`, `wear`, `common`, `smartfoo`, `docs`) still exist as a directory with a `build.gradle.kts`?
+**Module list** — do all Gradle modules named in docs (`mobile`, `wear`, `common`, `smartfoo`) still exist as directories with a `build.gradle.kts`, and is `docs/` correctly described as documentation (not a Gradle module)?
 
 **Build commands** — are the Gradle tasks in AGENTS.md and copilot-instructions.md still valid? Spot-check with `./gradlew tasks --all | grep -E "<task>"`.
 

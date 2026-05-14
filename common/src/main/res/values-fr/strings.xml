@@ -4,7 +4,7 @@
     <string name="state_initializing">Initialisation…</string>
     <string name="state_initializing_error">Erreur</string>
     <string name="state_initialized">Initialisé</string>
-    <string name="state_listening">À l'écoute</string>
+    <string name="state_listening">À l\'écoute</string>
     <string name="state_speaking">Parle</string>
     <string name="state_idle">Inactif</string>
     <string name="state_shutting_down">Fermeture…</string>
