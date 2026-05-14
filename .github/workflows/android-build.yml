@@ -3,22 +3,24 @@ name: Android Build
 on:
   pull_request:
     paths-ignore:
+      - "AGENTS.md"
+      - "CLAUDE.md"
       - "LICENSE"
-      - "README*"
-      - "AGENTS*"
-      - "CLAUDE*"
+      - "README.md"
       - "docs/**"
+      - "www/**"
   push:
     branches:
       - main
     tags:
       - "*"
     paths-ignore:
+      - "AGENTS.md"
+      - "CLAUDE.md"
       - "LICENSE"
-      - "README*"
-      - "AGENTS*"
-      - "CLAUDE*"
+      - "README.md"
       - "docs/**"
+      - "www/**"
 
 permissions:
   contents: read
