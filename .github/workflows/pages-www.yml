@@ -60,7 +60,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const marker = '<!-- parropeato-pages-preview -->';
+            const marker = '<!-- Parropeato-pages-preview -->';
             const previewUrl = `https://swooby.github.io/Parropeato/pr-preview/pr-${context.payload.pull_request.number}/`;
             const body = `${marker}
             ✅ Pages preview deployed: ${previewUrl}`;
