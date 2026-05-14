@@ -1,58 +1,31 @@
-# M. Parropeato – docs site
+# M. Parropeato – website (`www`)
 
-The files in this folder are published as a GitHub Pages site from the `main` branch:
+The files in this folder are published to GitHub Pages.
 
-**Production site:** https://swooby.github.io/Ropeato/
+- **Production site:** https://swooby.github.io/Parropeato/
+- **PR preview pattern:** `https://swooby.github.io/Parropeato/pr-preview/pr-<PR number>/`
 
-## Previewing docs on a pull-request branch
+## Automatic deploy behavior
 
-The `docs-build` CI workflow automatically deploys a preview of the docs for every PR
-that touches the `docs/` folder. Once the workflow completes, it posts a comment on the
-PR with a direct link:
+- Pushes to `main` that change `www/**` deploy production to the site root.
+- Pull requests that change `www/**` deploy a preview to `pr-preview/pr-<PR number>/`.
+- The workflow comments the preview URL on the PR.
 
-```
-https://swooby.github.io/Ropeato/pr-preview/pr-<PR number>/
-```
+## Required GitHub Pages settings
 
-> **Note:** The preview subfolder persists on `gh-pages` until it is manually cleaned up.
-> Merging the PR does not automatically remove the preview.
+In `Settings` → `Pages`, configure:
 
-If you need to preview before CI runs (or without opening a PR), use one of the manual
-options below.
+- **Source:** `Deploy from a branch`
+- **Branch:** `gh-pages`
+- **Folder:** `/(root)`
 
-### Option 1 – local HTTP server (recommended for local work)
+## Local preview
 
-Serve the `docs/` folder with any static HTTP server.  Python's built-in server is the
-quickest option:
+Use any static HTTP server from this folder:
 
 ```bash
-cd docs
+cd www
 python3 -m http.server 8000
 ```
 
 Then open http://localhost:8000 in your browser.
-
-### Option 2 – local file preview
-
-1. Check out the branch.
-2. Open `docs/index.html` directly in a browser (e.g. `File > Open` or drag the file into the browser).
-
-> **Note:** Some browsers restrict local file access for resources loaded by the page.
-> If images or styles are missing, use a local HTTP server instead (see Option 1).
-
-### Option 3 – htmlpreview.github.io (no local setup)
-
-Replace `<branch>` with your branch name and open the URL in a browser:
-
-```
-https://htmlpreview.github.io/?https://github.com/swooby/Ropeato/blob/<branch>/docs/index.html
-```
-
-Example for a branch named `my-docs-change`:
-
-```
-https://htmlpreview.github.io/?https://github.com/swooby/Ropeato/blob/my-docs-change/docs/index.html
-```
-
-> **Note:** htmlpreview.github.io renders a snapshot and may not reflect the latest push
-> immediately. The automated CI preview (above) is more reliable for reviewing final output.

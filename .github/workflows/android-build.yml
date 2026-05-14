@@ -2,11 +2,15 @@ name: Android Build
 
 on:
   pull_request:
+    paths-ignore:
+      - "www/**"
   push:
     branches:
       - main
     tags:
       - "*"
+    paths-ignore:
+      - "www/**"
 
 permissions:
   contents: read
