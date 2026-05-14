@@ -3,6 +3,7 @@ name: Android Build
 on:
   pull_request:
     paths-ignore:
+      - ".github/workflows/pages-www.yml"
       - "www/**"
   push:
     branches:
@@ -10,6 +11,7 @@ on:
     tags:
       - "*"
     paths-ignore:
+      - ".github/workflows/pages-www.yml"
       - "www/**"
 
 permissions:
