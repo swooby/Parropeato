@@ -1,6 +1,6 @@
 {
   "idx_title":      "M. Parropeato",
-  "idx_desc":       "M. Parropeato 是一款有趣的应用，会自信地重复它"认为"你说的话。",
+  "idx_desc":       "M. Parropeato 是一款有趣的应用，会自信地重复它“认为”你说的话。",
   "nav_aria":       "主导航",
   "nav_home_aria":  "M. Parropeato 主页",
   "nav_links_aria": "页面链接",
@@ -9,7 +9,7 @@
   "menu_open":      "打开菜单",
   "lang_aria":      "选择语言",
   "eyebrow":        "Android + Wear OS",
-  "lede":           "一款有趣的应用，会自信地重复它"认为"你说的话。",
+  "lede":           "一款有趣的应用，会自信地重复它“认为”你说的话。",
   "store_aria":     "在 Google Play 下载 M. Parropeato",
   "store_alt":      "在 Google Play 上获取",
   "github":         "在 GitHub 上查看",
@@ -54,5 +54,5 @@
   "prv_s10_h":      "联系方式",
   "prv_s10_p_html": "如有隐私相关问题，请在 <a href=\"https://github.com/swooby/Parropeato/issues\">github.com/swooby/Parropeato/issues</a> 提交 issue。",
   "prv_footer_copy": "© 2026 swooby",
-  "prv_back":       "← 返回 M. Parropeato"
+  "prv_back":       "返回 M. Parropeato"
 }

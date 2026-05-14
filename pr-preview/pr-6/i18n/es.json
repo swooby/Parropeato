@@ -20,7 +20,7 @@
   "f1_p":           "Abre la app, toca para comenzar, luego di una frase, un chiste, un nombre o un sonido sin ortografía conocida.",
   "f2_h3":          "Adivina",
   "f2_p":           "El reconocimiento de voz convierte el audio en texto. A veces brillante. A veces confundido. Siempre seguro.",
-  "f3_h3":          "Eschúchalo de vuelta",
+  "f3_h3":          "Escúchalo de vuelta",
   "f3_p":           "Suelta y escucha lo que el reconocedor decidió que dijiste, leído en voz alta en tu teléfono o reloj Wear OS.",
   "s2_kicker":      "Privacidad",
   "s2_h2":          "Una app de juguete no debería ser complicada.",
@@ -54,5 +54,5 @@
   "prv_s10_h":      "Contacto",
   "prv_s10_p_html": "Para preguntas sobre privacidad, abre un issue en <a href=\"https://github.com/swooby/Parropeato/issues\">github.com/swooby/Parropeato/issues</a>.",
   "prv_footer_copy": "© 2026 swooby",
-  "prv_back":       "← Volver a M. Parropeato"
+  "prv_back":       "Volver a M. Parropeato"
 }

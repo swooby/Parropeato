@@ -19,7 +19,7 @@
   "f1_h3":          "Appuyez et parlez",
   "f1_p":           "Ouvrez l’app, appuyez pour démarrer, puis dites une phrase, une blague, un nom ou un son sans orthographe connue.",
   "f2_h3":          "Elle devine",
-  "f2_p":           "La reconnaissance vocale transforme l’audio en texte. Parfois brillant. Parfois désoriendé. Toujours confiant.",
+  "f2_p":           "La reconnaissance vocale transforme l’audio en texte. Parfois brillant. Parfois désorienté. Toujours confiant.",
   "f3_h3":          "Écoutez le résultat",
   "f3_p":           "Relâchez et écoutez ce que le moteur a cru vous entendre dire — lu à voix haute sur votre téléphone ou votre montre Wear OS.",
   "s2_kicker":      "Confidentialité",
@@ -54,5 +54,5 @@
   "prv_s10_h":      "Contact",
   "prv_s10_p_html": "Pour toute question relative à la confidentialité, ouvrez un ticket sur <a href=\"https://github.com/swooby/Parropeato/issues\">github.com/swooby/Parropeato/issues</a>.",
   "prv_footer_copy": "© 2026 swooby",
-  "prv_back":       "← Retour à M. Parropeato"
+  "prv_back":       "Retour à M. Parropeato"
 }
