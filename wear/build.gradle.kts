@@ -1,8 +1,10 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -59,6 +61,14 @@ android {
                 "proguard-rules.pro"
             )
         }
+        /*
+        debug {
+            isDebuggable = true
+            isMinifyEnabled = false
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "false"
+            configure<CrashlyticsExtension> { mappingFileUploadEnabled = false }
+        }
+        */
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -105,8 +115,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation(platform("com.google.firebase:firebase-bom:34.13.0"))
-    implementation("com.google.firebase:firebase-crashlytics")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.google.firebase.crashlytics)
 
     implementation(project(":common"))
     implementation(project(":smartfoo"))
