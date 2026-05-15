@@ -4,10 +4,10 @@ androidx-activity-compose = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-compose-bom = "2026.05.00"
 androidx-core-ktx = "1.18.0"
-androidx-navigation = "2.9.8"
 androidx-legacy-support-v4 = "1.0.0"
 androidx-lifecycle-runtime-compose = "2.10.0"
 androidx-lifecycle-runtime-ktx = "2.10.0"
+androidx-navigation = "2.9.8"
 androidx-percentlayout = "1.0.0"
 androidx-recyclerview = "1.4.0"
 androidx-test-espresso-core = "3.7.0"
@@ -34,42 +34,41 @@ wear-tooling-preview = "1.0.0"
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidx-compose-bom" }
-androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }#, version.ref = "androidx-compose-material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }#, version.ref = "androidx-compose-material-icons-extended" }1.0.0-alpha08
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }#, version.ref = "androidx-compose-ui" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }#, version.ref = "androidx-compose-ui" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }#, version.ref = "androidx-compose-ui" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }#, version.ref = "androidx-compose-ui" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }#, version.ref = "androidx-compose-ui" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
-androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidx-navigation" }
 androidx-legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "androidx-legacy-support-v4" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle-runtime-compose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle-runtime-ktx" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidx-navigation" }
 androidx-percentlayout = { group = "androidx.percentlayout", name = "percentlayout", version.ref = "androidx-percentlayout" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidx-recyclerview" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-test-espresso-core" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
+androidx-wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
 androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "androidx-wear-compose-foundation" }
 androidx-wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "androidx-wear-compose-material" }
 androidx-wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "androidx-wear-compose-navigation" }
 androidx-wear-tiles = { group = "androidx.wear.tiles", name = "tiles", version.ref = "androidx-wear-tiles" }
 androidx-wear-tiles-material = { group = "androidx.wear.tiles", name = "tiles-material", version.ref = "androidx-wear-tiles-material" }
 androidx-wear-tiles-tooling-preview = { group = "androidx.wear.tiles", name = "tiles-tooling-preview", version.ref = "androidx-wear-tiles" }
+androidx-wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wear-tooling-preview" }
 androidx-wear-watchface-complications-data-source-ktx = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version.ref = "androidx-wear-watchface-complications-data-source-ktx" }
-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 google-android-horologist-compose-tools = { group = "com.google.android.horologist", name = "horologist-compose-tools", version.ref = "google-android-horologist-compose-tools" }
 google-android-horologist-tiles = { group = "com.google.android.horologist", name = "horologist-tiles", version.ref = "google-android-horologist-tiles" }
 google-android-material = { group = "com.google.android.material", name = "material", version.ref = "google-android-material" }
+google-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 google-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 google-play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "google-play-services-wearable" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
-androidx-wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
-androidx-wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wear-tooling-preview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
