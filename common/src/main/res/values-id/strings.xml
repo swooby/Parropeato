@@ -11,6 +11,7 @@
     <string name="state_shutdown">Ditutup</string>
 
     <string name="status_hold_mic_to_talk">Tahan mikrofon\nuntuk berbicara</string>
+    <string name="status_hold_cute_mic_to_talk">Tahan burung beo\nuntuk berbicara</string>
     <string name="status_listening">Mendengarkan…</string>
     <string name="status_thinking">Berpikir…</string>
     <string name="status_voice_speed">Kecepatan suara %1$.1fx</string>

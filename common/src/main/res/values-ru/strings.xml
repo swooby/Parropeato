@@ -11,6 +11,7 @@
     <string name="state_shutdown">Завершено</string>
 
     <string name="status_hold_mic_to_talk">Удерживайте микрофон\nдля разговора</string>
+    <string name="status_hold_cute_mic_to_talk">Удерживайте попугая\nдля разговора</string>
     <string name="status_listening">Слушаю…</string>
     <string name="status_thinking">Думаю…</string>
     <string name="status_voice_speed">Скорость голоса %1$.1fx</string>

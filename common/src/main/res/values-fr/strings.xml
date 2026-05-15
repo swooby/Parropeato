@@ -11,6 +11,7 @@
     <string name="state_shutdown">Fermé</string>
 
     <string name="status_hold_mic_to_talk">Maintenez le micro\npour parler</string>
+    <string name="status_hold_cute_mic_to_talk">Maintenez le perroquet\npour parler</string>
     <string name="status_listening">À l\'écoute…</string>
     <string name="status_thinking">Réflexion…</string>
     <string name="status_voice_speed">Vitesse vocale %1$.1fx</string>

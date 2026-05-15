@@ -11,6 +11,7 @@
     <string name="state_shutdown">متوقف</string>
 
     <string name="status_hold_mic_to_talk">اضغط على الميكروفون\nللتحدث</string>
+    <string name="status_hold_cute_mic_to_talk">اضغط على الببغاء\nللتحدث</string>
     <string name="status_listening">جارٍ الاستماع…</string>
     <string name="status_thinking">جارٍ التفكير…</string>
     <string name="status_voice_speed">سرعة الصوت %1$.1fx</string>

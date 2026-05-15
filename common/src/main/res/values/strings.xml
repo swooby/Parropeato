@@ -14,6 +14,7 @@
 
     <!-- Status messages shown in the main display -->
     <string name="status_hold_mic_to_talk">Hold the mic\nto talk</string>
+    <string name="status_hold_cute_mic_to_talk">Hold the parrot\nto talk</string>
     <string name="status_listening">Listening…</string>
     <string name="status_thinking">Thinking…</string>
     <string name="status_voice_speed">Voice speed %1$.1fx</string>

@@ -11,6 +11,7 @@
     <string name="state_shutdown">Encerrado</string>
 
     <string name="status_hold_mic_to_talk">Segure o microfone\npara falar</string>
+    <string name="status_hold_cute_mic_to_talk">Segure o papagaio\npara falar</string>
     <string name="status_listening">Ouvindo…</string>
     <string name="status_thinking">Pensando…</string>
     <string name="status_voice_speed">Velocidade da voz %1$.1fx</string>

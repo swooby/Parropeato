@@ -11,6 +11,7 @@
     <string name="state_shutdown">Beendet</string>
 
     <string name="status_hold_mic_to_talk">Mikrofon halten\num zu sprechen</string>
+    <string name="status_hold_cute_mic_to_talk">Papagei halten\num zu sprechen</string>
     <string name="status_listening">Höre zu…</string>
     <string name="status_thinking">Denke nach…</string>
     <string name="status_voice_speed">Sprachgeschwindigkeit %1$.1fx</string>

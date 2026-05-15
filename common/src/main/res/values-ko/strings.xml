@@ -11,6 +11,7 @@
     <string name="state_shutdown">종료됨</string>
 
     <string name="status_hold_mic_to_talk">마이크를 누르고\n말하세요</string>
+    <string name="status_hold_cute_mic_to_talk">앵무새를 누르고\n말하세요</string>
     <string name="status_listening">듣고 있습니다…</string>
     <string name="status_thinking">생각 중…</string>
     <string name="status_voice_speed">음성 속도 %1$.1fx</string>

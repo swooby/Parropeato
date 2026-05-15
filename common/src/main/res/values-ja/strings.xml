@@ -11,6 +11,7 @@
     <string name="state_shutdown">終了</string>
 
     <string name="status_hold_mic_to_talk">マイクを押しながら\n話してください</string>
+    <string name="status_hold_cute_mic_to_talk">オウムを押しながら\n話してください</string>
     <string name="status_listening">聞いています…</string>
     <string name="status_thinking">考えています…</string>
     <string name="status_voice_speed">音声速度 %1$.1fx</string>

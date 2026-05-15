@@ -11,6 +11,7 @@
     <string name="state_shutdown">已关闭</string>
 
     <string name="status_hold_mic_to_talk">按住麦克风\n说话</string>
+    <string name="status_hold_cute_mic_to_talk">按住鹦鹉\n说话</string>
     <string name="status_listening">正在聆听…</string>
     <string name="status_thinking">正在思考…</string>
     <string name="status_voice_speed">语音速度 %1$.1fx</string>

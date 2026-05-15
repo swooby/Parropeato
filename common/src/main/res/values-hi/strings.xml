@@ -11,6 +11,7 @@
     <string name="state_shutdown">बंद</string>
 
     <string name="status_hold_mic_to_talk">बोलने के लिए\nमाइक दबाएं</string>
+    <string name="status_hold_cute_mic_to_talk">बोलने के लिए\nतोते को दबाएं</string>
     <string name="status_listening">सुन रहे हैं…</string>
     <string name="status_thinking">सोच रहे हैं…</string>
     <string name="status_voice_speed">आवाज़ की गति %1$.1fx</string>

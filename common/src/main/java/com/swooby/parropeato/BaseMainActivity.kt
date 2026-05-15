@@ -309,7 +309,7 @@ abstract class BaseMainActivity : ComponentActivity() {
 
         if (updatePrompt) {
             viewModel.state = ParropeatoViewModel.State.Idle
-            viewModel.text = getString(R.string.status_hold_mic_to_talk)
+            viewModel.text = getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
         }
     }
 
@@ -430,7 +430,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             viewModel.text = getString(R.string.error_mic_insufficient_permission)
         } else {
             viewModel.state = ParropeatoViewModel.State.Idle
-            viewModel.text = getString(R.string.status_hold_mic_to_talk)
+            viewModel.text = getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
         }
         FooLog.i(TAG, "-onPermissionRecordAudioResult(isGranted=$isGranted)")
     }
@@ -707,7 +707,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
 
         viewModel.state = ParropeatoViewModel.State.Initialized
-        viewModel.text = getString(R.string.status_hold_mic_to_talk)
+        viewModel.text = getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
 
         val voices = TextToSpeechVoicePreference.installedVoices(tts.voices)
         Log.i(TAG, "onTextToSpeechInitialized: voices=${FooString.toString(voices, true)}")
