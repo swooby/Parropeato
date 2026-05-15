@@ -569,6 +569,7 @@ abstract class BaseMainActivity : ComponentActivity() {
     }
 
     protected fun onSettingsVoicePreview(voiceName: String) {
+        if (!tts.isStarted) return
         val restoreName = viewModel.selectedVoiceName
         tts.clear()
         tts.setVoiceName(voiceName)

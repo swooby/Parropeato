@@ -60,6 +60,13 @@ Project-level Claude Code slash commands live in `.claude/commands/`. Type `/<na
 | `/docs-audit` | Review all docs, agent instruction files, slash command definitions, and inline code/script comments for accuracy and staleness; fix every issue found. |
 | `/release-check` | Full pre-release gate: clean tree, no committed secrets, build + tests, SDK consistency, locale audit, language-list consistency, docs audit, website device sweep (if `www/` changed), and release mechanics checklist. |
 
+## Firebase
+
+- `google-services.json` lives at the repo root; `mobile/google-services.json` and `wear/google-services.json` are symlinks to it.
+- Crashlytics requires both the `firebase-crashlytics` dependency **and** the `com.google.firebase.crashlytics` Gradle plugin applied to the module — the dependency alone is not enough and will cause a runtime crash at launch.
+- Both mobile and wear settings screens have a **Test Crash** button (debug builds only) for verifying Crashlytics end-to-end.
+- Analytics DebugView requires running `adb -s <device_id> shell setprop debug.firebase.analytics.app com.swooby.parropeato` targeting each device specifically; the property does not survive reboots. See `docs/firebase testing.md` for full instructions.
+
 ## Release Notes
 
 - Release signing is driven by environment variables in Gradle and GitHub Actions.
