@@ -19,6 +19,8 @@
     <string name="status_volume">音量 %1$d / %2$d</string>
 
     <string name="error_mic_insufficient_permission">需要麦克风权限。</string>
+    <string name="permission_mic_rationale_title">需要麦克风权限</string>
+    <string name="permission_mic_rationale_message">M. Parropeato 需要麦克风权限来聆听并重复您的语音。请授予权限以继续。</string>
 
     <string name="error_stt_network_timeout">网络超时。\n请重试。</string>
     <string name="error_stt_network">网络不可用。\n请重试。</string>

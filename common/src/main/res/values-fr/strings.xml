@@ -19,6 +19,8 @@
     <string name="status_volume">Volume %1$d / %2$d</string>
 
     <string name="error_mic_insufficient_permission">L\'autorisation du microphone est requise.</string>
+    <string name="permission_mic_rationale_title">Accès au microphone requis</string>
+    <string name="permission_mic_rationale_message">M. Parropeato a besoin d\'un accès au microphone pour entendre et répéter votre voix. Veuillez accorder l\'autorisation pour continuer.</string>
 
     <string name="error_stt_network_timeout">Délai réseau dépassé.\nRéessayez.</string>
     <string name="error_stt_network">Réseau indisponible.\nRéessayez.</string>

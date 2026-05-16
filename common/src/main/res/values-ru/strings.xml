@@ -19,6 +19,8 @@
     <string name="status_volume">Громкость %1$d / %2$d</string>
 
     <string name="error_mic_insufficient_permission">Необходимо разрешение на использование микрофона.</string>
+    <string name="permission_mic_rationale_title">Требуется доступ к микрофону</string>
+    <string name="permission_mic_rationale_message">M. Parropeato необходим доступ к микрофону, чтобы слышать и повторять вашу речь. Пожалуйста, предоставьте разрешение для продолжения.</string>
 
     <string name="error_stt_network_timeout">Время ожидания сети истекло.\nПопробуйте ещё раз.</string>
     <string name="error_stt_network">Сеть недоступна.\nПопробуйте ещё раз.</string>

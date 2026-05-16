@@ -10,6 +10,7 @@ import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,6 +21,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
@@ -415,6 +417,12 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     private fun permissionRecordAudioRationale() {
         FooLog.i(TAG, "+permissionRecordAudioRationale()")
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.permission_mic_rationale_title))
+            .setMessage(getString(R.string.permission_mic_rationale_message))
+            .setPositiveButton(android.R.string.ok) { _, _ -> permissionRecordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
         FooLog.i(TAG, "-permissionRecordAudioRationale()")
     }
 
@@ -1042,6 +1050,7 @@ private fun VolumeArcControl(
                         }
                         isTracking.value = true
                         view.parent.requestDisallowInterceptTouchEvent(true)
+                        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         onVolumeChange(arcPercentFromPosition(event.x, event.y, size, VOLUME_ARC_START_ANGLE_DEGREES, VOLUME_ARC_SWEEP_DEGREES, reverse = true))
                         true
                     }
@@ -1140,6 +1149,7 @@ private fun VoiceSpeedArcControl(
                         }
                         isTracking.value = true
                         view.parent.requestDisallowInterceptTouchEvent(true)
+                        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         val pct = arcPercentFromPosition(event.x, event.y, size, VOICE_SPEED_ARC_START_ANGLE_DEGREES, VOICE_SPEED_ARC_SWEEP_DEGREES)
                         onVoiceSpeedChange(VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * pct)
                         true
@@ -1240,6 +1250,7 @@ private fun VoicePitchArcControl(
                         }
                         isTracking.value = true
                         view.parent.requestDisallowInterceptTouchEvent(true)
+                        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         val pct = arcPercentFromPosition(event.x, event.y, size, VOICE_PITCH_ARC_START_ANGLE_DEGREES, VOICE_PITCH_ARC_SWEEP_DEGREES)
                         onVoicePitchChange(VOICE_PITCH_MIN + (VOICE_PITCH_MAX - VOICE_PITCH_MIN) * pct)
                         true

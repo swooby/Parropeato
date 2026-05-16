@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -380,7 +381,16 @@ private fun TtsLanguagesScreen(
             }
 
             if (voiceGroups.isEmpty()) {
-                item { StatusText(stringResource(R.string.settings_tts_initializing)) }
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                        StatusText(stringResource(R.string.settings_tts_initializing))
+                    }
+                }
             } else {
                 items(voiceGroups, key = { it.languageCode }) { group ->
                     val isGroupSelected = group.voices.any { it.name == selectedVoiceName }
@@ -502,7 +512,16 @@ private fun SpeechLanguagesScreen(
             }
 
             if (!speechLocalesSupportChecked) {
-                item { StatusText(stringResource(R.string.settings_speech_checking)) }
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                        StatusText(stringResource(R.string.settings_speech_checking))
+                    }
+                }
             } else if (localeGroups.languageGroups.isEmpty()) {
                 item { StatusText(stringResource(R.string.settings_speech_none_found)) }
             } else {
@@ -649,7 +668,7 @@ private fun AccentColorRow(
                 val isSelected = option.argb == accentColor
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(48.dp)
                         .clickable { onAccentColorChanged(option.argb) },
                     contentAlignment = Alignment.Center,
                 ) {
@@ -660,7 +679,7 @@ private fun AccentColorRow(
                     )
                     Box(
                         modifier = Modifier
-                            .size(if (isSelected) 26.dp else 32.dp)
+                            .size(if (isSelected) 34.dp else 42.dp)
                             .background(option.color, CircleShape),
                     )
                 }

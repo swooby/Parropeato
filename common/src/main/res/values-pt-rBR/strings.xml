@@ -19,6 +19,8 @@
     <string name="status_volume">Volume %1$d / %2$d</string>
 
     <string name="error_mic_insufficient_permission">Permissão de microfone é necessária.</string>
+    <string name="permission_mic_rationale_title">Acesso ao microfone necessário</string>
+    <string name="permission_mic_rationale_message">M. Parropeato precisa de acesso ao microfone para ouvir e repetir sua fala. Por favor, conceda a permissão para continuar.</string>
 
     <string name="error_stt_network_timeout">Tempo de rede esgotado.\nTente novamente.</string>
     <string name="error_stt_network">Rede indisponível.\nTente novamente.</string>

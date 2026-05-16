@@ -19,6 +19,8 @@
     <string name="status_volume">音量 %1$d / %2$d</string>
 
     <string name="error_mic_insufficient_permission">マイクの権限が必要です。</string>
+    <string name="permission_mic_rationale_title">マイクへのアクセスが必要です</string>
+    <string name="permission_mic_rationale_message">M. Parropeato はあなたの話し声を聞いて繰り返すためにマイクへのアクセスが必要です。続けるには許可を付与してください。</string>
 
     <string name="error_stt_network_timeout">ネットワークがタイムアウトしました。\nもう一度お試しください。</string>
     <string name="error_stt_network">ネットワークが利用できません。\nもう一度お試しください。</string>

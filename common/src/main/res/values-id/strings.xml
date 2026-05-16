@@ -19,6 +19,8 @@
     <string name="status_volume">Volume %1$d / %2$d</string>
 
     <string name="error_mic_insufficient_permission">Izin mikrofon diperlukan.</string>
+    <string name="permission_mic_rationale_title">Akses Mikrofon Diperlukan</string>
+    <string name="permission_mic_rationale_message">M. Parropeato membutuhkan akses mikrofon untuk mendengar dan mengulangi ucapan Anda. Harap berikan izin untuk melanjutkan.</string>
 
     <string name="error_stt_network_timeout">Jaringan habis waktu.\nCoba lagi.</string>
     <string name="error_stt_network">Jaringan tidak tersedia.\nCoba lagi.</string>

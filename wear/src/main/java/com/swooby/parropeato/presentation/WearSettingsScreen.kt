@@ -6,6 +6,7 @@ import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.Text
@@ -442,10 +444,16 @@ private fun TtsLanguagesScreen(
 
         if (voiceGroups.isEmpty()) {
             item {
-                Text(
-                    text = stringResource(R.string.settings_tts_initializing),
-                    color = Color.White.copy(alpha = 0.5f),
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Text(
+                        text = stringResource(R.string.settings_tts_initializing),
+                        color = Color.White.copy(alpha = 0.5f),
+                    )
+                }
             }
         } else {
             items(voiceGroups, key = { it.languageCode }) { group ->
