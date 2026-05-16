@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.swooby.parropeato"
-    compileSdk = 36
+    compileSdk = 37
 
     val releaseKeystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
     val releaseKeystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
@@ -112,5 +112,5 @@ dependencies {
     implementation(libs.google.firebase.analytics)
 
     implementation(project(":common"))
-    implementation(project(":smartfoo"))
+    implementation(libs.smartfoo.core)
 }

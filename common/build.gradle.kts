@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.swooby.parropeato.common"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         minSdk = 34
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -41,5 +41,5 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlin.reflect)
-    implementation(project(":smartfoo"))
+    implementation(libs.smartfoo.core)
 }

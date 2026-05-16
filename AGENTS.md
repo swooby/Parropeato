@@ -9,7 +9,7 @@ Parropeato is an Android and Wear OS Kotlin app that listens to speech using spe
 - `mobile`: Android app entry point.
 - `wear`: Wear OS app, tile, and complication services.
 - `common`: shared app logic, settings, view model, and Compose support.
-- `smartfoo`: local Android utility library used by app modules.
+- `smartfoo`: (Optional) local Android utility library; defaults to Maven Central artifact.
 - `docs`: static GitHub Pages site.
 
 ## Build And Test
@@ -31,7 +31,7 @@ Parropeato is an Android and Wear OS Kotlin app that listens to speech using spe
 ## Android Notes
 
 - Compose is enabled in `mobile`, `wear`, and `common`.
-- `smartfoo` is a plain Android library and should stay reusable.
+- `smartfoo` is a plain Android library.
 - Do not commit keystores, service account JSON, generated APKs/AABs, or local signing material.
 
 ## Localization
