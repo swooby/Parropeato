@@ -22,6 +22,8 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class MainActivity : BaseMainActivity() {
+    override val greetingBottomInsetDp: Float = 52f
+
     @Composable
     override fun PlatformOverlay(onSettingsClick: () -> Unit) {
         WatchClock(

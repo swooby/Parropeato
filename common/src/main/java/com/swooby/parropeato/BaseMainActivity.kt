@@ -32,6 +32,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -116,6 +118,7 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected open val watchFaceSceneScale: Float = 0.92f
     protected open val watchFaceControlsScale: Float = 0.88f
     protected open val watchFaceBorderOutset: Boolean = false
+    protected open val greetingBottomInsetDp: Float = 24f
 
     protected open fun setupUI() {
         setContent {
@@ -131,6 +134,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 onVolumeChange = ::setVolumePercent,
                 onVoiceSpeedChange = ::setVoiceSpeed,
                 onVoicePitchChange = ::setVoicePitch,
+                greetingBottomInsetDp = greetingBottomInsetDp,
                 settingsOverlay = {
                     if (viewModel.showSettings) {
                         SettingsOverlay(onDismiss = { viewModel.showSettings = false })
@@ -598,6 +602,11 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected fun onSettingsCuteIconsChanged(value: Boolean) {
         viewModel.cuteIcons = value
         settings.cuteIcons = value
+        val holdMic = getString(R.string.status_hold_mic_to_talk)
+        val holdCuteMic = getString(R.string.status_hold_cute_mic_to_talk)
+        if (viewModel.text == holdMic || viewModel.text == holdCuteMic) {
+            viewModel.text = getString(if (value) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
+        }
     }
 
     protected fun onSettingsAccentColorChanged(argb: Int) {
@@ -777,6 +786,7 @@ private fun ParropeatoApp(
     onVolumeChange: (Float) -> Unit,
     onVoiceSpeedChange: (Float) -> Unit,
     onVoicePitchChange: (Float) -> Unit,
+    greetingBottomInsetDp: Float,
     settingsOverlay: @Composable () -> Unit,
 ) {
     MaterialTheme(
@@ -832,12 +842,23 @@ private fun ParropeatoApp(
                         onPushToTalkPressed = onPushToTalkPressed,
                         onPushToTalkReleased = onPushToTalkReleased,
                     )
+                    val sceneRadius = sceneSize / 2
+                    val greetingTopY = 40.5.dp * controlScale
+                    val greetingBottomY = (sceneRadius - greetingBottomInsetDp.dp)
+                        .coerceAtLeast(greetingTopY + 20.dp)
+                    val greetingHeight = greetingBottomY - greetingTopY
+                    val greetingCenterY = (greetingTopY + greetingBottomY) / 2
+                    val greetingWidthFraction = with(LocalDensity.current) {
+                        val rPx = sceneRadius.toPx()
+                        val yPx = greetingCenterY.toPx()
+                        (sqrt(maxOf(0f, rPx * rPx - yPx * yPx)) / rPx * 0.92f).coerceIn(0.3f, 1f)
+                    }
                     Greeting(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .fillMaxWidth()
-                            .height(72.dp * controlScale)
-                            .offset(y = 77.dp * controlScale),
+                            .fillMaxWidth(greetingWidthFraction)
+                            .height(greetingHeight)
+                            .offset(y = greetingCenterY),
                         text = viewModel.text,
                     )
                 }
@@ -1428,7 +1449,9 @@ private fun Greeting(
         contentAlignment = Alignment.TopCenter,
     ) {
         Text(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.primary,
             text = text,
