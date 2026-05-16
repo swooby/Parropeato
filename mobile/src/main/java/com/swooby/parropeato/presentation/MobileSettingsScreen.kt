@@ -58,6 +58,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.swooby.parropeato.ACCENT_COLOR_OPTIONS
+import com.swooby.parropeato.verticalScrollbar
 import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.GroupedLocaleOptions
 import com.swooby.parropeato.LocaleLanguageGroup
@@ -269,8 +270,10 @@ private fun SettingsL1Screen(
         })
         HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
 
+        val listState = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            modifier = Modifier.fillMaxSize().verticalScrollbar(listState),
             contentPadding = PaddingValues(bottom = 24.dp),
         ) {
             item {
@@ -366,7 +369,7 @@ private fun TtsLanguagesScreen(
         HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().verticalScrollbar(lazyListState),
             contentPadding = PaddingValues(bottom = 24.dp),
         ) {
             // Device Default — always first, directly selectable
@@ -444,7 +447,12 @@ private fun TtsVariantsScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         ScreenHeader(title = group.displayLanguage, onBack = onBack)
         HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+        val listState = rememberLazyListState()
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize().verticalScrollbar(listState),
+            contentPadding = PaddingValues(bottom = 24.dp),
+        ) {
             items(entries, key = { TextToSpeechVoicePreference.baseName(it.preferredVoice) }) { entry ->
                 val locale = entry.preferredVoice.locale
                 val countryName = locale.getDisplayCountry(displayLocale).ifEmpty { locale.getDisplayName(displayLocale) }
@@ -497,7 +505,7 @@ private fun SpeechLanguagesScreen(
         HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().verticalScrollbar(lazyListState),
             contentPadding = PaddingValues(bottom = 24.dp),
         ) {
             // Device Default — always first, directly selectable
@@ -570,7 +578,12 @@ private fun SpeechVariantsScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         ScreenHeader(title = group.displayLanguage, onBack = onBack)
         HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+        val listState = rememberLazyListState()
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize().verticalScrollbar(listState),
+            contentPadding = PaddingValues(bottom = 24.dp),
+        ) {
             items(group.options, key = { it.tag ?: "" }) { option ->
                 SelectableRow(
                     label = option.displayName,

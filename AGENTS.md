@@ -67,6 +67,28 @@ Project-level Claude Code slash commands live in `.claude/commands/`. Type `/<na
 - Both mobile and wear settings screens have a **Test Crash** button (debug builds only) for verifying Crashlytics end-to-end.
 - Analytics DebugView requires running `adb -s <device_id> shell setprop debug.firebase.analytics.app com.swooby.parropeato` targeting each device specifically; the property does not survive reboots. See `docs/firebase testing.md` for full instructions.
 
+## Google Play Review Requirements
+
+Requirements enforced by Play Store reviewers; violations cause rejection. Check these when adding UI or new screens.
+
+### Layout & Text
+- **No text clipped by screen edges.** On round Wear OS screens, `fillMaxWidth()` fills the full scene diameter, but the physical bezel clips content past the inscribed chord at that y-position. Compute the safe chord width mathematically (see `greetingWidthFraction` in `BaseMainActivity`) or use conservative horizontal padding. Applies to any text or view near the sides or bottom of the circle.
+- **Text must not overflow its container silently.** Use `verticalScroll`, `maxLines` + `TextOverflow.Ellipsis`, or a properly sized container. Cut-off text is grounds for rejection even if the overflow is technically scrollable but invisible.
+
+### Scrollbars
+- **Every scrollable view must show a scrollbar while the user interacts with it.** This includes `LazyColumn`, `LazyRow`, `verticalScroll`/`horizontalScroll`, and Wear `ScalingLazyColumn`.
+  - Wear: use `PositionIndicator(scalingLazyListState = state)` overlaid in a `Box` — the platform-standard arc indicator.
+  - Mobile/common: apply `Modifier.verticalScrollbar(state)` from `ScrollbarUtils.kt` in `common`.
+  - When adding a new scrollable list, always include the appropriate indicator — do not wait for a rejection to add it.
+
+### Accessibility
+- **Every interactive element needs a `contentDescription`.** Icons used as buttons, image-only controls, and decorative-but-functional elements must have non-empty content descriptions so TalkBack can announce them. Already-present examples: `cd_listening`, `cd_hold_to_talk`, `cd_preview_voice`.
+- **Touch targets must be at least 48×48 dp.** Wrap small icons in a `Box` or use `Modifier.minimumInteractiveComponentSize()` if the visual size is smaller.
+
+### Wear OS Specifics
+- **Round-screen geometry:** the usable chord width shrinks as y-offset from center increases. Always verify new text or controls near the bottom of the watch face on a round emulator before submitting.
+- **Settings screens** must use `SwipeDismissableNavHost` (already in place) so swipe-to-dismiss works as expected on Wear OS.
+
 ## Release Notes
 
 - Release signing is driven by environment variables in Gradle and GitHub Actions.

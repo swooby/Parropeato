@@ -37,6 +37,7 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
@@ -248,11 +249,13 @@ private fun SettingsL1Screen(
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
+    val listState = rememberScalingLazyListState()
+    Box(modifier = Modifier.fillMaxSize()) {
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black),
-        state = rememberScalingLazyListState(),
+        state = listState,
     ) {
         item { ListHeader { Text(stringResource(R.string.settings_title)) } }
 
@@ -367,6 +370,8 @@ private fun SettingsL1Screen(
             }
         }
     }
+    PositionIndicator(scalingLazyListState = listState)
+    }
 }
 
 // ─── Accent color picker ──────────────────────────────────────────────────────
@@ -376,29 +381,31 @@ private fun AccentColorScreen(
     accentColor: Int,
     onAccentColorSelected: (Int) -> Unit,
 ) {
-    ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        state = rememberScalingLazyListState(),
-    ) {
-        item { ListHeader { Text(stringResource(R.string.settings_accent_color)) } }
-        items(ACCENT_COLOR_OPTIONS) { option ->
-            val isSelected = option.argb == accentColor
-            Chip(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onAccentColorSelected(option.argb) },
-                colors = if (isSelected) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
-                label = { Text(stringResource(option.nameResId), maxLines = 1) },
-                icon = {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(option.color, CircleShape),
-                    )
-                },
-            )
+    val listState = rememberScalingLazyListState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize().background(Color.Black),
+            state = listState,
+        ) {
+            item { ListHeader { Text(stringResource(R.string.settings_accent_color)) } }
+            items(ACCENT_COLOR_OPTIONS) { option ->
+                val isSelected = option.argb == accentColor
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onAccentColorSelected(option.argb) },
+                    colors = if (isSelected) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
+                    label = { Text(stringResource(option.nameResId), maxLines = 1) },
+                    icon = {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(option.color, CircleShape),
+                        )
+                    },
+                )
+            }
         }
+        PositionIndicator(scalingLazyListState = listState)
     }
 }
 
@@ -424,63 +431,65 @@ private fun TtsLanguagesScreen(
             if (i >= 0) i + 2 else 1
         }
     }
-    ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        state = rememberScalingLazyListState(initialCenterItemIndex = scrollIndex),
-    ) {
-        item { ListHeader { Text(stringResource(R.string.settings_section_tts_language)) } }
+    val listState = rememberScalingLazyListState(initialCenterItemIndex = scrollIndex)
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize().background(Color.Black),
+            state = listState,
+        ) {
+            item { ListHeader { Text(stringResource(R.string.settings_section_tts_language)) } }
 
-        // Device Default — always first, directly selectable
-        item {
-            SelectableChip(
-                label = deviceDefaultLabel,
-                secondaryLabel = defaultVoice?.locale?.getDisplayName(displayLocale),
-                isSelected = selectedVoiceName == null,
-                onClick = onDeviceDefaultSelected,
-            )
-        }
-
-        if (voiceGroups.isEmpty()) {
+            // Device Default — always first, directly selectable
             item {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    Text(
-                        text = stringResource(R.string.settings_tts_initializing),
-                        color = Color.White.copy(alpha = 0.5f),
+                SelectableChip(
+                    label = deviceDefaultLabel,
+                    secondaryLabel = defaultVoice?.locale?.getDisplayName(displayLocale),
+                    isSelected = selectedVoiceName == null,
+                    onClick = onDeviceDefaultSelected,
+                )
+            }
+
+            if (voiceGroups.isEmpty()) {
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Text(
+                            text = stringResource(R.string.settings_tts_initializing),
+                            color = Color.White.copy(alpha = 0.5f),
+                        )
+                    }
+                }
+            } else {
+                items(voiceGroups, key = { it.languageCode }) { group ->
+                    val isGroupSelected = group.voices.any { it.name == selectedVoiceName }
+                    val variantSubtitle = if (isGroupSelected && selectedVoiceName != null) {
+                        TextToSpeechVoicePreference.voiceEntries(group.voices, displayLocale)
+                            .find { it.isSelected(selectedVoiceName) }
+                            ?.let { ttsVoiceDisplaySubtitle(it.preferredVoice, displayLocale, includeLocale = false) }
+                    } else null
+                    SelectableChip(
+                        label = if (group.hasVariants) "${group.displayLanguage} ›"
+                                else group.displayLanguage,
+                        secondaryLabel = variantSubtitle,
+                        isSelected = isGroupSelected,
+                        onClick = { onGroupSelected(group) },
                     )
                 }
             }
-        } else {
-            items(voiceGroups, key = { it.languageCode }) { group ->
-                val isGroupSelected = group.voices.any { it.name == selectedVoiceName }
-                val variantSubtitle = if (isGroupSelected && selectedVoiceName != null) {
-                    TextToSpeechVoicePreference.voiceEntries(group.voices, displayLocale)
-                        .find { it.isSelected(selectedVoiceName) }
-                        ?.let { ttsVoiceDisplaySubtitle(it.preferredVoice, displayLocale, includeLocale = false) }
-                } else null
-                SelectableChip(
-                    label = if (group.hasVariants) "${group.displayLanguage} ›"
-                            else group.displayLanguage,
-                    secondaryLabel = variantSubtitle,
-                    isSelected = isGroupSelected,
-                    onClick = { onGroupSelected(group) },
+
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onOpenTtsSettings,
+                    colors = ChipDefaults.secondaryChipColors(),
+                    label = { Text(stringResource(R.string.settings_open_tts_settings)) },
                 )
             }
         }
-
-        item {
-            Chip(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onOpenTtsSettings,
-                colors = ChipDefaults.secondaryChipColors(),
-                label = { Text(stringResource(R.string.settings_open_tts_settings)) },
-            )
-        }
+        PositionIndicator(scalingLazyListState = listState)
     }
 }
 
@@ -497,49 +506,51 @@ private fun TtsVariantsScreen(
     val entries = remember(group.voices, displayLocale) {
         TextToSpeechVoicePreference.voiceEntries(group.voices, displayLocale)
     }
-    ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        state = rememberScalingLazyListState(),
-    ) {
-        item { ListHeader { Text(group.displayLanguage) } }
+    val listState = rememberScalingLazyListState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize().background(Color.Black),
+            state = listState,
+        ) {
+            item { ListHeader { Text(group.displayLanguage) } }
 
-        items(entries, key = { TextToSpeechVoicePreference.baseName(it.preferredVoice) }) { entry ->
-            val locale = entry.preferredVoice.locale
-            val countryName = locale.getDisplayCountry(displayLocale).ifEmpty { locale.getDisplayName(displayLocale) }
-            val genderLabel = when (TextToSpeechVoicePreference.gender(entry.preferredVoice)) {
-                "male"   -> stringResource(R.string.voice_gender_male)
-                "female" -> stringResource(R.string.voice_gender_female)
-                else     -> null
-            }
-            Row(
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                SelectableChip(
-                    label = if (genderLabel != null) "$countryName · $genderLabel" else countryName,
-                    secondaryLabel = voiceSubtitle(entry),
-                    isSelected = entry.isSelected(selectedVoiceName),
-                    onClick = { onVoiceSelected(entry.preferredVoice.name) },
-                    modifier = Modifier.weight(1f),
-                )
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .padding(start = 4.dp)
-                        .clickable { onPreviewVoice(entry.preferredVoice.name) },
-                    contentAlignment = androidx.compose.ui.Alignment.Center,
+            items(entries, key = { TextToSpeechVoicePreference.baseName(it.preferredVoice) }) { entry ->
+                val locale = entry.preferredVoice.locale
+                val countryName = locale.getDisplayCountry(displayLocale).ifEmpty { locale.getDisplayName(displayLocale) }
+                val genderLabel = when (TextToSpeechVoicePreference.gender(entry.preferredVoice)) {
+                    "male"   -> stringResource(R.string.voice_gender_male)
+                    "female" -> stringResource(R.string.voice_gender_female)
+                    else     -> null
+                }
+                Row(
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.PlayCircle,
-                        contentDescription = stringResource(R.string.cd_preview_voice),
-                        tint = Color.White.copy(alpha = 0.6f),
-                        modifier = Modifier.size(20.dp),
+                    SelectableChip(
+                        label = if (genderLabel != null) "$countryName · $genderLabel" else countryName,
+                        secondaryLabel = voiceSubtitle(entry),
+                        isSelected = entry.isSelected(selectedVoiceName),
+                        onClick = { onVoiceSelected(entry.preferredVoice.name) },
+                        modifier = Modifier.weight(1f),
                     )
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .padding(start = 4.dp)
+                            .clickable { onPreviewVoice(entry.preferredVoice.name) },
+                        contentAlignment = androidx.compose.ui.Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.PlayCircle,
+                            contentDescription = stringResource(R.string.cd_preview_voice),
+                            tint = Color.White.copy(alpha = 0.6f),
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
             }
         }
+        PositionIndicator(scalingLazyListState = listState)
     }
 }
 
@@ -566,66 +577,68 @@ private fun SpeechLanguagesScreen(
             if (i >= 0) i + 2 else 1
         }
     }
-    ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        state = rememberScalingLazyListState(initialCenterItemIndex = scrollIndex),
-    ) {
-        item { ListHeader { Text(stringResource(R.string.settings_section_stt_language)) } }
+    val listState = rememberScalingLazyListState(initialCenterItemIndex = scrollIndex)
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize().background(Color.Black),
+            state = listState,
+        ) {
+            item { ListHeader { Text(stringResource(R.string.settings_section_stt_language)) } }
 
-        // Device Default — always present, no drill-down
-        item {
-            SelectableChip(
-                label = localeGroups.deviceDefault.displayName,
-                secondaryLabel = displayLocale.getDisplayName(displayLocale),
-                isSelected = speechRecognizerLocale == null,
-                onClick = onDeviceDefaultSelected,
-            )
-        }
-
-        if (!speechLocalesSupportChecked) {
+            // Device Default — always present, no drill-down
             item {
-                Text(
-                    text = stringResource(R.string.settings_speech_checking),
-                    color = Color.White.copy(alpha = 0.5f),
-                )
-            }
-        } else if (localeGroups.languageGroups.isEmpty()) {
-            item {
-                Text(
-                    text = stringResource(R.string.settings_speech_none_found),
-                    color = Color.White.copy(alpha = 0.5f),
-                )
-            }
-        } else {
-            items(localeGroups.languageGroups, key = { it.languageCode }) { group ->
-                val isGroupSelected = group.options.any { it.tag == speechRecognizerLocale }
-                val variantSubtitle = if (isGroupSelected && speechRecognizerLocale != null)
-                    sttLocaleGroupSubtitle(speechRecognizerLocale, displayLocale)
-                else null
-                val groupHasOffline = group.options.any { it.tag != null && it.tag in installedSpeechLocales }
-                val offlineLabel = if (groupHasOffline) stringResource(R.string.settings_stt_offline_ready) else null
-                val secondaryLabel = listOfNotNull(variantSubtitle, offlineLabel).joinToString(" · ").ifEmpty { null }
                 SelectableChip(
-                    label = if (group.hasVariants) "${group.displayLanguage} ›"
-                            else group.displayLanguage,
-                    secondaryLabel = secondaryLabel,
-                    isSelected = isGroupSelected,
-                    onClick = { onGroupSelected(group) },
+                    label = localeGroups.deviceDefault.displayName,
+                    secondaryLabel = displayLocale.getDisplayName(displayLocale),
+                    isSelected = speechRecognizerLocale == null,
+                    onClick = onDeviceDefaultSelected,
                 )
             }
-        }
-        if (!isNetworkAvailable && speechRecognizerLocale != null && speechRecognizerLocale !in installedSpeechLocales) {
-            item {
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onOpenSpeechDownloadSettings,
-                    colors = ChipDefaults.secondaryChipColors(),
-                    label = { Text(stringResource(R.string.settings_stt_download_offline), maxLines = 2) },
-                )
+
+            if (!speechLocalesSupportChecked) {
+                item {
+                    Text(
+                        text = stringResource(R.string.settings_speech_checking),
+                        color = Color.White.copy(alpha = 0.5f),
+                    )
+                }
+            } else if (localeGroups.languageGroups.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.settings_speech_none_found),
+                        color = Color.White.copy(alpha = 0.5f),
+                    )
+                }
+            } else {
+                items(localeGroups.languageGroups, key = { it.languageCode }) { group ->
+                    val isGroupSelected = group.options.any { it.tag == speechRecognizerLocale }
+                    val variantSubtitle = if (isGroupSelected && speechRecognizerLocale != null)
+                        sttLocaleGroupSubtitle(speechRecognizerLocale, displayLocale)
+                    else null
+                    val groupHasOffline = group.options.any { it.tag != null && it.tag in installedSpeechLocales }
+                    val offlineLabel = if (groupHasOffline) stringResource(R.string.settings_stt_offline_ready) else null
+                    val secondaryLabel = listOfNotNull(variantSubtitle, offlineLabel).joinToString(" · ").ifEmpty { null }
+                    SelectableChip(
+                        label = if (group.hasVariants) "${group.displayLanguage} ›"
+                                else group.displayLanguage,
+                        secondaryLabel = secondaryLabel,
+                        isSelected = isGroupSelected,
+                        onClick = { onGroupSelected(group) },
+                    )
+                }
+            }
+            if (!isNetworkAvailable && speechRecognizerLocale != null && speechRecognizerLocale !in installedSpeechLocales) {
+                item {
+                    Chip(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onOpenSpeechDownloadSettings,
+                        colors = ChipDefaults.secondaryChipColors(),
+                        label = { Text(stringResource(R.string.settings_stt_download_offline), maxLines = 2) },
+                    )
+                }
             }
         }
+        PositionIndicator(scalingLazyListState = listState)
     }
 }
 
@@ -637,21 +650,23 @@ private fun SpeechVariantsScreen(
     speechRecognizerLocale: String?,
     onLocaleSelected: (String?) -> Unit,
 ) {
-    ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        state = rememberScalingLazyListState(),
-    ) {
-        item { ListHeader { Text(group.displayLanguage) } }
+    val listState = rememberScalingLazyListState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize().background(Color.Black),
+            state = listState,
+        ) {
+            item { ListHeader { Text(group.displayLanguage) } }
 
-        items(group.options, key = { it.tag ?: "" }) { option ->
-            SelectableChip(
-                label = option.displayName,
-                isSelected = option.tag == speechRecognizerLocale,
-                onClick = { onLocaleSelected(option.tag) },
-            )
+            items(group.options, key = { it.tag ?: "" }) { option ->
+                SelectableChip(
+                    label = option.displayName,
+                    isSelected = option.tag == speechRecognizerLocale,
+                    onClick = { onLocaleSelected(option.tag) },
+                )
+            }
         }
+        PositionIndicator(scalingLazyListState = listState)
     }
 }
 

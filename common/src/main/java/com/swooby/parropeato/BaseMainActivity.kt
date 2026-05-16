@@ -29,6 +29,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -119,6 +120,7 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected open val watchFaceControlsScale: Float = 0.88f
     protected open val watchFaceBorderOutset: Boolean = false
     protected open val greetingBottomInsetDp: Float = 24f
+    protected open val greetingScrollIndicator: (@Composable (ScrollState) -> Unit)? = null
 
     protected open fun setupUI() {
         setContent {
@@ -135,6 +137,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 onVoiceSpeedChange = ::setVoiceSpeed,
                 onVoicePitchChange = ::setVoicePitch,
                 greetingBottomInsetDp = greetingBottomInsetDp,
+                greetingScrollIndicator = greetingScrollIndicator,
                 settingsOverlay = {
                     if (viewModel.showSettings) {
                         SettingsOverlay(onDismiss = { viewModel.showSettings = false })
@@ -787,8 +790,10 @@ private fun ParropeatoApp(
     onVoiceSpeedChange: (Float) -> Unit,
     onVoicePitchChange: (Float) -> Unit,
     greetingBottomInsetDp: Float,
+    greetingScrollIndicator: (@Composable (ScrollState) -> Unit)?,
     settingsOverlay: @Composable () -> Unit,
 ) {
+    val greetingScrollState = rememberScrollState()
     MaterialTheme(
         colorScheme = darkColorScheme(
             primary = Color(viewModel.accentColor),
@@ -860,6 +865,8 @@ private fun ParropeatoApp(
                             .height(greetingHeight)
                             .offset(y = greetingCenterY),
                         text = viewModel.text,
+                        scrollState = greetingScrollState,
+                        showScrollbar = greetingScrollIndicator == null,
                     )
                 }
                 platformOverlay { viewModel.showSettings = true }
@@ -867,6 +874,7 @@ private fun ParropeatoApp(
         }
 
         settingsOverlay()
+        greetingScrollIndicator?.invoke(greetingScrollState)
     }
 }
 
@@ -1442,16 +1450,18 @@ private fun PushToTalkButton(
 @Composable
 private fun Greeting(
     text: String,
+    scrollState: ScrollState,
+    showScrollbar: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier,
+        modifier = if (showScrollbar) modifier.verticalScrollbar(scrollState) else modifier,
         contentAlignment = Alignment.TopCenter,
     ) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.primary,
             text = text,
