@@ -5,6 +5,43 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
 }
 
+dependencies {
+    implementation(libs.androidx.wear)
+    implementation(libs.androidx.wear.tooling.preview)
+    // https://developer.android.com/jetpack/compose/bom
+    val androidxComposeBom = platform(libs.androidx.compose.bom)
+    implementation(androidxComposeBom)
+    androidTestImplementation(androidxComposeBom)
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.percentlayout)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.wear.compose.foundation)
+    implementation(libs.androidx.wear.compose.material)
+    implementation(libs.androidx.wear.compose.navigation)
+    implementation(libs.google.play.services.wearable)
+    implementation(libs.kotlin.reflect)
+
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.google.firebase.crashlytics)
+    implementation(libs.google.firebase.analytics)
+
+    implementation(project(":common"))
+    implementation(libs.smartfoo.core)
+}
+
 android {
     namespace = "com.swooby.parropeato"
     compileSdk = 37
@@ -76,41 +113,4 @@ android {
         compose = true
         buildConfig = true
     }
-}
-
-dependencies {
-    implementation(libs.androidx.wear)
-    implementation(libs.androidx.wear.tooling.preview)
-    // https://developer.android.com/jetpack/compose/bom
-    val androidxComposeBom = platform(libs.androidx.compose.bom)
-    implementation(androidxComposeBom)
-    androidTestImplementation(androidxComposeBom)
-
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.legacy.support.v4)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.percentlayout)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.wear.compose.foundation)
-    implementation(libs.androidx.wear.compose.material)
-    implementation(libs.androidx.wear.compose.navigation)
-    implementation(libs.google.play.services.wearable)
-    implementation(libs.kotlin.reflect)
-
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation(platform(libs.google.firebase.bom))
-    implementation(libs.google.firebase.crashlytics)
-    implementation(libs.google.firebase.analytics)
-
-    implementation(project(":common"))
-    implementation(libs.smartfoo.core)
 }

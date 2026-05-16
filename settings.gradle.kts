@@ -29,7 +29,6 @@ val pathSmartFoo = run {
         null
     }
 }
-
 if (!pathSmartFoo.isNullOrEmpty()) {
     val smartFooFile = file(pathSmartFoo)
     if (smartFooFile.exists()) {

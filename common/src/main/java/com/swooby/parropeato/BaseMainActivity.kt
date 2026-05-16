@@ -69,13 +69,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.smartfoo.android.core.FooReflection
 import com.smartfoo.android.core.FooString
 import com.smartfoo.android.core.FooString.quote
 import com.smartfoo.android.core.logging.FooLog
 import com.smartfoo.android.core.platform.FooPlatformUtils
 import com.smartfoo.android.core.texttospeech.FooTextToSpeech
-import com.swooby.parropeato.ReflectionUtils.getMapOfIntFieldsToNames
-import com.swooby.parropeato.ReflectionUtils.valueToString
 import com.swooby.parropeato.common.BuildConfig
 import com.swooby.parropeato.common.R
 import kotlin.math.PI
@@ -89,8 +88,8 @@ import android.provider.Settings as AndroidSettings
 
 abstract class BaseMainActivity : ComponentActivity() {
     companion object {
-        private val speechRecognizerErrors = getMapOfIntFieldsToNames(SpeechRecognizer::class, "ERROR_")
-        fun speechRecognizerErrorToString(error: Int): String = valueToString(speechRecognizerErrors, error)
+        private val speechRecognizerErrors = FooReflection.mapConstants(SpeechRecognizer::class, "ERROR_")
+        fun speechRecognizerErrorToString(error: Int): String = FooReflection.toString(speechRecognizerErrors, error)
     }
 
     protected open val TAG: String by lazy { FooLog.TAG(this::class) }

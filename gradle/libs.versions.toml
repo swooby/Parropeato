@@ -18,7 +18,7 @@ google-android-material = "1.14.0"
 google-play-services-wearable = "20.0.1"
 google-services = "4.4.4"
 kotlin = "2.3.21"
-smartfoo = "1.0.0"
+smartfoo = "1.0.1"
 wear = "1.4.0"
 wear-tooling-preview = "1.0.0"
 

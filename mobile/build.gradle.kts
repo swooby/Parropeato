@@ -5,6 +5,37 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
 }
 
+dependencies {
+    // https://developer.android.com/jetpack/compose/bom
+    val androidxComposeBom = platform(libs.androidx.compose.bom)
+    implementation(androidxComposeBom)
+    androidTestImplementation(androidxComposeBom)
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.google.android.material)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.kotlin.reflect)
+
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.google.firebase.crashlytics)
+    implementation(libs.google.firebase.analytics)
+
+    implementation(project(":common"))
+    implementation(libs.smartfoo.core)
+}
+
 android {
     namespace = "com.swooby.parropeato"
     compileSdk = 37
@@ -76,35 +107,4 @@ android {
         compose = true
         buildConfig = true
     }
-}
-
-dependencies {
-    // https://developer.android.com/jetpack/compose/bom
-    val androidxComposeBom = platform(libs.androidx.compose.bom)
-    implementation(androidxComposeBom)
-    androidTestImplementation(androidxComposeBom)
-
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.google.android.material)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.kotlin.reflect)
-
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation(platform(libs.google.firebase.bom))
-    implementation(libs.google.firebase.crashlytics)
-    implementation(libs.google.firebase.analytics)
-
-    implementation(project(":common"))
-    implementation(libs.smartfoo.core)
 }
