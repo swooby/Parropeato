@@ -32,6 +32,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  instrumented-tests:
+    name: Instrumented tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run instrumented tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          script: ./gradlew :mobile:connectedDebugAndroidTest :wear:connectedDebugAndroidTest
+
+      - name: Upload instrumented test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: instrumented-test-reports
+          path: |
+            mobile/build/reports/androidTests/
+            wear/build/reports/androidTests/
+
   build:
     name: Build app
     runs-on: ubuntu-latest
@@ -51,6 +89,16 @@ jobs:
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
+
+      - name: Run unit tests
+        run: ./gradlew :common:test
+
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report
+          path: common/build/reports/tests/
 
       - name: Build debug APK
         if: github.event_name == 'pull_request'

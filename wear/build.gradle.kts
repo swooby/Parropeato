@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.kotlin.reflect)
 
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.ext.junit)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
@@ -61,6 +62,7 @@ android {
         applicationId = "com.swooby.parropeato"
         minSdk = 34
         targetSdk = 36
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionCode = System.getenv("WEAR_VERSION_CODE")?.toIntOrNull()
             ?: System.getenv("VERSION_CODE")?.toIntOrNull()
             ?: 1

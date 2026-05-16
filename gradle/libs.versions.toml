@@ -9,6 +9,8 @@ androidx-lifecycle-runtime-ktx = "2.10.0"
 androidx-navigation = "2.9.8"
 androidx-percentlayout = "1.0.0"
 androidx-recyclerview = "1.4.0"
+androidx-test-core = "1.7.0"
+androidx-test-ext-junit = "1.2.1"
 androidx-wear-compose-foundation = "1.6.1"
 androidx-wear-compose-material = "1.6.1"
 androidx-wear-compose-navigation = "1.6.1"
@@ -17,7 +19,9 @@ firebase-crashlytics = "3.0.7"
 google-android-material = "1.14.0"
 google-play-services-wearable = "20.0.1"
 google-services = "4.4.4"
+junit = "4.13.2"
 kotlin = "2.3.21"
+robolectric = "4.16.1"
 smartfoo = "1.0.1"
 wear = "1.4.0"
 wear-tooling-preview = "1.0.0"
@@ -40,6 +44,8 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidx-navigation" }
 androidx-percentlayout = { group = "androidx.percentlayout", name = "percentlayout", version.ref = "androidx-percentlayout" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidx-recyclerview" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test-core" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 androidx-wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
 androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "androidx-wear-compose-foundation" }
 androidx-wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "androidx-wear-compose-material" }
@@ -50,14 +56,16 @@ google-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 google-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 google-play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "google-play-services-wearable" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 smartfoo-core = { group = "com.smartfoo", name = "smartfoo-android-lib-core", version.ref = "smartfoo" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 [bundles]
