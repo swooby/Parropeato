@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tile_label">Пример плитки</string>
-    <string name="complication_label">Пример осложнения</string>
     <string name="settings_speech_checking">Проверка языков…</string>
     <string name="settings_open_tts_settings">Настройки TTS</string>
     <string name="voice_quality_standard">стд</string>

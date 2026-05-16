@@ -2,10 +2,10 @@ package com.swooby.parropeato
 
 import android.app.Application
 import android.speech.tts.Voice
-import com.swooby.parropeato.common.R
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import com.smartfoo.android.core.texttospeech.FooTextToSpeech
+import com.swooby.parropeato.common.R
 
 class ParropeatoViewModel(application: Application) : AndroidViewModel(application) {
     companion object {

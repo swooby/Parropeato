@@ -2,6 +2,7 @@ package com.swooby.parropeato
 
 import android.content.Context
 import androidx.core.content.edit
+import com.swooby.parropeato.Settings.Companion.CURRENT_VERSION
 
 class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_DEFAULT) {
     private val prefs = context.getSharedPreferences("parropeato_settings", Context.MODE_PRIVATE)

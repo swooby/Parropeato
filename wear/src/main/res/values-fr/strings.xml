@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tile_label">Vignette exemple</string>
-    <string name="complication_label">Complication exemple</string>
     <string name="settings_speech_checking">Vérification langues…</string>
     <string name="settings_open_tts_settings">Paramètres TTS</string>
     <string name="voice_quality_standard">std</string>

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tile_label">Bloco de exemplo</string>
-    <string name="complication_label">Complicação de exemplo</string>
     <string name="settings_speech_checking">Verificando idiomas…</string>
     <string name="settings_open_tts_settings">Config. de TTS</string>
     <string name="voice_quality_standard">std</string>

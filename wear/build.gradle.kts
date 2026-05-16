@@ -1,5 +1,3 @@
-import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -101,17 +99,11 @@ dependencies {
     implementation(libs.androidx.wear.compose.foundation)
     implementation(libs.androidx.wear.compose.material)
     implementation(libs.androidx.wear.compose.navigation)
-    implementation(libs.androidx.wear.tiles)
-    implementation(libs.androidx.wear.tiles.material)
-    implementation(libs.androidx.wear.watchface.complications.data.source.ktx)
-    implementation(libs.google.android.horologist.compose.tools)
-    implementation(libs.google.android.horologist.tiles)
     implementation(libs.google.play.services.wearable)
     implementation(libs.kotlin.reflect)
 
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 
-    implementation(libs.androidx.wear.tiles.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 

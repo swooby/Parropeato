@@ -10,7 +10,6 @@ import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.provider.Settings as AndroidSettings
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -52,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -85,6 +83,7 @@ import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
+import android.provider.Settings as AndroidSettings
 
 abstract class BaseMainActivity : ComponentActivity() {
     companion object {

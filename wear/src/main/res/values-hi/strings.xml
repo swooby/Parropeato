@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tile_label">उदाहरण टाइल</string>
-    <string name="complication_label">उदाहरण जटिलता</string>
     <string name="settings_speech_checking">भाषाएँ जाँच रहे हैं…</string>
     <string name="settings_open_tts_settings">TTS सेटिंग</string>
     <string name="voice_quality_standard">std</string>

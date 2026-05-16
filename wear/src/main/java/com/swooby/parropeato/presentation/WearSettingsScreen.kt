@@ -40,18 +40,18 @@ import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.ACCENT_COLOR_OPTIONS
-import com.swooby.parropeato.sttLocaleDisplaySubtitle
-import com.swooby.parropeato.sttLocaleGroupSubtitle
-import com.swooby.parropeato.ttsVoiceDisplaySubtitle
-import com.swooby.parropeato.voiceSubtitle
+import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.GroupedLocaleOptions
 import com.swooby.parropeato.LocaleLanguageGroup
 import com.swooby.parropeato.SpeechLocalePreference
 import com.swooby.parropeato.TextToSpeechVoicePreference
 import com.swooby.parropeato.VoiceLanguageGroup
 import com.swooby.parropeato.common.R
+import com.swooby.parropeato.sttLocaleDisplaySubtitle
+import com.swooby.parropeato.sttLocaleGroupSubtitle
+import com.swooby.parropeato.ttsVoiceDisplaySubtitle
+import com.swooby.parropeato.voiceSubtitle
 
 // ─── Route constants ────────────────────────────────────────────────────────
 
