@@ -59,6 +59,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -452,6 +453,8 @@ abstract class BaseMainActivity : ComponentActivity() {
         FooLog.i(TAG, "-onPermissionRecordAudioResult(isGranted=$isGranted)")
     }
 
+    // KeyEvent.KEYCODE_STEM_* constants are @RestrictTo(LIBRARY_GROUP) but are the only way
+    // to detect Wear OS physical stem-button presses at the Activity level.
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         FooLog.i(TAG, "dispatchKeyEvent(event=$event)")
@@ -659,13 +662,6 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected fun speechRecognizerStop() {
         if (::speechRecognizer.isInitialized) {
             speechRecognizer.stopListening()
-        }
-    }
-
-    @Suppress("unused")
-    private fun speechRecognizerCancel() {
-        if (::speechRecognizer.isInitialized) {
-            speechRecognizer.cancel()
         }
     }
 
@@ -1128,15 +1124,7 @@ private fun VolumeArcControl(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val swPx = strokeWidth.toPx()
             val outerR = size.width / 2f - swPx - radiusInset.toPx()
-            val c = Offset(size.width / 2f, size.height / 2f)
-            val ovalTl = Offset(c.x - outerR, c.y - outerR)
-            val ovalSz = androidx.compose.ui.geometry.Size(outerR * 2, outerR * 2)
-            drawArc(color = track, startAngle = VOLUME_ARC_START_ANGLE_DEGREES, sweepAngle = VOLUME_ARC_SWEEP_DEGREES, useCenter = false, topLeft = ovalTl, size = ovalSz, style = Stroke(width = swPx, cap = StrokeCap.Round))
-            val thumbDeg = VOLUME_ARC_START_ANGLE_DEGREES + VOLUME_ARC_SWEEP_DEGREES * (1f - boundedVolume)
-            val thumbRad = Math.toRadians(thumbDeg.toDouble())
-            val thumb = Offset(c.x + cos(thumbRad).toFloat() * outerR, c.y + sin(thumbRad).toFloat() * outerR)
-            drawCircle(color = primary.copy(alpha = 0.18f), radius = (17.dp * scale).toPx(), center = thumb)
-            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumb)
+            drawArcThumb(track, primary, outerR, swPx, VOLUME_ARC_START_ANGLE_DEGREES, VOLUME_ARC_SWEEP_DEGREES, 1f - boundedVolume, scale)
         }
         EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOLUME_ICON_MAX_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(maxIconRes), contentDescription = stringResource(R.string.cd_volume_max), size = iconSize)
         EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOLUME_ICON_MIN_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(minIconRes), contentDescription = stringResource(R.string.cd_volume_min), size = iconSize)
@@ -1230,15 +1218,7 @@ private fun VoiceSpeedArcControl(
             val swPx = strokeWidth.toPx()
             val outerR = size.width / 2f - swPx - radiusInset.toPx()
             val innerR = outerR - speedExtraInset.toPx()
-            val c = Offset(size.width / 2f, size.height / 2f)
-            val ovalTl = Offset(c.x - innerR, c.y - innerR)
-            val ovalSz = androidx.compose.ui.geometry.Size(innerR * 2, innerR * 2)
-            drawArc(color = track, startAngle = VOICE_SPEED_ARC_START_ANGLE_DEGREES, sweepAngle = VOICE_SPEED_ARC_SWEEP_DEGREES, useCenter = false, topLeft = ovalTl, size = ovalSz, style = Stroke(width = swPx, cap = StrokeCap.Round))
-            val thumbDeg = VOICE_SPEED_ARC_START_ANGLE_DEGREES + VOICE_SPEED_ARC_SWEEP_DEGREES * speedPercent
-            val thumbRad = Math.toRadians(thumbDeg.toDouble())
-            val thumb = Offset(c.x + cos(thumbRad).toFloat() * innerR, c.y + sin(thumbRad).toFloat() * innerR)
-            drawCircle(color = primary.copy(alpha = 0.18f), radius = (17.dp * scale).toPx(), center = thumb)
-            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumb)
+            drawArcThumb(track, primary, innerR, swPx, VOICE_SPEED_ARC_START_ANGLE_DEGREES, VOICE_SPEED_ARC_SWEEP_DEGREES, speedPercent, scale)
         }
         EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_SPEED_ICON_MAX_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx + speedExtraInsetPx) }, icon = ImageVector.vectorResource(maxIconRes), contentDescription = stringResource(R.string.cd_voice_speed_max), size = iconSize)
         EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_SPEED_ICON_MIN_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx + speedExtraInsetPx) }, icon = ImageVector.vectorResource(minIconRes), contentDescription = stringResource(R.string.cd_voice_speed_min), size = iconSize)
@@ -1330,15 +1310,7 @@ private fun VoicePitchArcControl(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val swPx = strokeWidth.toPx()
             val outerR = size.width / 2f - swPx - radiusInset.toPx()
-            val c = Offset(size.width / 2f, size.height / 2f)
-            val ovalTl = Offset(c.x - outerR, c.y - outerR)
-            val ovalSz = androidx.compose.ui.geometry.Size(outerR * 2, outerR * 2)
-            drawArc(color = track, startAngle = VOICE_PITCH_ARC_START_ANGLE_DEGREES, sweepAngle = VOICE_PITCH_ARC_SWEEP_DEGREES, useCenter = false, topLeft = ovalTl, size = ovalSz, style = Stroke(width = swPx, cap = StrokeCap.Round))
-            val thumbDeg = VOICE_PITCH_ARC_START_ANGLE_DEGREES + VOICE_PITCH_ARC_SWEEP_DEGREES * pitchPercent
-            val thumbRad = Math.toRadians(thumbDeg.toDouble())
-            val thumb = Offset(c.x + cos(thumbRad).toFloat() * outerR, c.y + sin(thumbRad).toFloat() * outerR)
-            drawCircle(color = primary.copy(alpha = 0.18f), radius = (17.dp * scale).toPx(), center = thumb)
-            drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumb)
+            drawArcThumb(track, primary, outerR, swPx, VOICE_PITCH_ARC_START_ANGLE_DEGREES, VOICE_PITCH_ARC_SWEEP_DEGREES, pitchPercent, scale)
         }
         EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_PITCH_ICON_MAX_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(maxIconRes), contentDescription = stringResource(R.string.cd_voice_pitch_max), size = iconSize)
         EdgeControlIcon(modifier = Modifier.offset { arcIconOffset(layoutSize.value, VOICE_PITCH_ICON_MIN_ANGLE_DEGREES, iconSizePx, strokeWidthPx, radiusInsetPx) }, icon = ImageVector.vectorResource(minIconRes), contentDescription = stringResource(R.string.cd_voice_pitch_min), size = iconSize)
@@ -1493,4 +1465,29 @@ private fun Greeting(
             text = text,
         )
     }
+}
+
+/**
+ * Draws a single arc track with a circular thumb at [percent] along the arc.
+ * Shared by VolumeArcControl, VoiceSpeedArcControl, and VoicePitchArcControl.
+ */
+private fun DrawScope.drawArcThumb(
+    track: Color,
+    primary: Color,
+    arcRadius: Float,
+    strokeWidthPx: Float,
+    startAngle: Float,
+    sweepAngle: Float,
+    percent: Float,
+    scale: Float,
+) {
+    val c = Offset(size.width / 2f, size.height / 2f)
+    val ovalTl = Offset(c.x - arcRadius, c.y - arcRadius)
+    val ovalSz = androidx.compose.ui.geometry.Size(arcRadius * 2, arcRadius * 2)
+    drawArc(color = track, startAngle = startAngle, sweepAngle = sweepAngle, useCenter = false, topLeft = ovalTl, size = ovalSz, style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round))
+    val thumbDeg = startAngle + sweepAngle * percent
+    val thumbRad = Math.toRadians(thumbDeg.toDouble())
+    val thumb = Offset(c.x + cos(thumbRad).toFloat() * arcRadius, c.y + sin(thumbRad).toFloat() * arcRadius)
+    drawCircle(color = primary.copy(alpha = 0.18f), radius = (17.dp * scale).toPx(), center = thumb)
+    drawCircle(color = primary, radius = (9.dp * scale).toPx(), center = thumb)
 }
