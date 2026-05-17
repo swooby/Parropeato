@@ -477,12 +477,14 @@ abstract class BaseMainActivity : ComponentActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-    private var isListening = false
-    private var isPushToTalkPressed = false
-    private var pendingStartAfterPermission = false
-    private var shouldProcessResults = false
-    private var latestPartialRecognition: String? = null
-    private var latestUnstableRecognition: String? = null
+    // Written from the main thread and read inside RecognitionListener callbacks;
+    // @Volatile ensures writes are visible across threads without requiring full synchronization.
+    @Volatile private var isListening = false
+    @Volatile private var isPushToTalkPressed = false
+    @Volatile private var pendingStartAfterPermission = false
+    @Volatile private var shouldProcessResults = false
+    @Volatile private var latestPartialRecognition: String? = null
+    @Volatile private var latestUnstableRecognition: String? = null
 
     private fun onHardwareButton1() {
         isListening = if (isListening) {

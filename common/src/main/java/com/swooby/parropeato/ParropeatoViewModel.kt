@@ -3,6 +3,7 @@ package com.swooby.parropeato
 import android.app.Application
 import android.speech.tts.Voice
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.lifecycle.AndroidViewModel
 import com.smartfoo.android.core.texttospeech.FooTextToSpeech
 import com.swooby.parropeato.common.R
@@ -27,9 +28,8 @@ class ParropeatoViewModel(application: Application) : AndroidViewModel(applicati
     var state: State
         get() = _state.value
         set(value) {
-            _state.value = value
             val ctx = getApplication<Application>()
-            text = when (state) {
+            val newText = when (value) {
                 State.Initializing      -> ctx.getString(R.string.state_initializing)
                 State.InitializingError -> ctx.getString(R.string.state_initializing_error)
                 State.Initialized       -> ctx.getString(R.string.state_initialized)
@@ -38,6 +38,12 @@ class ParropeatoViewModel(application: Application) : AndroidViewModel(applicati
                 State.Idle              -> ctx.getString(R.string.state_idle)
                 State.ShuttingDown      -> ctx.getString(R.string.state_shutting_down)
                 State.Shutdown          -> ctx.getString(R.string.state_shutdown)
+            }
+            // Batch both writes into one snapshot commit so Compose triggers a single
+            // recomposition instead of two separate ones.
+            Snapshot.withMutableSnapshot {
+                _state.value = value
+                _text.value = newText
             }
         }
 
