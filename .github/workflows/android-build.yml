@@ -100,6 +100,19 @@ jobs:
           name: test-report
           path: common/build/reports/tests/
 
+      - name: Run lint
+        if: github.event_name == 'pull_request'
+        run: ./gradlew :mobile:lintDebug :wear:lintDebug
+
+      - name: Upload lint reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lint-reports
+          path: |
+            mobile/build/reports/lint-results-debug.html
+            wear/build/reports/lint-results-debug.html
+
       - name: Build debug APK
         if: github.event_name == 'pull_request'
         run: ./gradlew :wear:assembleDebug :mobile:assembleDebug
