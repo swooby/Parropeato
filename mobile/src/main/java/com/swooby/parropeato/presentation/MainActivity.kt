@@ -36,8 +36,8 @@ class MainActivity : BaseMainActivity() {
             onClick = onSettingsClick,
             modifier = Modifier
                 .fillMaxSize()
-                .wrapContentSize(Alignment.BottomCenter)
-                .offset(y = (-28).dp),
+                .wrapContentSize(Alignment.TopCenter)
+                .offset(y = 60.dp),
         )
     }
 

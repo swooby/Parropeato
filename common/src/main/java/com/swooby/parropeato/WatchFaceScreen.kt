@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -60,27 +62,36 @@ import kotlin.math.sqrt
 // Arc geometry constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Volume arc: right edge — draws from top-right (-50°) clockwise to bottom-right (50°).
-// Reverse-mapped: top = max volume, bottom = min volume.
-private const val VOLUME_ARC_START_ANGLE_DEGREES = -50f
-private const val VOLUME_ARC_SWEEP_DEGREES = 100f
-private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -64f  // 14° before arc start
-private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 64f   // 14° after arc end
+// Layout: (360° - 60° top gap - 2×40° junction gaps) / 3 arcs = 73.33° per arc.
+// Top gap (-120° to -60°) for the time display. Junction gaps give each pair of
+// endpoint icons their own half of the gap so they don't overlap one another or the arc.
+// Order: Volume (right) → Speed (bottom) → Pitch (left). All at the outer arc radius.
+//
+//   -120° ── top gap (60°) ── -60°
+//          Volume: -60° → 13.33°
+//   13.33° ── junction gap (40°) ── 53.33°   [vol-min @ 26°, speed-max @ 40°]
+//          Speed: 53.33° → 126.67°
+//  126.67° ── junction gap (40°) ── 166.67°  [speed-min @ 140°, pitch-min @ 154°]
+//          Pitch: 166.67° → 240°
+//   240° ── top gap continues ── 300° (-60°)  [pitch-max @ -107°, vol-max @ -73°]
+// Icons sit 13° from their arc endpoint (up from 10°) — slightly more breathing room
+// between arc and icon. Inter-icon distance at each junction = 40° - 2×13° = 14°.
 
-// Speed arc: top-center inner arc — draws from left (-140°) clockwise to right (-40°).
-// Min speed at start, max speed at end.
-private const val VOICE_SPEED_ARC_START_ANGLE_DEGREES = -140f
-private const val VOICE_SPEED_ARC_SWEEP_DEGREES = 100f
-private const val VOICE_SPEED_ARC_EXTRA_INSET_DP = 32f
-private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = -160f  // 20° before arc start
-private const val VOICE_SPEED_ICON_MAX_ANGLE_DEGREES = -20f   // 20° after arc end
+private const val VOLUME_ARC_START_ANGLE_DEGREES = -60f
+private const val VOLUME_ARC_SWEEP_DEGREES = 73.33f
+private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -73f  // in top gap, 13° before arc start
+private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 26f   // first half of junction gap 1
 
-// Pitch arc: left edge — draws from bottom-left (130°) clockwise to top-left (230°).
-// Min pitch at start, max pitch at end — arc crosses the ±180° boundary.
-private const val VOICE_PITCH_ARC_START_ANGLE_DEGREES = 130f
-private const val VOICE_PITCH_ARC_SWEEP_DEGREES = 100f
-private const val VOICE_PITCH_ICON_MIN_ANGLE_DEGREES = 116f   // 14° before arc start
-private const val VOICE_PITCH_ICON_MAX_ANGLE_DEGREES = -116f  // 14° after arc end (244°)
+private const val VOICE_SPEED_ARC_START_ANGLE_DEGREES = 53.33f
+private const val VOICE_SPEED_ARC_SWEEP_DEGREES = 73.33f
+private const val VOICE_SPEED_ARC_EXTRA_INSET_DP = 0f   // same outer radius as volume/pitch
+private const val VOICE_SPEED_ICON_MAX_ANGLE_DEGREES = 40f   // second half of junction gap 1
+private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = 140f  // first half of junction gap 2
+
+private const val VOICE_PITCH_ARC_START_ANGLE_DEGREES = 166.67f
+private const val VOICE_PITCH_ARC_SWEEP_DEGREES = 73.33f
+private const val VOICE_PITCH_ICON_MIN_ANGLE_DEGREES = 154f   // second half of junction gap 2
+private const val VOICE_PITCH_ICON_MAX_ANGLE_DEGREES = -107f  // in top gap, 13° after arc end (253° = -107°)
 
 // Reference scene diameter used to derive the control scale factor on larger screens.
 private val WearReferenceSceneSize = 213.dp
@@ -109,7 +120,6 @@ internal fun WatchFaceScreen(
     onVoiceSpeedChange: (Float) -> Unit,
     onVoicePitchChange: (Float) -> Unit,
     greetingBottomInsetDp: Float,
-    greetingScrollIndicator: (@Composable (ScrollState) -> Unit)?,
     settingsOverlay: @Composable () -> Unit,
 ) {
     val greetingScrollState = rememberScrollState()
@@ -147,19 +157,22 @@ internal fun WatchFaceScreen(
                     modifier = Modifier.align(Alignment.Center),
                     contentAlignment = Alignment.Center,
                 ) {
-                    AllArcControls(
+                    // Speed arc at bottom-center; no shift needed — arc angles do the positioning.
+                    // PTT pushed down so its outer ring sits 8dp inside the speed arc radius.
+                    val arcOuterR = controlsSize / 2 - (8.dp + 5.dp) * controlScale
+                    val pttRadius = 36.5.dp * controlScale
+                    val pttDownShift = arcOuterR - 16.dp - pttRadius
+                    VoiceSpeedArcControl(
                         modifier = Modifier.size(controlsSize),
-                        volumePercent = viewModel.volumePercent,
                         voiceSpeed = viewModel.voiceSpeed,
-                        voicePitch = viewModel.voicePitch,
                         scale = controlScale,
                         cuteIcons = viewModel.cuteIcons,
-                        onVolumeChange = onVolumeChange,
                         onVoiceSpeedChange = onVoiceSpeedChange,
-                        onVoicePitchChange = onVoicePitchChange,
                     )
                     PushToTalkButton(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = pttDownShift),
                         isListening = viewModel.state == ParropeatoViewModel.State.Listening,
                         scale = controlScale,
                         cuteIcons = viewModel.cuteIcons,
@@ -168,14 +181,16 @@ internal fun WatchFaceScreen(
                         onPushToTalkReleased = onPushToTalkReleased,
                     )
                     val sceneRadius = sceneSize / 2
-                    val greetingTopY = 40.5.dp * controlScale
-                    val greetingBottomY = (sceneRadius - greetingBottomInsetDp.dp)
-                        .coerceAtLeast(greetingTopY + 20.dp)
-                    val greetingHeight = greetingBottomY - greetingTopY
+                    // Greeting spans from near the circle top down to just above the PTT top.
+                    val greetingBottomY = pttDownShift - pttRadius - 2.dp
+                    val greetingTopY = -(sceneRadius - 18.dp - greetingBottomInsetDp.dp)
+                    val greetingHeight = (greetingBottomY - greetingTopY).coerceAtLeast(20.dp)
                     val greetingCenterY = (greetingTopY + greetingBottomY) / 2
+                    // Width constrained by the chord at greetingTopY (narrowest point of the
+                    // upper arc), so text never overflows the circle at any scroll position.
                     val greetingWidthFraction = with(LocalDensity.current) {
                         val rPx = sceneRadius.toPx()
-                        val yPx = greetingCenterY.toPx()
+                        val yPx = greetingTopY.toPx()
                         (sqrt(maxOf(0f, rPx * rPx - yPx * yPx)) / rPx * 0.92f).coerceIn(0.3f, 1f)
                     }
                     Greeting(
@@ -186,7 +201,23 @@ internal fun WatchFaceScreen(
                             .offset(y = greetingCenterY),
                         text = viewModel.text,
                         scrollState = greetingScrollState,
-                        showScrollbar = greetingScrollIndicator == null,
+                    )
+                    // Volume and pitch arcs drawn last so they render above the greeting text.
+                    // Their pointerInteropFilter returns false for non-arc touches, so scroll
+                    // gestures in the greeting region pass through correctly.
+                    VolumeArcControl(
+                        modifier = Modifier.size(controlsSize),
+                        volumePercent = viewModel.volumePercent,
+                        scale = controlScale,
+                        cuteIcons = viewModel.cuteIcons,
+                        onVolumeChange = onVolumeChange,
+                    )
+                    VoicePitchArcControl(
+                        modifier = Modifier.size(controlsSize),
+                        voicePitch = viewModel.voicePitch,
+                        scale = controlScale,
+                        cuteIcons = viewModel.cuteIcons,
+                        onVoicePitchChange = onVoicePitchChange,
                     )
                 }
                 platformOverlay { viewModel.showSettings = true }
@@ -194,7 +225,6 @@ internal fun WatchFaceScreen(
         }
 
         settingsOverlay()
-        greetingScrollIndicator?.invoke(greetingScrollState)
     }
 }
 
@@ -500,7 +530,7 @@ private fun VoiceSpeedArcControl(
     val isTracking = remember { mutableStateOf(false) }
 
     val speedPercent =
-        (voiceSpeed.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX) - VOICE_SPEED_MIN) /
+        (VOICE_SPEED_MAX - voiceSpeed.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX)) /
             (VOICE_SPEED_MAX - VOICE_SPEED_MIN)
     val iconSize = 24.dp * scale
     val strokeWidth = 8.dp * scale
@@ -551,7 +581,7 @@ private fun VoiceSpeedArcControl(
                             event.x, event.y, size,
                             VOICE_SPEED_ARC_START_ANGLE_DEGREES, VOICE_SPEED_ARC_SWEEP_DEGREES,
                         )
-                        onVoiceSpeedChange(VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * pct)
+                        onVoiceSpeedChange(VOICE_SPEED_MAX - (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * pct)
                         true
                     }
                     MotionEvent.ACTION_MOVE -> {
@@ -560,7 +590,7 @@ private fun VoiceSpeedArcControl(
                             event.x, event.y, layoutSize.value,
                             VOICE_SPEED_ARC_START_ANGLE_DEGREES, VOICE_SPEED_ARC_SWEEP_DEGREES,
                         )
-                        onVoiceSpeedChange(VOICE_SPEED_MIN + (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * pct)
+                        onVoiceSpeedChange(VOICE_SPEED_MAX - (VOICE_SPEED_MAX - VOICE_SPEED_MIN) * pct)
                         true
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -789,21 +819,26 @@ private fun PushToTalkButton(
 private fun Greeting(
     text: String,
     scrollState: ScrollState,
-    showScrollbar: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = if (showScrollbar) modifier.verticalScrollbar(scrollState) else modifier,
-        contentAlignment = Alignment.TopCenter,
+    BoxWithConstraints(
+        modifier = modifier.verticalScrollbar(scrollState),
     ) {
-        Text(
+        val containerHeight = maxHeight
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = containerHeight)
                 .verticalScroll(scrollState),
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.primary,
-            text = text,
-        )
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                text = text,
+            )
+        }
     }
 }
 

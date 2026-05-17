@@ -14,7 +14,6 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.KeyEvent
@@ -105,7 +104,6 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected open val watchFaceControlsScale: Float = 0.88f
     protected open val watchFaceBorderOutset: Boolean = false
     protected open val greetingBottomInsetDp: Float = 24f
-    protected open val greetingScrollIndicator: (@Composable (ScrollState) -> Unit)? = null
 
     // ── UI setup ───────────────────────────────────────────────────────────────
 
@@ -124,7 +122,6 @@ abstract class BaseMainActivity : ComponentActivity() {
                 onVoiceSpeedChange = ::setVoiceSpeed,
                 onVoicePitchChange = ::setVoicePitch,
                 greetingBottomInsetDp = greetingBottomInsetDp,
-                greetingScrollIndicator = greetingScrollIndicator,
                 settingsOverlay = {
                     if (viewModel.showSettings) {
                         SettingsOverlay(onDismiss = { viewModel.showSettings = false })
@@ -392,11 +389,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         // persisted it without any user interaction. Reset to Device Default so the user starts
         // fresh with the correct engine default rather than a stale auto-chosen voice.
         if (settings.settingsVersion < Settings.CURRENT_VERSION) {
-            Log.i(
-                TAG,
-                "onTextToSpeechInitialized: migrating settings " +
-                    "v${settings.settingsVersion} → ${Settings.CURRENT_VERSION}, clearing ttsVoiceName"
-            )
+            Log.i(TAG, "onTextToSpeechInitialized: migrating settings " + "v${settings.settingsVersion} → ${Settings.CURRENT_VERSION}, clearing ttsVoiceName")
             settings.ttsVoiceName = null
             settings.settingsVersion = Settings.CURRENT_VERSION
         }

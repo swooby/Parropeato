@@ -2,7 +2,9 @@ package com.swooby.parropeato.presentation
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,9 +17,6 @@ class MainActivity : BaseMainActivity() {
     override val watchFaceSceneScale: Float = 1f
     override val watchFaceControlsScale: Float = 1f
     override val watchFaceBorderOutset: Boolean = true
-    override val greetingScrollIndicator: (@Composable (ScrollState) -> Unit) = { scrollState ->
-        PositionIndicator(scrollState = scrollState)
-    }
 
     override fun onStop() {
         super.onStop()
@@ -31,7 +30,8 @@ class MainActivity : BaseMainActivity() {
             onClick = onSettingsClick,
             modifier = Modifier
                 .fillMaxSize()
-                .wrapContentSize(Alignment.BottomCenter),
+                .wrapContentSize(Alignment.TopCenter)
+                .offset(y = 20.dp),
         )
     }
 
