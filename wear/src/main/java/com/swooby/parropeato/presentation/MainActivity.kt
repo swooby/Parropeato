@@ -34,7 +34,7 @@ class MainActivity : BaseMainActivity() {
             modifier = Modifier
                 .fillMaxSize()
                 .wrapContentSize(Alignment.TopCenter)
-                .offset(y = 20.dp),
+                .offset(y = 6.dp),
         )
     }
 

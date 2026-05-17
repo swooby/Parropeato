@@ -73,13 +73,14 @@ import kotlin.math.sqrt
 //          Speed: 53.33° → 126.67°
 //  126.67° ── junction gap (40°) ── 166.67°  [speed-min @ 140°, pitch-min @ 154°]
 //          Pitch: 166.67° → 240°
-//   240° ── top gap continues ── 300° (-60°)  [pitch-max @ -107°, vol-max @ -73°]
-// Icons sit 13° from their arc endpoint (up from 10°) — slightly more breathing room
-// between arc and icon. Inter-icon distance at each junction = 40° - 2×13° = 14°.
+//   240° ── top gap continues ── 300° (-60°)  [pitch-max @ -112°, vol-max @ -68°]
+// Top max icons sit 8° from their arc endpoints, moving them farther out from the
+// time/settings target at 12 o'clock. Junction icons sit 13° from their endpoints,
+// so each 40° junction gap leaves 14° between the paired icons.
 
 private const val VOLUME_ARC_START_ANGLE_DEGREES = -60f
 private const val VOLUME_ARC_SWEEP_DEGREES = 73.33f
-private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -73f  // in top gap, 13° before arc start
+private const val VOLUME_ICON_MAX_ANGLE_DEGREES = -68f  // in top gap, 8° before arc start
 private const val VOLUME_ICON_MIN_ANGLE_DEGREES = 26f   // first half of junction gap 1
 
 private const val VOICE_SPEED_ARC_START_ANGLE_DEGREES = 53.33f
@@ -91,7 +92,7 @@ private const val VOICE_SPEED_ICON_MIN_ANGLE_DEGREES = 140f  // first half of ju
 private const val VOICE_PITCH_ARC_START_ANGLE_DEGREES = 166.67f
 private const val VOICE_PITCH_ARC_SWEEP_DEGREES = 73.33f
 private const val VOICE_PITCH_ICON_MIN_ANGLE_DEGREES = 154f   // second half of junction gap 2
-private const val VOICE_PITCH_ICON_MAX_ANGLE_DEGREES = -107f  // in top gap, 13° after arc end (253° = -107°)
+private const val VOICE_PITCH_ICON_MAX_ANGLE_DEGREES = -112f  // in top gap, 8° after arc end (248° = -112°)
 
 // Reference scene diameter used to derive the control scale factor on larger screens.
 private val WearReferenceSceneSize = 213.dp
