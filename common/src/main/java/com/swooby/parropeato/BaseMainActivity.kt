@@ -665,6 +665,13 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
     }
 
+    @Suppress("unused")
+    private fun speechRecognizerCancel() {
+        if (::speechRecognizer.isInitialized) {
+            speechRecognizer.cancel()
+        }
+    }
+
     private fun speechRecognizerDestroy() {
         if (::speechRecognizer.isInitialized) {
             speechRecognizer.destroy()
