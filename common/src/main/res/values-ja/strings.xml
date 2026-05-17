@@ -16,7 +16,7 @@
     <string name="status_thinking">考えています…</string>
     <string name="status_voice_speed">音声速度 %1$.1fx</string>
     <string name="status_voice_pitch">音程 %1$.1fx</string>
-    <string name="status_volume">音量 %1$d / %2$d</string>
+    <string name="status_volume">音量 %1$d%%</string>
 
     <string name="error_mic_insufficient_permission">マイクの権限が必要です。</string>
     <string name="permission_mic_rationale_title">マイクへのアクセスが必要です</string>

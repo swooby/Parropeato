@@ -16,7 +16,7 @@
     <string name="status_thinking">Думаю…</string>
     <string name="status_voice_speed">Скорость голоса %1$.1fx</string>
     <string name="status_voice_pitch">Тон голоса %1$.1fx</string>
-    <string name="status_volume">Громкость %1$d / %2$d</string>
+    <string name="status_volume">Громкость %1$d%%</string>
 
     <string name="error_mic_insufficient_permission">Необходимо разрешение на использование микрофона.</string>
     <string name="permission_mic_rationale_title">Требуется доступ к микрофону</string>

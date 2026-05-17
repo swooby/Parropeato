@@ -16,7 +16,7 @@
     <string name="status_thinking">Pensando…</string>
     <string name="status_voice_speed">Velocidade da voz %1$.1fx</string>
     <string name="status_voice_pitch">Tom da voz %1$.1fx</string>
-    <string name="status_volume">Volume %1$d / %2$d</string>
+    <string name="status_volume">Volume %1$d%%</string>
 
     <string name="error_mic_insufficient_permission">Permissão de microfone é necessária.</string>
     <string name="permission_mic_rationale_title">Acesso ao microfone necessário</string>

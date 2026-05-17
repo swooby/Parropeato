@@ -434,7 +434,13 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
         viewModel.volumePercent = volumePercent
         if (updateText) {
-            showTransientText(getString(R.string.status_volume, volume, volumeMax))
+            val volumePercentDisplay = (volumePercent * 100).roundToInt()
+            val text = if (BuildConfig.DEBUG) {
+                getString(R.string.status_volume_debug, volumePercentDisplay, volume, volumeMax)
+            } else {
+                getString(R.string.status_volume, volumePercentDisplay)
+            }
+            showTransientText(text)
         }
     }
 

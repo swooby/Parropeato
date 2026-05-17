@@ -16,7 +16,7 @@
     <string name="status_thinking">思考中…</string>
     <string name="status_voice_speed">語音速度 %1$.1fx</string>
     <string name="status_voice_pitch">語音音調 %1$.1fx</string>
-    <string name="status_volume">音量 %1$d / %2$d</string>
+    <string name="status_volume">音量 %1$d%%</string>
 
     <string name="error_mic_insufficient_permission">需要麥克風權限。</string>
     <string name="permission_mic_rationale_title">需要麥克風存取權限</string>

@@ -23,7 +23,8 @@
     <string name="status_thinking">Thinking…</string>
     <string name="status_voice_speed">Voice speed %1$.1fx</string>
     <string name="status_voice_pitch">Voice pitch %1$.1fx</string>
-    <string name="status_volume">Volume %1$d / %2$d</string>
+    <string name="status_volume">Volume %1$d%%</string>
+    <string name="status_volume_debug" translatable="false">Volume %1$d%%\n(%2$d / %3$d)</string>
 
     <string name="error_mic_insufficient_permission">Microphone permission is required.</string>
     <string name="permission_mic_rationale_title">Microphone Access Required</string>
