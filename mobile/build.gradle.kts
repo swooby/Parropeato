@@ -1,3 +1,5 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -92,14 +94,12 @@ android {
                 "proguard-rules.pro"
             )
         }
-        /*
         debug {
             isDebuggable = true
             isMinifyEnabled = false
             manifestPlaceholders["crashlyticsCollectionEnabled"] = "false"
             configure<CrashlyticsExtension> { mappingFileUploadEnabled = false }
         }
-        */
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
