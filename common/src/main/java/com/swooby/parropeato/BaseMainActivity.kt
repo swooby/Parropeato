@@ -55,6 +55,9 @@ abstract class BaseMainActivity : ComponentActivity() {
         private set
 
     private lateinit var connectivityManager: ConnectivityManager
+    private val analytics: ParropeatoAnalytics by lazy {
+        ParropeatoAnalytics(this)
+    }
     private val ttsCallbacks = object : FooTextToSpeech.FooTextToSpeechCallbacks {
         override fun onTextToSpeechInitialized(status: Int) {
             this@BaseMainActivity.onTextToSpeechInitialized(status)
@@ -148,6 +151,8 @@ abstract class BaseMainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         audioManager = getSystemService(AudioManager::class.java)
         settings = Settings(this, defaultTtsVoiceSpeed = textToSpeechVoiceSpeed)
+        analytics.setDiagnosticsCollectionEnabled(settings.diagnosticsEnabled)
+        analytics.logLaunchIntent(intent)
         updateMediaVolumeState(updateText = false)
         connectivityManager = getSystemService(ConnectivityManager::class.java)
         viewModel.isNetworkAvailable = connectivityManager
@@ -158,11 +163,18 @@ abstract class BaseMainActivity : ComponentActivity() {
         viewModel.speechRecognizerLocale = settings.speechRecognizerLocale
         viewModel.cuteIcons = settings.cuteIcons
         viewModel.accentColor = settings.accentColor
+        viewModel.diagnosticsEnabled = settings.diagnosticsEnabled
         setupUI()
         initTextToSpeech()
         speechRecognizerManager.init()
         speechRecognizerManager.checkSupportedLocales(mainExecutor)
         Log.i(TAG, "-onCreate(...)")
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        analytics.logLaunchIntent(intent)
     }
 
     override fun onStart() {
@@ -510,6 +522,12 @@ abstract class BaseMainActivity : ComponentActivity() {
         settings.accentColor = argb
     }
 
+    protected fun onSettingsDiagnosticsEnabledChanged(value: Boolean) {
+        viewModel.diagnosticsEnabled = value
+        settings.diagnosticsEnabled = value
+        analytics.setDiagnosticsCollectionEnabled(value)
+    }
+
     // ── Settings launchers ─────────────────────────────────────────────────────
 
     protected fun openTtsSettings() {
@@ -533,24 +551,45 @@ abstract class BaseMainActivity : ComponentActivity() {
     }
 
     protected fun openButtonsAndGesturesSettings() {
-        try {
-            startExternalActivity(Intent("android.settings.BUTTONS_GESTURES_SETTINGS"))
-        } catch (_: ActivityNotFoundException) {
-            try {
-                startExternalActivity(
-                    Intent().setClassName(
-                        "com.google.android.apps.wearable.settings",
-                        "com.samsung.android.clockwork.settings.btngesture.StBtnGestureActivity",
-                    )
-                )
-            } catch (_: ActivityNotFoundException) {
-                startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
-            } catch (_: SecurityException) {
-                startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
-            }
-        } catch (_: SecurityException) {
-            startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+        if (tryStartButtonsAndGesturesSettings(
+                intent = Intent("android.settings.BUTTONS_GESTURES_SETTINGS"),
+                method = ParropeatoAnalytics.ButtonSettingsMethod.SamsungAction,
+            )
+        ) {
+            return
         }
+
+        if (tryStartButtonsAndGesturesSettings(
+                intent = Intent().setClassName(
+                    "com.google.android.apps.wearable.settings",
+                    "com.samsung.android.clockwork.settings.btngesture.StBtnGestureActivity",
+                ),
+                method = ParropeatoAnalytics.ButtonSettingsMethod.SamsungComponent,
+            )
+        ) {
+            return
+        }
+
+        tryStartButtonsAndGesturesSettings(
+            intent = Intent(AndroidSettings.ACTION_SETTINGS),
+            method = ParropeatoAnalytics.ButtonSettingsMethod.GeneralSettings,
+        )
+    }
+
+    private fun tryStartButtonsAndGesturesSettings(
+        intent: Intent,
+        method: ParropeatoAnalytics.ButtonSettingsMethod,
+    ): Boolean {
+        try {
+            startExternalActivity(intent)
+            analytics.logButtonSettingsOpen(method = method, success = true)
+            return true
+        } catch (_: ActivityNotFoundException) {
+            analytics.logButtonSettingsOpen(method = method, success = false)
+        } catch (_: SecurityException) {
+            analytics.logButtonSettingsOpen(method = method, success = false)
+        }
+        return false
     }
 
     private fun startExternalActivity(intent: Intent) {

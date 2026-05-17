@@ -3,6 +3,7 @@ package com.swooby.parropeato
 import android.content.Context
 import androidx.core.content.edit
 import com.swooby.parropeato.Settings.Companion.CURRENT_VERSION
+import com.swooby.parropeato.common.BuildConfig
 
 class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_DEFAULT) {
     private val prefs = context.getSharedPreferences("parropeato_settings", Context.MODE_PRIVATE)
@@ -39,6 +40,10 @@ class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_D
         get() = prefs.getInt(KEY_ACCENT_COLOR, ACCENT_COLOR_DEFAULT_ARGB)
         set(value) = prefs.edit { putInt(KEY_ACCENT_COLOR, value) }
 
+    var diagnosticsEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DIAGNOSTICS_ENABLED, BuildConfig.DEBUG)
+        set(value) = prefs.edit { putBoolean(KEY_DIAGNOSTICS_ENABLED, value) }
+
     /**
      * Settings schema version. Bump [CURRENT_VERSION] whenever a breaking change requires
      * clearing or transforming previously-persisted values on upgrade.
@@ -58,6 +63,7 @@ class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_D
         private const val KEY_TTS_VOICE_PITCH = "tts_voice_pitch"
         private const val KEY_CUTE_ICONS = "cute_icons"
         private const val KEY_ACCENT_COLOR = "accent_color"
+        private const val KEY_DIAGNOSTICS_ENABLED = "diagnostics_enabled"
         private const val KEY_SETTINGS_VERSION = "settings_version"
         const val CURRENT_VERSION = 1
     }

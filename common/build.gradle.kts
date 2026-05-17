@@ -13,6 +13,9 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.google.firebase.analytics)
+    implementation(libs.google.firebase.crashlytics)
     implementation(libs.kotlin.reflect)
     implementation(libs.smartfoo.core)
 

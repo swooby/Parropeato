@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">打开设备语音设置</string>
     <string name="settings_close">关闭</string>
     <string name="settings_cute_icons">可爱图标</string>
+    <string name="settings_diagnostics">诊断信息</string>
     <string name="settings_accent_color">强调色</string>
     <string name="accent_color_purple">紫色</string>
     <string name="accent_color_teal">青绿色</string>

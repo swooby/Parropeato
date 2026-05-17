@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">Abrir configuración de voz del dispositivo</string>
     <string name="settings_close">Cerrar</string>
     <string name="settings_cute_icons">Iconos bonitos</string>
+    <string name="settings_diagnostics">Diagnóstico</string>
     <string name="settings_accent_color">Color de acento</string>
     <string name="accent_color_purple">Morado</string>
     <string name="accent_color_teal">Verde azulado</string>

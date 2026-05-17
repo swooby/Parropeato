@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">Buka Pengaturan TTS Perangkat</string>
     <string name="settings_close">Tutup</string>
     <string name="settings_cute_icons">Ikon Lucu</string>
+    <string name="settings_diagnostics">Diagnostik</string>
     <string name="settings_accent_color">Warna Aksen</string>
     <string name="accent_color_purple">Ungu</string>
     <string name="accent_color_teal">Teal</string>

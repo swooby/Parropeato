@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">डिवाइस TTS सेटिंग खोलें</string>
     <string name="settings_close">बंद करें</string>
     <string name="settings_cute_icons">प्यारे आइकन</string>
+    <string name="settings_diagnostics">डायग्नोस्टिक्स</string>
     <string name="settings_accent_color">एक्सेंट रंग</string>
     <string name="accent_color_purple">बैंगनी</string>
     <string name="accent_color_teal">टील</string>

@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">Открыть настройки синтеза речи устройства</string>
     <string name="settings_close">Закрыть</string>
     <string name="settings_cute_icons">Милые иконки</string>
+    <string name="settings_diagnostics">Диагностика</string>
     <string name="settings_accent_color">Акцентный цвет</string>
     <string name="accent_color_purple">Фиолетовый</string>
     <string name="accent_color_teal">Бирюзовый</string>

@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">開啟裝置語音設定</string>
     <string name="settings_close">關閉</string>
     <string name="settings_cute_icons">可愛圖示</string>
+    <string name="settings_diagnostics">診斷資訊</string>
     <string name="settings_accent_color">強調色</string>
     <string name="accent_color_purple">紫色</string>
     <string name="accent_color_teal">藍綠色</string>

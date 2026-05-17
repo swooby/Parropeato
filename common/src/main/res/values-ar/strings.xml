@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">فتح إعدادات تحويل النص إلى كلام بالجهاز</string>
     <string name="settings_close">إغلاق</string>
     <string name="settings_cute_icons">أيقونات لطيفة</string>
+    <string name="settings_diagnostics">التشخيصات</string>
     <string name="settings_accent_color">لون التمييز</string>
     <string name="accent_color_purple">بنفسجي</string>
     <string name="accent_color_teal">أزرق مخضر</string>

@@ -54,6 +54,7 @@ class MainActivity : BaseMainActivity() {
             isNetworkAvailable = viewModel.isNetworkAvailable,
             cuteIcons = viewModel.cuteIcons,
             accentColor = viewModel.accentColor,
+            diagnosticsEnabled = viewModel.diagnosticsEnabled,
             onVoiceSelected = ::onSettingsVoiceSelected,
             onPreviewVoice = ::onSettingsVoicePreview,
             onSpeechLocaleSelected = ::onSettingsSpeechLocaleSelected,
@@ -61,6 +62,7 @@ class MainActivity : BaseMainActivity() {
             onOpenSpeechDownloadSettings = ::openSpeechDownloadSettings,
             onCuteIconsChanged = ::onSettingsCuteIconsChanged,
             onAccentColorChanged = ::onSettingsAccentColorChanged,
+            onDiagnosticsEnabledChanged = ::onSettingsDiagnosticsEnabledChanged,
             onDismiss = onDismiss,
         )
     }

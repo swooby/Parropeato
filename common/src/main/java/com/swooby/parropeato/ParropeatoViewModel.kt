@@ -130,6 +130,11 @@ class ParropeatoViewModel(application: Application) : AndroidViewModel(applicati
         get() = _accentColor.value
         set(value) { _accentColor.value = value }
 
+    private val _diagnosticsEnabled = mutableStateOf(false)
+    var diagnosticsEnabled: Boolean
+        get() = _diagnosticsEnabled.value
+        set(value) { _diagnosticsEnabled.value = value }
+
     fun appendText(text: String) {
         _text.value += " $text"
     }

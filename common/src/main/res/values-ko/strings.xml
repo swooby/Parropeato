@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">기기 TTS 설정 열기</string>
     <string name="settings_close">닫기</string>
     <string name="settings_cute_icons">귀여운 아이콘</string>
+    <string name="settings_diagnostics">진단 정보</string>
     <string name="settings_accent_color">강조 색상</string>
     <string name="accent_color_purple">보라색</string>
     <string name="accent_color_teal">청록색</string>

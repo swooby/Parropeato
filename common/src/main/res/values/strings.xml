@@ -69,6 +69,7 @@
     <string name="settings_open_tts_settings">Open Device TTS Settings</string>
     <string name="settings_close">Close</string>
     <string name="settings_cute_icons">Cute Icons</string>
+    <string name="settings_diagnostics">Diagnostics</string>
     <string name="settings_accent_color">Accent Color</string>
     <string name="accent_color_purple">Purple</string>
     <string name="accent_color_teal">Teal</string>

@@ -98,6 +98,7 @@ fun MobileSettingsScreen(
     isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
+    diagnosticsEnabled: Boolean,
     onVoiceSelected: (String?) -> Unit,
     onPreviewVoice: (String) -> Unit,
     onSpeechLocaleSelected: (String?) -> Unit,
@@ -105,6 +106,7 @@ fun MobileSettingsScreen(
     onOpenSpeechDownloadSettings: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
+    onDiagnosticsEnabledChanged: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val navController = rememberNavController()
@@ -143,10 +145,12 @@ fun MobileSettingsScreen(
                 isNetworkAvailable = isNetworkAvailable,
                 cuteIcons = cuteIcons,
                 accentColor = accentColor,
+                diagnosticsEnabled = diagnosticsEnabled,
                 onNavigateTtsLanguages = { navController.navigate(Route.TTS_LANGUAGES) },
                 onNavigateSpeechLanguages = { navController.navigate(Route.SPEECH_LANGUAGES) },
                 onCuteIconsChanged = onCuteIconsChanged,
                 onAccentColorChanged = onAccentColorChanged,
+                onDiagnosticsEnabledChanged = onDiagnosticsEnabledChanged,
                 onDismiss = onDismiss,
             )
         }
@@ -250,10 +254,12 @@ private fun SettingsL1Screen(
     isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
+    diagnosticsEnabled: Boolean,
     onNavigateTtsLanguages: () -> Unit,
     onNavigateSpeechLanguages: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
+    onDiagnosticsEnabledChanged: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
@@ -317,6 +323,14 @@ private fun SettingsL1Screen(
                     label = stringResource(R.string.settings_cute_icons),
                     checked = cuteIcons,
                     onCheckedChange = onCuteIconsChanged,
+                )
+            }
+            item { HorizontalDivider(color = Color.White.copy(alpha = 0.08f)) }
+            item {
+                ToggleRow(
+                    label = stringResource(R.string.settings_diagnostics),
+                    checked = diagnosticsEnabled,
+                    onCheckedChange = onDiagnosticsEnabledChanged,
                 )
             }
             if (BuildConfig.DEBUG) {
@@ -772,4 +786,3 @@ private fun StatusText(text: String) {
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     )
 }
-

@@ -57,6 +57,7 @@
     <string name="settings_open_tts_settings">Ouvrir les paramètres TTS du périphérique</string>
     <string name="settings_close">Fermer</string>
     <string name="settings_cute_icons">Icônes mignonnes</string>
+    <string name="settings_diagnostics">Diagnostics</string>
     <string name="settings_accent_color">Couleur d\'accentuation</string>
     <string name="accent_color_purple">Violet</string>
     <string name="accent_color_teal">Sarcelle</string>

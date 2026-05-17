@@ -37,10 +37,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation(platform(libs.google.firebase.bom))
-    implementation(libs.google.firebase.crashlytics)
-    implementation(libs.google.firebase.analytics)
-
     implementation(project(":common"))
     implementation(libs.smartfoo.core)
 }

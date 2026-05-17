@@ -84,6 +84,7 @@ fun WearSettingsScreen(
     isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
+    diagnosticsEnabled: Boolean,
     onVoiceSelected: (String?) -> Unit,
     onPreviewVoice: (String) -> Unit,
     onSpeechLocaleSelected: (String?) -> Unit,
@@ -92,6 +93,7 @@ fun WearSettingsScreen(
     onOpenButtonsAndGesturesSettings: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
+    onDiagnosticsEnabledChanged: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val navController = rememberSwipeDismissableNavController()
@@ -111,6 +113,7 @@ fun WearSettingsScreen(
         availableVoices.find { it.name == ttsDefaultVoiceName }
     }
     val cuteIconsState = rememberUpdatedState(cuteIcons)
+    val diagnosticsEnabledState = rememberUpdatedState(diagnosticsEnabled)
     val accentColorState = rememberUpdatedState(accentColor)
     val installedSpeechLocalesState = rememberUpdatedState(installedSpeechLocales)
     val isNetworkAvailableState = rememberUpdatedState(isNetworkAvailable)
@@ -130,10 +133,12 @@ fun WearSettingsScreen(
                 isNetworkAvailable = isNetworkAvailableState.value,
                 cuteIcons = cuteIconsState.value,
                 accentColor = accentColorState.value,
+                diagnosticsEnabled = diagnosticsEnabledState.value,
                 onNavigateTtsLanguages = { navController.navigate(Route.TTS_LANGUAGES) },
                 onNavigateSpeechLanguages = { navController.navigate(Route.SPEECH_LANGUAGES) },
                 onNavigateAccentColor = { navController.navigate(Route.ACCENT_COLOR) },
                 onCuteIconsChanged = onCuteIconsChanged,
+                onDiagnosticsEnabledChanged = onDiagnosticsEnabledChanged,
                 onOpenButtonsAndGesturesSettings = onOpenButtonsAndGesturesSettings,
             )
         }
@@ -244,10 +249,12 @@ private fun SettingsL1Screen(
     isNetworkAvailable: Boolean,
     cuteIcons: Boolean,
     accentColor: Int,
+    diagnosticsEnabled: Boolean,
     onNavigateTtsLanguages: () -> Unit,
     onNavigateSpeechLanguages: () -> Unit,
     onNavigateAccentColor: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
+    onDiagnosticsEnabledChanged: (Boolean) -> Unit,
     onOpenButtonsAndGesturesSettings: () -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
@@ -348,6 +355,24 @@ private fun SettingsL1Screen(
                     Icon(
                         imageVector = ToggleChipDefaults.switchIcon(cuteIcons),
                         contentDescription = if (cuteIcons) stringResource(com.swooby.parropeato.R.string.on)
+                        else stringResource(com.swooby.parropeato.R.string.off),
+                    )
+                },
+                colors = ToggleChipDefaults.toggleChipColors(
+                    checkedToggleControlColor = Color(accentColor),
+                ),
+            )
+        }
+        item {
+            ToggleChip(
+                modifier = Modifier.fillMaxWidth(),
+                checked = diagnosticsEnabled,
+                onCheckedChange = onDiagnosticsEnabledChanged,
+                label = { Text(stringResource(R.string.settings_diagnostics), maxLines = 1) },
+                toggleControl = {
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(diagnosticsEnabled),
+                        contentDescription = if (diagnosticsEnabled) stringResource(com.swooby.parropeato.R.string.on)
                         else stringResource(com.swooby.parropeato.R.string.off),
                     )
                 },
