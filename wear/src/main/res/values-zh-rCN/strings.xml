@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_speech_checking">检查语言中…</string>
     <string name="settings_open_tts_settings">TTS 设置</string>
+    <string name="settings_open_buttons_gestures">设备按钮设置</string>
     <string name="voice_quality_standard">标准</string>
     <string name="on">开启</string>
     <string name="off">关闭</string>

@@ -5,6 +5,7 @@
     <!-- Wear-specific overrides for shorter circular-screen labels -->
     <string name="settings_speech_checking">Checking languages…</string>
     <string name="settings_open_tts_settings">Device TTS Settings</string>
+    <string name="settings_open_buttons_gestures">Device buttons settings</string>
     <string name="voice_quality_standard">std</string>
     <string name="on">On</string>
     <string name="off">Off</string>

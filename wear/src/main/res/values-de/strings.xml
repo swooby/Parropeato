@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_speech_checking">Sprachen prüfen…</string>
     <string name="settings_open_tts_settings">TTS-Einstellungen</string>
+    <string name="settings_open_buttons_gestures">Gerätetasten</string>
     <string name="voice_quality_standard">std</string>
     <string name="on">Ein</string>
     <string name="off">Aus</string>

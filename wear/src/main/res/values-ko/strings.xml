@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_speech_checking">언어 확인 중…</string>
     <string name="settings_open_tts_settings">TTS 설정</string>
+    <string name="settings_open_buttons_gestures">기기 버튼 설정</string>
     <string name="voice_quality_standard">표준</string>
     <string name="on">켜기</string>
     <string name="off">끄기</string>

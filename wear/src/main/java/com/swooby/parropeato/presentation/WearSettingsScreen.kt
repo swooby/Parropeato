@@ -89,6 +89,7 @@ fun WearSettingsScreen(
     onSpeechLocaleSelected: (String?) -> Unit,
     onOpenTtsSettings: () -> Unit,
     onOpenSpeechDownloadSettings: () -> Unit,
+    onOpenButtonsAndGesturesSettings: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -133,6 +134,7 @@ fun WearSettingsScreen(
                 onNavigateSpeechLanguages = { navController.navigate(Route.SPEECH_LANGUAGES) },
                 onNavigateAccentColor = { navController.navigate(Route.ACCENT_COLOR) },
                 onCuteIconsChanged = onCuteIconsChanged,
+                onOpenButtonsAndGesturesSettings = onOpenButtonsAndGesturesSettings,
             )
         }
 
@@ -246,6 +248,7 @@ private fun SettingsL1Screen(
     onNavigateSpeechLanguages: () -> Unit,
     onNavigateAccentColor: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
+    onOpenButtonsAndGesturesSettings: () -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
@@ -298,6 +301,20 @@ private fun SettingsL1Screen(
                     )
                 },
                 secondaryLabel = if (subtitle.isNotEmpty()) ({ MarqueeText(subtitle) }) else null,
+            )
+        }
+
+        item {
+            Chip(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onOpenButtonsAndGesturesSettings,
+                colors = ChipDefaults.secondaryChipColors(),
+                label = {
+                    Text(
+                        stringResource(com.swooby.parropeato.R.string.settings_open_buttons_gestures),
+                        maxLines = 1,
+                    )
+                },
             )
         }
 
@@ -691,4 +708,3 @@ private fun SelectableChip(
         }) else null,
     )
 }
-

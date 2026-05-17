@@ -19,8 +19,11 @@ class MainActivity : BaseMainActivity() {
     override val watchFaceBorderOutset: Boolean = true
 
     override fun onStop() {
+        val shouldFinish = !isOpeningExternalActivity
         super.onStop()
-        finish()
+        if (shouldFinish) {
+            finish()
+        }
     }
 
     @Composable
@@ -53,6 +56,7 @@ class MainActivity : BaseMainActivity() {
             onSpeechLocaleSelected = ::onSettingsSpeechLocaleSelected,
             onOpenTtsSettings = ::openTtsSettings,
             onOpenSpeechDownloadSettings = ::openSpeechDownloadSettings,
+            onOpenButtonsAndGesturesSettings = ::openButtonsAndGesturesSettings,
             onCuteIconsChanged = ::onSettingsCuteIconsChanged,
             onAccentColorChanged = ::onSettingsAccentColorChanged,
             onDismiss = onDismiss,

@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_speech_checking">言語を確認中…</string>
     <string name="settings_open_tts_settings">TTS設定</string>
+    <string name="settings_open_buttons_gestures">デバイスボタン設定</string>
     <string name="voice_quality_standard">標準</string>
     <string name="on">オン</string>
     <string name="off">オフ</string>

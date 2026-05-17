@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_speech_checking">Проверка языков…</string>
     <string name="settings_open_tts_settings">Настройки TTS</string>
+    <string name="settings_open_buttons_gestures">Кнопки устройства</string>
     <string name="voice_quality_standard">стд</string>
     <string name="on">Вкл</string>
     <string name="off">Выкл</string>

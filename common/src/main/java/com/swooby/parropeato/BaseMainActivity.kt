@@ -51,6 +51,8 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected lateinit var audioManager: AudioManager
     protected lateinit var settings: Settings
     protected val mainHandler = Handler(Looper.getMainLooper())
+    protected var isOpeningExternalActivity: Boolean = false
+        private set
 
     private lateinit var connectivityManager: ConnectivityManager
     private val ttsCallbacks = object : FooTextToSpeech.FooTextToSpeechCallbacks {
@@ -171,6 +173,7 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        isOpeningExternalActivity = false
         // Re-attach silently after a brief onPause/onResume (e.g. notification shade)
         // where onStop was never called. tts.start() is intentionally NOT called here
         // to avoid re-firing onTextToSpeechInitialized (and replaying the greeting).
@@ -511,21 +514,55 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     protected fun openTtsSettings() {
         try {
-            startActivity(Intent("com.android.settings.TTS_SETTINGS"))
+            startExternalActivity(Intent("com.android.settings.TTS_SETTINGS"))
         } catch (_: ActivityNotFoundException) {
-            startActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+            startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
         }
     }
 
     fun openSpeechDownloadSettings() {
         try {
-            startActivity(Intent(AndroidSettings.ACTION_VOICE_INPUT_SETTINGS))
+            startExternalActivity(Intent(AndroidSettings.ACTION_VOICE_INPUT_SETTINGS))
         } catch (_: ActivityNotFoundException) {
             try {
-                startActivity(Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+                startExternalActivity(Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
             } catch (_: ActivityNotFoundException) {
                 // No suitable settings screen available.
             }
+        }
+    }
+
+    protected fun openButtonsAndGesturesSettings() {
+        try {
+            startExternalActivity(Intent("android.settings.BUTTONS_GESTURES_SETTINGS"))
+        } catch (_: ActivityNotFoundException) {
+            try {
+                startExternalActivity(
+                    Intent().setClassName(
+                        "com.google.android.apps.wearable.settings",
+                        "com.samsung.android.clockwork.settings.btngesture.StBtnGestureActivity",
+                    )
+                )
+            } catch (_: ActivityNotFoundException) {
+                startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+            } catch (_: SecurityException) {
+                startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+            }
+        } catch (_: SecurityException) {
+            startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+        }
+    }
+
+    private fun startExternalActivity(intent: Intent) {
+        isOpeningExternalActivity = true
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            isOpeningExternalActivity = false
+            throw e
+        } catch (e: SecurityException) {
+            isOpeningExternalActivity = false
+            throw e
         }
     }
 
