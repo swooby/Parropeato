@@ -72,6 +72,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.smartfoo.android.core.FooReflection
 import com.smartfoo.android.core.FooString
 import com.smartfoo.android.core.FooString.quote
@@ -216,7 +220,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 }
                 if (shouldRetry) {
                     viewModel.state = ParropeatoViewModel.State.Listening
-                    viewModel.text = getString(R.string.status_listening)
+                    setPersistentText(getString(R.string.status_listening))
                     resetSpeechRecognizer()
                     mainHandler.postDelayed({
                         if (isPushToTalkPressed && !isListening) {
@@ -227,7 +231,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 }
                 resetSpeechRecognizer()
                 viewModel.state = ParropeatoViewModel.State.Idle
-                viewModel.text = when (error) {
+                setPersistentText(when (error) {
                     SpeechRecognizer.ERROR_NETWORK_TIMEOUT       -> getString(R.string.error_stt_network_timeout)
                     SpeechRecognizer.ERROR_NETWORK               -> getString(R.string.error_stt_network)
                     SpeechRecognizer.ERROR_AUDIO                 -> getString(R.string.error_stt_audio)
@@ -244,7 +248,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                     SpeechRecognizer.ERROR_CANNOT_CHECK_SUPPORT  -> getString(R.string.error_stt_cannot_check_support)
                     SpeechRecognizer.ERROR_CANNOT_LISTEN_TO_DOWNLOAD_EVENTS  -> getString(R.string.error_stt_cannot_listen_to_download_events)
                     else -> getString(R.string.error_stt_generic, speechRecognizerErrorToString(error))
-                }
+                })
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
@@ -275,7 +279,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 val confidenceScores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES) ?: floatArrayOf()
                 if (recognitions.isEmpty()) {
                     viewModel.state = ParropeatoViewModel.State.Idle
-                    viewModel.text = getString(R.string.error_stt_no_match)
+                    setPersistentText(getString(R.string.error_stt_no_match))
                     resetSpeechRecognizer()
                     return
                 }
@@ -316,7 +320,7 @@ abstract class BaseMainActivity : ComponentActivity() {
 
         if (updatePrompt) {
             viewModel.state = ParropeatoViewModel.State.Idle
-            viewModel.text = getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
+            setPersistentText(getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk))
         }
     }
 
@@ -440,10 +444,10 @@ abstract class BaseMainActivity : ComponentActivity() {
         } else if (!isGranted) {
             pendingStartAfterPermission = false
             viewModel.state = ParropeatoViewModel.State.Idle
-            viewModel.text = getString(R.string.error_mic_insufficient_permission)
+            setPersistentText(getString(R.string.error_mic_insufficient_permission))
         } else {
             viewModel.state = ParropeatoViewModel.State.Idle
-            viewModel.text = getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
+            setPersistentText(getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk))
         }
         FooLog.i(TAG, "-onPermissionRecordAudioResult(isGranted=$isGranted)")
     }
@@ -517,7 +521,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             speechRecognizerStop()
             if (!fallbackRecognition.isNullOrBlank()) {
                 viewModel.state = ParropeatoViewModel.State.Idle
-                viewModel.text = getString(R.string.status_thinking)
+                setPersistentText(getString(R.string.status_thinking))
                 mainHandler.postDelayed({
                     if (isListening && shouldProcessResults) {
                         isListening = false
@@ -529,7 +533,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 }, 500)
             } else {
                 viewModel.state = ParropeatoViewModel.State.Idle
-                viewModel.text = getString(R.string.status_thinking)
+                setPersistentText(getString(R.string.status_thinking))
             }
         } else if (!fallbackRecognition.isNullOrBlank()) {
             viewModel.state = ParropeatoViewModel.State.Speaking
@@ -537,7 +541,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             resetSpeechRecognizer()
         } else {
             viewModel.state = ParropeatoViewModel.State.Idle
-            viewModel.text = getString(R.string.error_stt_no_match)
+            setPersistentText(getString(R.string.error_stt_no_match))
         }
         FooLog.i(TAG, "-onPushToTalkReleased()")
     }
@@ -561,7 +565,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         if (::settings.isInitialized) {
             settings.ttsVoiceSpeed = viewModel.voiceSpeed
         }
-        viewModel.text = getString(R.string.status_voice_speed, viewModel.voiceSpeed)
+        showTransientText(getString(R.string.status_voice_speed, viewModel.voiceSpeed))
     }
 
     protected fun setVoicePitch(voicePitch: Float) {
@@ -572,7 +576,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         if (::settings.isInitialized) {
             settings.ttsPitch = viewModel.voicePitch
         }
-        viewModel.text = getString(R.string.status_voice_pitch, viewModel.voicePitch)
+        showTransientText(getString(R.string.status_voice_pitch, viewModel.voicePitch))
     }
 
     protected fun onSettingsVoiceSelected(voiceName: String?) {
@@ -607,8 +611,8 @@ abstract class BaseMainActivity : ComponentActivity() {
         settings.cuteIcons = value
         val holdMic = getString(R.string.status_hold_mic_to_talk)
         val holdCuteMic = getString(R.string.status_hold_cute_mic_to_talk)
-        if (viewModel.text == holdMic || viewModel.text == holdCuteMic) {
-            viewModel.text = getString(if (value) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
+        if (lastPersistentText == holdMic || lastPersistentText == holdCuteMic) {
+            setPersistentText(getString(if (value) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk))
         }
     }
 
@@ -646,7 +650,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
         viewModel.volumePercent = volumePercent
         if (updateText) {
-            viewModel.text = getString(R.string.status_volume, volume, volumeMax)
+            showTransientText(getString(R.string.status_volume, volume, volumeMax))
         }
     }
 
@@ -681,7 +685,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         latestPartialRecognition = null
         latestUnstableRecognition = null
         viewModel.state = ParropeatoViewModel.State.Listening
-        viewModel.text = getString(R.string.status_listening)
+        setPersistentText(getString(R.string.status_listening))
         val recognizerIntent = Intent()
         recognizerIntent.action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -702,7 +706,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             isListening = false
             shouldProcessResults = false
             viewModel.state = ParropeatoViewModel.State.Idle
-            viewModel.text = getString(R.string.error_stt_offline_no_model)
+            setPersistentText(getString(R.string.error_stt_offline_no_model))
             return
         }
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, !isOnline)
@@ -720,12 +724,12 @@ abstract class BaseMainActivity : ComponentActivity() {
                 text += "\n" + getString(R.string.error_tts_emulator_hint)
             }
             text += "\nstatus=${FooTextToSpeech.statusToString(status)}"
-            viewModel.text = text
+            setPersistentText(text)
             return
         }
 
         viewModel.state = ParropeatoViewModel.State.Initialized
-        viewModel.text = getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk)
+        setPersistentText(getString(if (viewModel.cuteIcons) R.string.status_hold_cute_mic_to_talk else R.string.status_hold_mic_to_talk))
 
         val voices = TextToSpeechVoicePreference.installedVoices(tts.voices)
         Log.i(TAG, "onTextToSpeechInitialized: voices=${FooString.toString(voices, true)}")
@@ -764,9 +768,29 @@ abstract class BaseMainActivity : ComponentActivity() {
         tts.speak(getString(R.string.tts_greeting))
     }
 
+    private var lastPersistentText: String = ""
+    private var transientTextJob: Job? = null
+
+    private fun setPersistentText(text: String) {
+        transientTextJob?.cancel()
+        transientTextJob = null
+        lastPersistentText = text
+        viewModel.text = text
+    }
+
+    private fun showTransientText(text: String, durationMs: Long = 5_000L) {
+        viewModel.text = text
+        transientTextJob?.cancel()
+        transientTextJob = lifecycleScope.launch {
+            delay(durationMs)
+            viewModel.text = lastPersistentText
+            transientTextJob = null
+        }
+    }
+
     private fun speakRecognition(text: String) {
         val spokenText = text.trim()
-        viewModel.text = spokenText
+        setPersistentText(spokenText)
         tts.speak(spokenText)
     }
 
