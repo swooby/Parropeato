@@ -277,17 +277,7 @@ private fun SettingsL1Screen(
                         maxLines = 1,
                     )
                 },
-                secondaryLabel = {
-                    Text(
-                        subtitle,
-                        maxLines = 1,
-                        modifier = Modifier.basicMarquee(
-                            animationMode = MarqueeAnimationMode.Immediately,
-                            initialDelayMillis = 2_000,
-                            repeatDelayMillis = 1_500,
-                        ),
-                    )
-                },
+                secondaryLabel = { MarqueeText(subtitle) },
             )
         }
 
@@ -307,17 +297,7 @@ private fun SettingsL1Screen(
                         maxLines = 1,
                     )
                 },
-                secondaryLabel = if (subtitle.isNotEmpty()) ({
-                    Text(
-                        subtitle,
-                        maxLines = 1,
-                        modifier = Modifier.basicMarquee(
-                            animationMode = MarqueeAnimationMode.Immediately,
-                            initialDelayMillis = 2_000,
-                            repeatDelayMillis = 1_500,
-                        ),
-                    )
-                }) else null,
+                secondaryLabel = if (subtitle.isNotEmpty()) ({ MarqueeText(subtitle) }) else null,
             )
         }
 
@@ -673,6 +653,19 @@ private fun SpeechVariantsScreen(
 // ─── Shared chip ─────────────────────────────────────────────────────────────
 
 @Composable
+private fun MarqueeText(text: String) {
+    Text(
+        text = text,
+        maxLines = 1,
+        modifier = Modifier.basicMarquee(
+            animationMode = MarqueeAnimationMode.Immediately,
+            initialDelayMillis = 2_000,
+            repeatDelayMillis = 1_500,
+        ),
+    )
+}
+
+@Composable
 private fun SelectableChip(
     label: String,
     isSelected: Boolean,
@@ -688,19 +681,7 @@ private fun SelectableChip(
         label = {
             Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
-        secondaryLabel = secondaryLabel?.let { sl ->
-            {
-                Text(
-                    text = sl,
-                    maxLines = 1,
-                    modifier = Modifier.basicMarquee(
-                        animationMode = MarqueeAnimationMode.Immediately,
-                        initialDelayMillis = 2_000,
-                        repeatDelayMillis = 1_500,
-                    ),
-                )
-            }
-        },
+        secondaryLabel = secondaryLabel?.let { sl -> { MarqueeText(sl) } },
         icon = if (isSelected) ({
             Icon(
                 imageVector = Icons.Filled.Check,
