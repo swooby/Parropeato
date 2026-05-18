@@ -26,6 +26,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: android-build-${{ github.workflow }}-${{ github.ref }}
@@ -116,6 +117,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run unit tests
+        if: github.ref_type != 'tag'
         run: ./gradlew :common:test
 
       - name: Upload test report on failure
@@ -172,6 +174,36 @@ jobs:
           WEAR_VERSION_CODE="$((GITHUB_RUN_NUMBER * 10 + 1))" \
           VERSION_NAME="$VERSION_NAME" \
           ./gradlew :wear:assembleRelease :mobile:assembleRelease
+
+      - name: Wait for main-branch CI on this commit
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA="${{ github.sha }}"
+          REPO="${{ github.repository }}"
+          echo "Waiting for main-branch Android Build CI to complete on $SHA…"
+          for i in $(seq 1 40); do
+            RESULT=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&event=push&branch=main" \
+              --jq '.workflow_runs | map(select(.name == "Android Build")) | first | {status,conclusion}' 2>/dev/null)
+            if [ -z "$RESULT" ] || [ "$RESULT" = "null" ]; then
+              echo "  ($i/40) No main-branch run found yet, retrying in 30s…"
+              sleep 30
+              continue
+            fi
+            STATUS=$(echo "$RESULT" | jq -r '.status')
+            CONCLUSION=$(echo "$RESULT" | jq -r '.conclusion')
+            echo "  ($i/40) status=$STATUS conclusion=$CONCLUSION"
+            if [ "$STATUS" = "completed" ]; then
+              if [ "$CONCLUSION" != "success" ]; then
+                echo "Main-branch CI did not succeed (conclusion=$CONCLUSION); aborting release."
+                exit 1
+              fi
+              echo "Main-branch CI succeeded; proceeding with release."
+              break
+            fi
+            sleep 30
+          done
 
       - name: Build release bundle
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
