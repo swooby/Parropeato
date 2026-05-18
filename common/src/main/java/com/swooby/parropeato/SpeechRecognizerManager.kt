@@ -67,6 +67,12 @@ class SpeechRecognizerManager(
 
     private lateinit var recognizer: SpeechRecognizer
 
+    // Exposed so unit tests can fire RecognitionListener callbacks directly without
+    // relying on Robolectric's ShadowSpeechRecognizer static accessor.
+    @get:androidx.annotation.VisibleForTesting
+    internal var recognitionListener: RecognitionListener? = null
+        private set
+
     // Named runnables so they can be cancelled individually without clearing all callbacks.
     private val retryRunnable = Runnable {
         if (isPushToTalkPressed && !isListening) start()
@@ -91,7 +97,7 @@ class SpeechRecognizerManager(
      */
     fun init(updatePrompt: Boolean = true) {
         recognizer = SpeechRecognizer.createSpeechRecognizer(context)
-        recognizer.setRecognitionListener(object : RecognitionListener {
+        val listener = object : RecognitionListener {
 
             override fun onReadyForSpeech(params: Bundle?) {
                 FooLog.d(TAG, "onReadyForSpeech(params=${FooPlatformUtils.toString(params)})")
@@ -195,7 +201,9 @@ class SpeechRecognizerManager(
             override fun onEvent(eventType: Int, params: Bundle?) {
                 FooLog.d(TAG, "onEvent(eventType=$eventType, params=${FooPlatformUtils.toString(params)})")
             }
-        })
+        }
+        recognitionListener = listener
+        recognizer.setRecognitionListener(listener)
 
         if (updatePrompt) {
             viewModel.state = ParropeatoViewModel.State.Idle
