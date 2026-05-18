@@ -51,6 +51,9 @@ class SpeechRecognizerManager(
         private val TAG = FooLog.TAG(SpeechRecognizerManager::class)
         private val errorNames = FooReflection.mapConstants(SpeechRecognizer::class, "ERROR_")
         fun errorToString(error: Int): String = FooReflection.toString(errorNames, error)
+
+        private const val RECOGNIZER_RETRY_DELAY_MS = 150L
+        private const val LOCALE_CHECK_TIMEOUT_MS = 10_000L
     }
 
     // Written from the main thread; read from RecognitionListener callbacks on a binder thread.
@@ -63,6 +66,19 @@ class SpeechRecognizerManager(
     @Volatile private var latestUnstableRecognition: String? = null
 
     private lateinit var recognizer: SpeechRecognizer
+
+    // Named runnables so they can be cancelled individually without clearing all callbacks.
+    private val retryRunnable = Runnable {
+        if (isPushToTalkPressed && !isListening) start()
+    }
+    private val localeCheckTimeoutRunnable = Runnable {
+        if (!viewModel.speechLocalesSupportChecked) {
+            Log.w(TAG, "checkSupportedLocales: timed out after ${LOCALE_CHECK_TIMEOUT_MS}ms, using full candidate list")
+            viewModel.supportedSpeechLocales = SpeechLocalePreference.CANDIDATES
+                .sortedBy { java.util.Locale.forLanguageTag(it).getDisplayName(java.util.Locale.getDefault()) }
+            viewModel.speechLocalesSupportChecked = true
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -109,11 +125,7 @@ class SpeechRecognizerManager(
                     viewModel.state = ParropeatoViewModel.State.Listening
                     callbacks.setPersistentText(context.getString(R.string.status_listening))
                     reset(updatePrompt = false)
-                    handler.postDelayed({
-                        if (isPushToTalkPressed && !isListening) {
-                            start()
-                        }
-                    }, 150)
+                    handler.postDelayed(retryRunnable, RECOGNIZER_RETRY_DELAY_MS)
                     return
                 }
                 callbacks.onRecognitionError(error, willRetry = false)
@@ -140,7 +152,7 @@ class SpeechRecognizerManager(
             override fun onResults(results: Bundle?) {
                 FooLog.d(TAG, "onResults(results=${FooPlatformUtils.toString(results)})")
                 isListening = false
-                handler.removeCallbacksAndMessages(null)
+                handler.removeCallbacks(retryRunnable)
                 if (!shouldProcessResults) {
                     reset(updatePrompt = false)
                     return
@@ -201,12 +213,14 @@ class SpeechRecognizerManager(
      * Must be called after [init].
      */
     fun checkSupportedLocales(executor: Executor) {
+        handler.postDelayed(localeCheckTimeoutRunnable, LOCALE_CHECK_TIMEOUT_MS)
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         recognizer.checkRecognitionSupport(
             intent,
             executor,
             object : RecognitionSupportCallback {
                 override fun onSupportResult(recognitionSupport: RecognitionSupport) {
+                    handler.removeCallbacks(localeCheckTimeoutRunnable)
                     viewModel.installedSpeechLocales =
                         recognitionSupport.installedOnDeviceLanguages.toSet()
                     val supportedTags: Set<String> = buildSet {
@@ -235,6 +249,7 @@ class SpeechRecognizerManager(
                 }
 
                 override fun onError(errorCode: Int) {
+                    handler.removeCallbacks(localeCheckTimeoutRunnable)
                     Log.w(
                         TAG,
                         "checkSupportedLocales: checkRecognitionSupport error=$errorCode, " +
@@ -255,8 +270,17 @@ class SpeechRecognizerManager(
     // Listening control
     // -------------------------------------------------------------------------
 
+    /** Cancel any pending retry scheduled by [onError]. Call before starting a new PTT cycle. */
+    fun cancelRetry() {
+        handler.removeCallbacks(retryRunnable)
+    }
+
     /** Begin listening for speech. No-op if already listening. */
     fun start() {
+        if (!::recognizer.isInitialized) {
+            Log.e(TAG, "start: recognizer not initialized, skipping")
+            return
+        }
         FooLog.i(TAG, "+start()")
         isListening = true
         shouldProcessResults = true
