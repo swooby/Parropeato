@@ -21,6 +21,7 @@
     <string name="error_mic_insufficient_permission">Mikrofonberechtigung erforderlich.</string>
     <string name="permission_mic_rationale_title">Mikrofonzugriff erforderlich</string>
     <string name="permission_mic_rationale_message">M. Parropeato benötigt Mikrofonzugriff, um Ihre Sprache zu hören und zu wiederholen. Bitte erteilen Sie die Berechtigung, um fortzufahren.</string>
+    <string name="permission_mic_denied_message">M. Parropeato benötigt Mikrofonzugriff, um Ihre Sprache zu hören und zu wiederholen. Um ihn zu aktivieren, öffnen Sie App-Info und erteilen Sie die Mikrofonberechtigung.</string>
 
     <string name="error_stt_network_timeout">Netzwerk-Zeitüberschreitung.\nErneut versuchen.</string>
     <string name="error_stt_network">Netzwerk nicht verfügbar.\nErneut versuchen.</string>

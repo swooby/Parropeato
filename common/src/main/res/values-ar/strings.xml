@@ -21,6 +21,7 @@
     <string name="error_mic_insufficient_permission">إذن الميكروفون مطلوب.</string>
     <string name="permission_mic_rationale_title">مطلوب الوصول إلى الميكروفون</string>
     <string name="permission_mic_rationale_message">يحتاج M. Parropeato إلى الوصول إلى الميكروفون لسماع كلامك وتكراره. يرجى منح الإذن للمتابعة.</string>
+    <string name="permission_mic_denied_message">يحتاج M. Parropeato إلى الوصول إلى الميكروفون لسماع كلامك وتكراره. لتفعيله، افتح معلومات التطبيق ومنح إذن الميكروفون.</string>
 
     <string name="error_stt_network_timeout">انتهت مهلة الشبكة.\nحاول مجدداً.</string>
     <string name="error_stt_network">الشبكة غير متاحة.\nحاول مجدداً.</string>

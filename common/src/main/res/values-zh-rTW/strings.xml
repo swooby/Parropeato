@@ -21,6 +21,7 @@
     <string name="error_mic_insufficient_permission">需要麥克風權限。</string>
     <string name="permission_mic_rationale_title">需要麥克風存取權限</string>
     <string name="permission_mic_rationale_message">M. Parropeato 需要麥克風存取權限，以便聆聽並重複您的語音。請授予權限以繼續。</string>
+    <string name="permission_mic_denied_message">M. Parropeato 需要麥克風存取權限，以便聆聽並重複您的語音。請開啟應用程式資訊並授予麥克風權限。</string>
 
     <string name="error_stt_network_timeout">網路逾時。\n請再試一次。</string>
     <string name="error_stt_network">網路無法使用。\n請再試一次。</string>

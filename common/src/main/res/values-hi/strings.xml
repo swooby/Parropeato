@@ -21,6 +21,7 @@
     <string name="error_mic_insufficient_permission">माइक्रोफ़ोन की अनुमति आवश्यक है.</string>
     <string name="permission_mic_rationale_title">माइक्रोफ़ोन एक्सेस आवश्यक है</string>
     <string name="permission_mic_rationale_message">M. Parropeato को आपकी बोली सुनने और दोहराने के लिए माइक्रोफ़ोन एक्सेस की आवश्यकता है। जारी रखने के लिए कृपया अनुमति दें।</string>
+    <string name="permission_mic_denied_message">M. Parropeato को आपकी बोली सुनने और दोहराने के लिए माइक्रोफ़ोन एक्सेस की आवश्यकता है। इसे सक्षम करने के लिए, ऐप जानकारी खोलें और माइक्रोफ़ोन अनुमति दें।</string>
 
     <string name="error_stt_network_timeout">नेटवर्क समय समाप्त हो गया.\nपुनः प्रयास करें.</string>
     <string name="error_stt_network">नेटवर्क उपलब्ध नहीं है.\nपुनः प्रयास करें.</string>

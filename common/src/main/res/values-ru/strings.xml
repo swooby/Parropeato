@@ -21,6 +21,7 @@
     <string name="error_mic_insufficient_permission">Необходимо разрешение на использование микрофона.</string>
     <string name="permission_mic_rationale_title">Требуется доступ к микрофону</string>
     <string name="permission_mic_rationale_message">M. Parropeato необходим доступ к микрофону, чтобы слышать и повторять вашу речь. Пожалуйста, предоставьте разрешение для продолжения.</string>
+    <string name="permission_mic_denied_message">M. Parropeato необходим доступ к микрофону, чтобы слышать и повторять вашу речь. Чтобы включить его, откройте Сведения о приложении и предоставьте разрешение на микрофон.</string>
 
     <string name="error_stt_network_timeout">Время ожидания сети истекло.\nПопробуйте ещё раз.</string>
     <string name="error_stt_network">Сеть недоступна.\nПопробуйте ещё раз.</string>

@@ -454,6 +454,16 @@ abstract class BaseMainActivity : ComponentActivity() {
             endSpeechSession(ParropeatoAnalytics.SpeechOutcome.PermissionDenied)
             viewModel.state = ParropeatoViewModel.State.Idle
             setPersistentText(getString(R.string.error_mic_insufficient_permission))
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.permission_mic_rationale_title))
+                .setMessage(getString(R.string.permission_mic_denied_message))
+                .setPositiveButton(R.string.settings_open_app_info) { _, _ ->
+                    try { openAppInfoSettings() }
+                    catch (_: ActivityNotFoundException) {}
+                    catch (_: SecurityException) {}
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         } else {
             viewModel.state = ParropeatoViewModel.State.Idle
             setPersistentText(

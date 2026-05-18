@@ -21,6 +21,7 @@
     <string name="error_mic_insufficient_permission">마이크 권한이 필요합니다.</string>
     <string name="permission_mic_rationale_title">마이크 액세스 필요</string>
     <string name="permission_mic_rationale_message">M. Parropeato가 말씀을 듣고 반복하려면 마이크 액세스가 필요합니다. 계속하려면 권한을 허용해 주세요.</string>
+    <string name="permission_mic_denied_message">M. Parropeato가 말씀을 듣고 반복하려면 마이크 액세스가 필요합니다. 활성화하려면 앱 정보를 열고 마이크 권한을 허용하세요.</string>
 
     <string name="error_stt_network_timeout">네트워크 시간 초과.\n다시 시도하세요.</string>
     <string name="error_stt_network">네트워크를 사용할 수 없습니다.\n다시 시도하세요.</string>
