@@ -373,7 +373,7 @@ class ParropeatoAnalytics(context: Context) {
     fun multiplierBucket(value: Float): String = when {
         value < 0.5f -> "lt_0_5"
         value < 1.0f -> "0_5_1_0"
-        value == 1.0f -> "1_0"
+        value <= 1.0f -> "1_0"
         value <= 1.5f -> "1_0_1_5"
         value <= 2.0f -> "1_5_2_0"
         else -> "gt_2_0"
