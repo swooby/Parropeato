@@ -812,7 +812,7 @@ private fun Greeting(
                 var lo = minFontSize.value
                 var hi = maxFontSize.value
                 var best = lo
-                repeat(8) {
+                repeat(10) {
                     val mid = (lo + hi) / 2f
                     val midSp = mid.sp
                     val heightResult = textMeasurer.measure(
