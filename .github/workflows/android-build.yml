@@ -43,7 +43,8 @@ jobs:
           - module: mobile
             api-level: 34
             target: google_apis
-            profile: pixel_6
+            # Lighter generic phone profile to reduce launcher/emulator hangs on GitHub runners.
+            profile: medium_phone
             script: ./gradlew :mobile:connectedDebugAndroidTest
           - module: wear
             api-level: 34
@@ -80,7 +81,9 @@ jobs:
           target: ${{ matrix.target }}
           arch: x86_64
           profile: ${{ matrix.profile }}
-          script: bash -c '${{ matrix.script }}; status=$?; if [ "$status" -ne 0 ]; then mkdir -p build/ci-screenshots; adb exec-out screencap -p > "build/ci-screenshots/${{ matrix.module }}-failure.png" || true; fi; exit "$status"'
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash -lc 'adb wait-for-device; adb shell input keyevent KEYCODE_WAKEUP || true; adb shell wm dismiss-keyguard || true; adb shell am force-stop com.google.android.apps.nexuslauncher || true; adb shell am force-stop com.android.launcher3 || true; ${{ matrix.script }}; status=$?; if [ "$status" -ne 0 ]; then mkdir -p build/ci-screenshots; adb exec-out screencap -p > "build/ci-screenshots/${{ matrix.module }}-failure.png" || true; fi; exit "$status"'
 
       - name: Upload instrumented test reports on failure
         if: failure()
