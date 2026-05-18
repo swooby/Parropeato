@@ -93,5 +93,6 @@
     <string name="cd_voice_speed_min">Velocidade de voz mínima</string>
     <string name="cd_voice_pitch_max">Tom de voz máximo</string>
     <string name="cd_voice_pitch_min">Tom de voz mínimo</string>
+    <string name="error_tts_check_settings">Verifique as configurações TTS do dispositivo.</string>
     <string name="info_speech_locale_reset">Idioma de voz redefinido para o padrão do dispositivo.</string>
 </resources>

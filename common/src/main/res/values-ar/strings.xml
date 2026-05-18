@@ -93,5 +93,6 @@
     <string name="cd_voice_speed_min">أدنى سرعة صوت</string>
     <string name="cd_voice_pitch_max">أقصى نبرة صوت</string>
     <string name="cd_voice_pitch_min">أدنى نبرة صوت</string>
+    <string name="error_tts_check_settings">تحقق من إعدادات تحويل النص إلى كلام في الجهاز.</string>
     <string name="info_speech_locale_reset">تمت إعادة تعيين لغة الكلام إلى الافتراضي.</string>
 </resources>

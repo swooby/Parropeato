@@ -93,5 +93,6 @@
     <string name="cd_voice_speed_min">न्यूनतम आवाज़ गति</string>
     <string name="cd_voice_pitch_max">अधिकतम आवाज़ स्वर</string>
     <string name="cd_voice_pitch_min">न्यूनतम आवाज़ स्वर</string>
+    <string name="error_tts_check_settings">डिवाइस TTS सेटिंग जांचें।</string>
     <string name="info_speech_locale_reset">वाक् भाषा डिवाइस डिफ़ॉल्ट पर रीसेट हो गई।</string>
 </resources>

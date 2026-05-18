@@ -52,6 +52,7 @@
     <string name="settings_stt_download_offline">Download offline speech model</string>
     <string name="error_tts_init_failed">TextToSpeech init failed.</string>
     <string name="error_tts_emulator_hint">TTS may not work\nin an emulator.</string>
+    <string name="error_tts_check_settings">Check device TTS settings.</string>
     <string name="info_speech_locale_reset">Speech language reset to Device Default.</string>
 
     <!-- TTS greeting spoken aloud on startup -->

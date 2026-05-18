@@ -93,5 +93,6 @@
     <string name="cd_voice_speed_min">Minimale Sprachgeschwindigkeit</string>
     <string name="cd_voice_pitch_max">Maximale Sprachhöhe</string>
     <string name="cd_voice_pitch_min">Minimale Sprachhöhe</string>
+    <string name="error_tts_check_settings">Geräte-TTS-Einstellungen prüfen.</string>
     <string name="info_speech_locale_reset">Spracheingabe-Sprache auf Gerätestandard zurückgesetzt.</string>
 </resources>

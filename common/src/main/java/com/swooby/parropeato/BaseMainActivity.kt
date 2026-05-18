@@ -483,8 +483,10 @@ abstract class BaseMainActivity : ComponentActivity() {
             var text = getString(R.string.error_tts_init_failed)
             if (BuildConfig.DEBUG) {
                 text += "\n" + getString(R.string.error_tts_emulator_hint)
+                text += "\nstatus=${FooTextToSpeech.statusToString(status)}"
+            } else {
+                text += "\n" + getString(R.string.error_tts_check_settings)
             }
-            text += "\nstatus=${FooTextToSpeech.statusToString(status)}"
             setPersistentText(text)
             return
         }
