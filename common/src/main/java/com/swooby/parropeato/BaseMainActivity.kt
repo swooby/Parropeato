@@ -893,7 +893,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         viewModel.text = text
     }
 
-    private fun showTransientText(text: String, durationMs: Long = 5_000L) {
+    private fun showTransientText(text: String, durationMs: Long = TRANSIENT_TEXT_DURATION_MS) {
         viewModel.text = text
         transientTextJob?.cancel()
         transientTextJob = lifecycleScope.launch {
