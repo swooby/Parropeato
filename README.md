@@ -29,3 +29,6 @@ python3 -m http.server 8000
 ```
 
 Then open http://localhost:8000 in your browser.
+
+> **Note:** The `/device-sweep` Claude Code slash command starts its own server on port 8765.
+> That port is unrelated to this manual preview — use whichever port matches the server you started.
