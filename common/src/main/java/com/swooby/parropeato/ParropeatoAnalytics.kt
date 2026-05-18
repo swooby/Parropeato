@@ -356,17 +356,7 @@ class ParropeatoAnalytics(context: Context) {
         }
 
     fun accentColorValue(argb: Int): String =
-        when (ACCENT_COLOR_OPTIONS.indexOfFirst { it.argb == argb }) {
-            0 -> "purple"
-            1 -> "teal"
-            2 -> "blue"
-            3 -> "green"
-            4 -> "yellow"
-            5 -> "orange"
-            6 -> "pink"
-            7 -> "red"
-            else -> "custom"
-        }
+        ACCENT_COLOR_OPTIONS.find { it.argb == argb }?.analyticsName ?: "custom"
 
     fun percentBucket(value: Float): String {
         val percent = (value.coerceIn(0f, 1f) * 100).roundToInt()
