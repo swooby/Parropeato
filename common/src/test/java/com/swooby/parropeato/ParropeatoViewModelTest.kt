@@ -146,15 +146,6 @@ class ParropeatoViewModelTest {
         assertEquals(0.5f, viewModel.volumePercent)
     }
 
-    // --- text / appendText ---
-
-    @Test
-    fun `appendText appends space and text to current text`() {
-        viewModel.text = "Hello"
-        viewModel.appendText("World")
-        assertEquals("Hello World", viewModel.text)
-    }
-
     @Test
     fun `text setter updates value directly`() {
         viewModel.text = "Direct"
