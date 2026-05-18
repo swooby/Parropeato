@@ -54,6 +54,8 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected val mainHandler = Handler(Looper.getMainLooper())
     protected var isOpeningExternalActivity: Boolean = false
         private set
+    protected var isRequestingRecordAudioPermission: Boolean = false
+        private set
 
     private lateinit var connectivityManager: ConnectivityManager
     private val analytics: ParropeatoAnalytics by lazy {
@@ -320,7 +322,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                     false
                 }
                 else -> {
-                    permissionRecordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    launchRecordAudioPermissionRequest()
                     false
                 }
             }
@@ -335,11 +337,16 @@ abstract class BaseMainActivity : ComponentActivity() {
             .setTitle(getString(R.string.permission_mic_rationale_title))
             .setMessage(getString(R.string.permission_mic_rationale_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                permissionRecordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                launchRecordAudioPermissionRequest()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
         FooLog.i(TAG, "-permissionRecordAudioRationale()")
+    }
+
+    private fun launchRecordAudioPermissionRequest() {
+        isRequestingRecordAudioPermission = true
+        permissionRecordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
     }
 
     private fun maybeShowDiagnosticsConsentPrompt() {
@@ -366,6 +373,7 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     private fun onPermissionRecordAudioResult(isGranted: Boolean) {
         FooLog.i(TAG, "+onPermissionRecordAudioResult(isGranted=$isGranted)")
+        isRequestingRecordAudioPermission = false
         if (isGranted && pendingStartAfterPermission) {
             pendingStartAfterPermission = false
             speechRecognizerManager.start()

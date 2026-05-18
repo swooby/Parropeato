@@ -19,7 +19,7 @@ class MainActivity : BaseMainActivity() {
     override val watchFaceBorderOutset: Boolean = true
 
     override fun onStop() {
-        val shouldFinish = !isOpeningExternalActivity
+        val shouldFinish = !isOpeningExternalActivity && !isRequestingRecordAudioPermission
         super.onStop()
         if (shouldFinish) {
             finish()
