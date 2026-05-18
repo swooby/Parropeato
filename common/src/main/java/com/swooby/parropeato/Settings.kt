@@ -3,7 +3,6 @@ package com.swooby.parropeato
 import android.content.Context
 import androidx.core.content.edit
 import com.swooby.parropeato.Settings.Companion.CURRENT_VERSION
-import com.swooby.parropeato.common.BuildConfig
 
 class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_DEFAULT) {
     private val prefs = context.getSharedPreferences("parropeato_settings", Context.MODE_PRIVATE)
@@ -41,8 +40,12 @@ class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_D
         set(value) = prefs.edit { putInt(KEY_ACCENT_COLOR, value) }
 
     var diagnosticsEnabled: Boolean
-        get() = prefs.getBoolean(KEY_DIAGNOSTICS_ENABLED, BuildConfig.DEBUG)
+        get() = prefs.getBoolean(KEY_DIAGNOSTICS_ENABLED, false)
         set(value) = prefs.edit { putBoolean(KEY_DIAGNOSTICS_ENABLED, value) }
+
+    var diagnosticsPromptShown: Boolean
+        get() = prefs.getBoolean(KEY_DIAGNOSTICS_PROMPT_SHOWN, false)
+        set(value) = prefs.edit { putBoolean(KEY_DIAGNOSTICS_PROMPT_SHOWN, value) }
 
     /**
      * Settings schema version. Bump [CURRENT_VERSION] whenever a breaking change requires
@@ -64,6 +67,7 @@ class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_D
         private const val KEY_CUTE_ICONS = "cute_icons"
         private const val KEY_ACCENT_COLOR = "accent_color"
         private const val KEY_DIAGNOSTICS_ENABLED = "diagnostics_enabled"
+        private const val KEY_DIAGNOSTICS_PROMPT_SHOWN = "diagnostics_prompt_shown"
         private const val KEY_SETTINGS_VERSION = "settings_version"
         const val CURRENT_VERSION = 1
     }

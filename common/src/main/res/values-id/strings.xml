@@ -58,6 +58,10 @@
     <string name="settings_close">Tutup</string>
     <string name="settings_cute_icons">Ikon Lucu</string>
     <string name="settings_diagnostics">Diagnostik</string>
+    <string name="diagnostics_consent_title">Bantu tingkatkan?</string>
+    <string name="diagnostics_consent_message">Bantu tingkatkan aplikasi open-source ini dengan berbagi diagnostik anonim tanpa informasi pribadi?</string>
+    <string name="diagnostics_consent_positive">Ya, bantu</string>
+    <string name="diagnostics_consent_negative">Tidak, terima kasih</string>
     <string name="settings_accent_color">Warna Aksen</string>
     <string name="accent_color_purple">Ungu</string>
     <string name="accent_color_teal">Teal</string>

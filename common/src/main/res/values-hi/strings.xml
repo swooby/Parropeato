@@ -58,6 +58,10 @@
     <string name="settings_close">बंद करें</string>
     <string name="settings_cute_icons">प्यारे आइकन</string>
     <string name="settings_diagnostics">डायग्नोस्टिक्स</string>
+    <string name="diagnostics_consent_title">बेहतर बनाने में मदद करें?</string>
+    <string name="diagnostics_consent_message">क्या आप निजी जानकारी रहित गुमनाम डायग्नोस्टिक्स साझा करके इस ओपन-सोर्स ऐप को बेहतर बनाने में मदद करेंगे?</string>
+    <string name="diagnostics_consent_positive">हाँ, मदद करें</string>
+    <string name="diagnostics_consent_negative">नहीं, धन्यवाद</string>
     <string name="settings_accent_color">एक्सेंट रंग</string>
     <string name="accent_color_purple">बैंगनी</string>
     <string name="accent_color_teal">टील</string>

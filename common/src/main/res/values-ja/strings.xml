@@ -58,6 +58,10 @@
     <string name="settings_close">閉じる</string>
     <string name="settings_cute_icons">かわいいアイコン</string>
     <string name="settings_diagnostics">診断情報</string>
+    <string name="diagnostics_consent_title">改善に協力しますか？</string>
+    <string name="diagnostics_consent_message">個人情報を含まない匿名診断を共有して、このオープンソースアプリの改善に協力しますか？</string>
+    <string name="diagnostics_consent_positive">はい、協力する</string>
+    <string name="diagnostics_consent_negative">いいえ</string>
     <string name="settings_accent_color">アクセントカラー</string>
     <string name="accent_color_purple">紫</string>
     <string name="accent_color_teal">ティール</string>

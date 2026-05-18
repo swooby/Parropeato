@@ -67,9 +67,14 @@
     <string name="settings_speech_checking">Checking supported languages…</string>
     <string name="settings_speech_none_found">No supported languages found.</string>
     <string name="settings_open_tts_settings">Open Device TTS Settings</string>
+    <string name="settings_open_app_info" translatable="false">Open App Info</string>
     <string name="settings_close">Close</string>
     <string name="settings_cute_icons">Cute Icons</string>
     <string name="settings_diagnostics">Diagnostics</string>
+    <string name="diagnostics_consent_title">Help improve?</string>
+    <string name="diagnostics_consent_message">Help improve this open-source app by sharing anonymous diagnostics that contain no private information?</string>
+    <string name="diagnostics_consent_positive">Yes, help out</string>
+    <string name="diagnostics_consent_negative">No thanks</string>
     <string name="settings_accent_color">Accent Color</string>
     <string name="accent_color_purple">Purple</string>
     <string name="accent_color_teal">Teal</string>

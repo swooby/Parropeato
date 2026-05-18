@@ -58,6 +58,10 @@
     <string name="settings_close">Fermer</string>
     <string name="settings_cute_icons">Icônes mignonnes</string>
     <string name="settings_diagnostics">Diagnostics</string>
+    <string name="diagnostics_consent_title">Aider à améliorer ?</string>
+    <string name="diagnostics_consent_message">Aider à améliorer cette application open source en partageant des diagnostics anonymes sans information privée ?</string>
+    <string name="diagnostics_consent_positive">Oui, aider</string>
+    <string name="diagnostics_consent_negative">Non merci</string>
     <string name="settings_accent_color">Couleur d\'accentuation</string>
     <string name="accent_color_purple">Violet</string>
     <string name="accent_color_teal">Sarcelle</string>

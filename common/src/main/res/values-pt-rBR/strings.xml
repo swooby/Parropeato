@@ -58,6 +58,10 @@
     <string name="settings_close">Fechar</string>
     <string name="settings_cute_icons">Ícones Fofos</string>
     <string name="settings_diagnostics">Diagnóstico</string>
+    <string name="diagnostics_consent_title">Ajudar a melhorar?</string>
+    <string name="diagnostics_consent_message">Ajudar a melhorar este app de código aberto compartilhando diagnósticos anônimos sem informações privadas?</string>
+    <string name="diagnostics_consent_positive">Sim, ajudar</string>
+    <string name="diagnostics_consent_negative">Não, obrigado</string>
     <string name="settings_accent_color">Cor de Destaque</string>
     <string name="accent_color_purple">Roxo</string>
     <string name="accent_color_teal">Verde-azulado</string>

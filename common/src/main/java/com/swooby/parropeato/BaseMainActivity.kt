@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.smartfoo.android.core.FooString
 import com.smartfoo.android.core.logging.FooLog
+import com.smartfoo.android.core.platform.FooPlatformUtils
 import com.smartfoo.android.core.texttospeech.FooTextToSpeech
 import com.swooby.parropeato.common.BuildConfig
 import com.swooby.parropeato.common.R
@@ -168,6 +169,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         initTextToSpeech()
         speechRecognizerManager.init()
         speechRecognizerManager.checkSupportedLocales(mainExecutor)
+        mainHandler.post { maybeShowDiagnosticsConsentPrompt() }
         Log.i(TAG, "-onCreate(...)")
     }
 
@@ -338,6 +340,28 @@ abstract class BaseMainActivity : ComponentActivity() {
             .setNegativeButton(android.R.string.cancel, null)
             .show()
         FooLog.i(TAG, "-permissionRecordAudioRationale()")
+    }
+
+    private fun maybeShowDiagnosticsConsentPrompt() {
+        if (!::settings.isInitialized || settings.diagnosticsPromptShown || settings.diagnosticsEnabled) {
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.diagnostics_consent_title))
+            .setMessage(getString(R.string.diagnostics_consent_message))
+            .setPositiveButton(R.string.diagnostics_consent_positive) { _, _ ->
+                settings.diagnosticsPromptShown = true
+                onSettingsDiagnosticsEnabledChanged(true)
+            }
+            .setNegativeButton(R.string.diagnostics_consent_negative) { _, _ ->
+                settings.diagnosticsPromptShown = true
+                onSettingsDiagnosticsEnabledChanged(false)
+            }
+            .setOnCancelListener {
+                settings.diagnosticsPromptShown = true
+                onSettingsDiagnosticsEnabledChanged(false)
+            }
+            .show()
     }
 
     private fun onPermissionRecordAudioResult(isGranted: Boolean) {
@@ -574,6 +598,19 @@ abstract class BaseMainActivity : ComponentActivity() {
             intent = Intent(AndroidSettings.ACTION_SETTINGS),
             method = ParropeatoAnalytics.ButtonSettingsMethod.GeneralSettings,
         )
+    }
+
+    protected fun openAppInfoSettings() {
+        isOpeningExternalActivity = true
+        try {
+            FooPlatformUtils.showAppSettings(this)
+        } catch (e: ActivityNotFoundException) {
+            isOpeningExternalActivity = false
+            throw e
+        } catch (e: SecurityException) {
+            isOpeningExternalActivity = false
+            throw e
+        }
     }
 
     private fun tryStartButtonsAndGesturesSettings(

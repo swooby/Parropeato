@@ -58,6 +58,10 @@
     <string name="settings_close">إغلاق</string>
     <string name="settings_cute_icons">أيقونات لطيفة</string>
     <string name="settings_diagnostics">التشخيصات</string>
+    <string name="diagnostics_consent_title">هل تساعدنا؟</string>
+    <string name="diagnostics_consent_message">هل تساعد في تحسين هذا التطبيق مفتوح المصدر بمشاركة تشخيصات مجهولة لا تحتوي على أي معلومات خاصة؟</string>
+    <string name="diagnostics_consent_positive">نعم، سأساعد</string>
+    <string name="diagnostics_consent_negative">لا، شكرًا</string>
     <string name="settings_accent_color">لون التمييز</string>
     <string name="accent_color_purple">بنفسجي</string>
     <string name="accent_color_teal">أزرق مخضر</string>

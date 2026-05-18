@@ -104,6 +104,7 @@ fun MobileSettingsScreen(
     onSpeechLocaleSelected: (String?) -> Unit,
     onOpenTtsSettings: () -> Unit,
     onOpenSpeechDownloadSettings: () -> Unit,
+    onOpenAppInfoSettings: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDiagnosticsEnabledChanged: (Boolean) -> Unit,
@@ -151,6 +152,7 @@ fun MobileSettingsScreen(
                 onCuteIconsChanged = onCuteIconsChanged,
                 onAccentColorChanged = onAccentColorChanged,
                 onDiagnosticsEnabledChanged = onDiagnosticsEnabledChanged,
+                onOpenAppInfoSettings = onOpenAppInfoSettings,
                 onDismiss = onDismiss,
             )
         }
@@ -260,6 +262,7 @@ private fun SettingsL1Screen(
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDiagnosticsEnabledChanged: (Boolean) -> Unit,
+    onOpenAppInfoSettings: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
@@ -334,6 +337,18 @@ private fun SettingsL1Screen(
                 )
             }
             if (BuildConfig.DEBUG) {
+                item { HorizontalDivider(color = Color.White.copy(alpha = 0.08f)) }
+                item {
+                    Button(
+                        onClick = onOpenAppInfoSettings,
+                        colors = ButtonDefaults.buttonColors(Color.Yellow),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                    ) {
+                        Text(stringResource(R.string.settings_open_app_info))
+                    }
+                }
                 item { HorizontalDivider(color = Color.White.copy(alpha = 0.08f)) }
                 item {
                     Button(

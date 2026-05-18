@@ -58,6 +58,10 @@
     <string name="settings_close">Закрыть</string>
     <string name="settings_cute_icons">Милые иконки</string>
     <string name="settings_diagnostics">Диагностика</string>
+    <string name="diagnostics_consent_title">Помочь улучшить?</string>
+    <string name="diagnostics_consent_message">Помочь улучшить это приложение с открытым кодом, отправляя анонимную диагностику без личной информации?</string>
+    <string name="diagnostics_consent_positive">Да, помочь</string>
+    <string name="diagnostics_consent_negative">Нет, спасибо</string>
     <string name="settings_accent_color">Акцентный цвет</string>
     <string name="accent_color_purple">Фиолетовый</string>
     <string name="accent_color_teal">Бирюзовый</string>

@@ -58,6 +58,10 @@
     <string name="settings_close">Schließen</string>
     <string name="settings_cute_icons">Niedliche Symbole</string>
     <string name="settings_diagnostics">Diagnose</string>
+    <string name="diagnostics_consent_title">Verbessern helfen?</string>
+    <string name="diagnostics_consent_message">Hilfst du, diese Open-Source-App zu verbessern, indem du anonyme Diagnosen ohne private Informationen teilst?</string>
+    <string name="diagnostics_consent_positive">Ja, helfen</string>
+    <string name="diagnostics_consent_negative">Nein danke</string>
     <string name="settings_accent_color">Akzentfarbe</string>
     <string name="accent_color_purple">Lila</string>
     <string name="accent_color_teal">Blaugrün</string>

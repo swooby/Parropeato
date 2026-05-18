@@ -58,6 +58,10 @@
     <string name="settings_close">關閉</string>
     <string name="settings_cute_icons">可愛圖示</string>
     <string name="settings_diagnostics">診斷資訊</string>
+    <string name="diagnostics_consent_title">協助改進？</string>
+    <string name="diagnostics_consent_message">透過分享不含私人資訊的匿名診斷，協助改進這個開源應用程式？</string>
+    <string name="diagnostics_consent_positive">好，協助</string>
+    <string name="diagnostics_consent_negative">不用，謝謝</string>
     <string name="settings_accent_color">強調色</string>
     <string name="accent_color_purple">紫色</string>
     <string name="accent_color_teal">藍綠色</string>

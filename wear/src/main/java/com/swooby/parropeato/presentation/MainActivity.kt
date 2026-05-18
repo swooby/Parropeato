@@ -58,6 +58,7 @@ class MainActivity : BaseMainActivity() {
             onOpenTtsSettings = ::openTtsSettings,
             onOpenSpeechDownloadSettings = ::openSpeechDownloadSettings,
             onOpenButtonsAndGesturesSettings = ::openButtonsAndGesturesSettings,
+            onOpenAppInfoSettings = ::openAppInfoSettings,
             onCuteIconsChanged = ::onSettingsCuteIconsChanged,
             onAccentColorChanged = ::onSettingsAccentColorChanged,
             onDiagnosticsEnabledChanged = ::onSettingsDiagnosticsEnabledChanged,

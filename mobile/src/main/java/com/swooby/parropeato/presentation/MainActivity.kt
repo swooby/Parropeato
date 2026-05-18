@@ -60,6 +60,7 @@ class MainActivity : BaseMainActivity() {
             onSpeechLocaleSelected = ::onSettingsSpeechLocaleSelected,
             onOpenTtsSettings = ::openTtsSettings,
             onOpenSpeechDownloadSettings = ::openSpeechDownloadSettings,
+            onOpenAppInfoSettings = ::openAppInfoSettings,
             onCuteIconsChanged = ::onSettingsCuteIconsChanged,
             onAccentColorChanged = ::onSettingsAccentColorChanged,
             onDiagnosticsEnabledChanged = ::onSettingsDiagnosticsEnabledChanged,

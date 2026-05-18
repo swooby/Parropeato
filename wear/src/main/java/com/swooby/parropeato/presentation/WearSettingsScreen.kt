@@ -91,6 +91,7 @@ fun WearSettingsScreen(
     onOpenTtsSettings: () -> Unit,
     onOpenSpeechDownloadSettings: () -> Unit,
     onOpenButtonsAndGesturesSettings: () -> Unit,
+    onOpenAppInfoSettings: () -> Unit,
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDiagnosticsEnabledChanged: (Boolean) -> Unit,
@@ -140,6 +141,7 @@ fun WearSettingsScreen(
                 onCuteIconsChanged = onCuteIconsChanged,
                 onDiagnosticsEnabledChanged = onDiagnosticsEnabledChanged,
                 onOpenButtonsAndGesturesSettings = onOpenButtonsAndGesturesSettings,
+                onOpenAppInfoSettings = onOpenAppInfoSettings,
             )
         }
 
@@ -256,6 +258,7 @@ private fun SettingsL1Screen(
     onCuteIconsChanged: (Boolean) -> Unit,
     onDiagnosticsEnabledChanged: (Boolean) -> Unit,
     onOpenButtonsAndGesturesSettings: () -> Unit,
+    onOpenAppInfoSettings: () -> Unit,
 ) {
     val displayLocale = LocalLocale.current.platformLocale
     val deviceDefaultLabel = stringResource(R.string.speech_locale_device_default)
@@ -382,6 +385,14 @@ private fun SettingsL1Screen(
             )
         }
         if (BuildConfig.DEBUG) {
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onOpenAppInfoSettings,
+                    colors = ChipDefaults.primaryChipColors(backgroundColor = Color.Yellow.copy(alpha = 0.8f)),
+                    label = { Text(stringResource(R.string.settings_open_app_info), maxLines = 1) },
+                )
+            }
             item {
                 Chip(
                     modifier = Modifier.fillMaxWidth(),

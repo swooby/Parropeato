@@ -58,6 +58,10 @@
     <string name="settings_close">닫기</string>
     <string name="settings_cute_icons">귀여운 아이콘</string>
     <string name="settings_diagnostics">진단 정보</string>
+    <string name="diagnostics_consent_title">개선을 도와주시겠어요?</string>
+    <string name="diagnostics_consent_message">개인 정보가 없는 익명 진단을 공유해 이 오픈 소스 앱 개선을 도와주시겠어요?</string>
+    <string name="diagnostics_consent_positive">예, 도울게요</string>
+    <string name="diagnostics_consent_negative">아니요</string>
     <string name="settings_accent_color">강조 색상</string>
     <string name="accent_color_purple">보라색</string>
     <string name="accent_color_teal">청록색</string>
