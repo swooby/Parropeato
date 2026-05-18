@@ -44,10 +44,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.smartfoo.android.core.logging.FooLog
 import com.swooby.parropeato.common.R
 import kotlin.math.PI
@@ -822,10 +826,54 @@ private fun Greeting(
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
 ) {
+    val textMeasurer = rememberTextMeasurer()
+    val style = MaterialTheme.typography.bodyLarge
+    val minFontSize = style.fontSize  // current default; text scrolls if it still overflows
+    val maxFontSize = 24.sp
+    val density = LocalDensity.current
+    val primary = MaterialTheme.colorScheme.primary
+
     BoxWithConstraints(
         modifier = modifier.verticalScrollbar(scrollState),
     ) {
+        val containerWidth = maxWidth
         val containerHeight = maxHeight
+
+        // Binary-search the largest font size where the full text fits within containerHeight
+        // AND no individual word exceeds containerWidth (which would cause mid-word breaks).
+        // Falls back to minFontSize (enabling scrolling) when the text is too long.
+        val fontSize = remember(text, containerWidth, containerHeight, density) {
+            with(density) {
+                val widthPx = containerWidth.roundToPx()
+                val heightPx = containerHeight.roundToPx()
+                val longestWord = text.split(' ', '\n').maxByOrNull { it.length } ?: text
+                var lo = minFontSize.value
+                var hi = maxFontSize.value
+                var best = lo
+                repeat(8) {
+                    val mid = (lo + hi) / 2f
+                    val midSp = mid.sp
+                    val heightResult = textMeasurer.measure(
+                        text = AnnotatedString(text),
+                        style = style.copy(fontSize = midSp),
+                        constraints = Constraints(maxWidth = widthPx),
+                    )
+                    val wordResult = textMeasurer.measure(
+                        text = AnnotatedString(longestWord),
+                        style = style.copy(fontSize = midSp),
+                        constraints = Constraints(),
+                    )
+                    if (heightResult.size.height <= heightPx && wordResult.size.width <= widthPx) {
+                        best = mid
+                        lo = mid
+                    } else {
+                        hi = mid
+                    }
+                }
+                best.sp
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -836,8 +884,9 @@ private fun Greeting(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
+                color = primary,
                 text = text,
+                style = style.copy(fontSize = fontSize),
             )
         }
     }
