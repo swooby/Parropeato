@@ -16,7 +16,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.speech.tts.TextToSpeech
-import android.util.Log
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -185,7 +184,7 @@ abstract class BaseMainActivity : ComponentActivity() {
     // ── Lifecycle ──────────────────────────────────────────────────────────────
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(TAG, "+onCreate(...)")
+        FooLog.i(TAG, "+onCreate(...)")
         super.onCreate(savedInstanceState)
         audioManager = getSystemService(AudioManager::class.java)
         settings = Settings(this, defaultTtsVoiceSpeed = textToSpeechVoiceSpeed)
@@ -207,7 +206,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         speechRecognizerManager.init()
         speechRecognizerManager.checkSupportedLocales(mainExecutor)
         mainHandler.post { maybeShowDiagnosticsConsentPrompt() }
-        Log.i(TAG, "-onCreate(...)")
+        FooLog.i(TAG, "-onCreate(...)")
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -485,7 +484,7 @@ abstract class BaseMainActivity : ComponentActivity() {
     }
 
     private fun onTextToSpeechInitialized(status: Int) {
-        Log.i(TAG, "onTextToSpeechInitialized(status=${FooTextToSpeech.statusToString(status)})")
+        FooLog.i(TAG, "onTextToSpeechInitialized(status=${FooTextToSpeech.statusToString(status)})")
 
         if (status != TextToSpeech.SUCCESS) {
             analytics.logTtsInit(success = false, errorClass = FooTextToSpeech.statusToString(status))
@@ -511,19 +510,19 @@ abstract class BaseMainActivity : ComponentActivity() {
         )
 
         val voices = TextToSpeechVoicePreference.installedVoices(tts.voices)
-        Log.i(TAG, "onTextToSpeechInitialized: voices=${FooString.toString(voices, true)}")
+        FooLog.i(TAG, "onTextToSpeechInitialized: voices=${FooString.toString(voices, true)}")
         viewModel.availableVoices = voices.toList()
 
         // Probe the engine's default voice name (setVoiceName(null) resolves to defaultVoice).
         tts.setVoiceName(null)
         viewModel.ttsDefaultVoiceName = tts.voiceName
-        Log.i(TAG, "onTextToSpeechInitialized: ttsDefaultVoiceName=${viewModel.ttsDefaultVoiceName}")
+        FooLog.i(TAG, "onTextToSpeechInitialized: ttsDefaultVoiceName=${viewModel.ttsDefaultVoiceName}")
 
         // One-time migration: older builds auto-selected a voice via preferredEnglishVoice() and
         // persisted it without any user interaction. Reset to Device Default so the user starts
         // fresh with the correct engine default rather than a stale auto-chosen voice.
         if (settings.settingsVersion < Settings.CURRENT_VERSION) {
-            Log.i(TAG, "onTextToSpeechInitialized: migrating settings " + "v${settings.settingsVersion} → ${Settings.CURRENT_VERSION}, clearing ttsVoiceName")
+            FooLog.i(TAG, "onTextToSpeechInitialized: migrating settings " + "v${settings.settingsVersion} → ${Settings.CURRENT_VERSION}, clearing ttsVoiceName")
             settings.ttsVoiceName = null
             settings.settingsVersion = Settings.CURRENT_VERSION
         }
@@ -537,11 +536,11 @@ abstract class BaseMainActivity : ComponentActivity() {
         }
         // null savedVoiceName → already on engine default from the probe above.
         viewModel.selectedVoiceName = settings.ttsVoiceName
-        Log.i(TAG, "onTextToSpeechInitialized: selectedVoiceName=${viewModel.selectedVoiceName}")
+        FooLog.i(TAG, "onTextToSpeechInitialized: selectedVoiceName=${viewModel.selectedVoiceName}")
         tts.voiceSpeed = viewModel.voiceSpeed
-        Log.i(TAG, "onTextToSpeechInitialized: voiceSpeed=${viewModel.voiceSpeed}")
+        FooLog.i(TAG, "onTextToSpeechInitialized: voiceSpeed=${viewModel.voiceSpeed}")
         tts.voicePitch = viewModel.voicePitch
-        Log.i(TAG, "onTextToSpeechInitialized: voicePitch=${viewModel.voicePitch}")
+        FooLog.i(TAG, "onTextToSpeechInitialized: voicePitch=${viewModel.voicePitch}")
 
         initialGreetingReady = true
         trySpeakInitialGreeting()
@@ -790,12 +789,12 @@ abstract class BaseMainActivity : ComponentActivity() {
                 analytics.logExternalSettingsOpen(target = target, success = true, fallback = fallback)
                 return
             } catch (e: ActivityNotFoundException) {
-                Log.d(TAG, "tryLaunchExternalSettings: $target intent not found: ${intent.action ?: intent.component}", e)
+                FooLog.d(TAG, "tryLaunchExternalSettings: $target intent not found: ${intent.action ?: intent.component}", e)
             } catch (e: SecurityException) {
-                Log.d(TAG, "tryLaunchExternalSettings: $target intent blocked: ${intent.action ?: intent.component}", e)
+                FooLog.d(TAG, "tryLaunchExternalSettings: $target intent blocked: ${intent.action ?: intent.component}", e)
             }
         }
-        Log.d(TAG, "tryLaunchExternalSettings: $target — all candidates failed, no settings screen opened")
+        FooLog.d(TAG, "tryLaunchExternalSettings: $target — all candidates failed, no settings screen opened")
         analytics.logExternalSettingsOpen(target = target, success = false, fallback = "none")
     }
 

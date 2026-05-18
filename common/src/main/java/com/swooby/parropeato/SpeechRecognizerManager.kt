@@ -9,7 +9,6 @@ import android.speech.RecognitionSupport
 import android.speech.RecognitionSupportCallback
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.util.Log
 import com.smartfoo.android.core.FooReflection
 import com.smartfoo.android.core.FooString.quote
 import com.smartfoo.android.core.logging.FooLog
@@ -79,7 +78,7 @@ class SpeechRecognizerManager(
     }
     private val localeCheckTimeoutRunnable = Runnable {
         if (!viewModel.speechLocalesSupportChecked) {
-            Log.w(TAG, "checkSupportedLocales: timed out after ${LOCALE_CHECK_TIMEOUT_MS}ms, using full candidate list")
+            FooLog.w(TAG, "checkSupportedLocales: timed out after ${LOCALE_CHECK_TIMEOUT_MS}ms, using full candidate list")
             viewModel.supportedSpeechLocales = SpeechLocalePreference.CANDIDATES
                 .sortedBy { java.util.Locale.forLanguageTag(it).getDisplayName(java.util.Locale.getDefault()) }
             viewModel.speechLocalesSupportChecked = true
@@ -242,15 +241,12 @@ class SpeechRecognizerManager(
                             java.util.Locale.forLanguageTag(it)
                                 .getDisplayName(java.util.Locale.getDefault())
                         }
-                    Log.i(TAG, "checkSupportedLocales: ${filtered.size} locales supported")
+                    FooLog.i(TAG, "checkSupportedLocales: ${filtered.size} locales supported")
                     viewModel.supportedSpeechLocales = filtered
                     viewModel.speechLocalesSupportChecked = true
                     val saved = viewModel.speechRecognizerLocale
                     if (saved != null && saved !in filtered) {
-                        Log.w(
-                            TAG,
-                            "checkSupportedLocales: saved locale $saved no longer supported, clearing"
-                        )
+                        FooLog.w(TAG, "checkSupportedLocales: saved locale $saved no longer supported, clearing")
                         viewModel.speechRecognizerLocale = null
                         callbacks.onSavedLocaleInvalidated()
                     }
@@ -258,11 +254,7 @@ class SpeechRecognizerManager(
 
                 override fun onError(errorCode: Int) {
                     handler.removeCallbacks(localeCheckTimeoutRunnable)
-                    Log.w(
-                        TAG,
-                        "checkSupportedLocales: checkRecognitionSupport error=$errorCode, " +
-                            "using full candidate list"
-                    )
+                    FooLog.w(TAG, "checkSupportedLocales: checkRecognitionSupport error=$errorCode, using full candidate list")
                     viewModel.supportedSpeechLocales = SpeechLocalePreference.CANDIDATES
                         .sortedBy {
                             java.util.Locale.forLanguageTag(it)
@@ -286,7 +278,7 @@ class SpeechRecognizerManager(
     /** Begin listening for speech. No-op if already listening. */
     fun start() {
         if (!::recognizer.isInitialized) {
-            Log.e(TAG, "start: recognizer not initialized, skipping")
+            FooLog.e(TAG, "start: recognizer not initialized, skipping")
             return
         }
         FooLog.i(TAG, "+start()")

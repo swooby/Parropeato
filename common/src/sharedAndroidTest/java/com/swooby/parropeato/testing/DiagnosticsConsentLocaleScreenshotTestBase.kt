@@ -3,12 +3,12 @@ package com.swooby.parropeato.testing
 import android.app.Activity
 import android.app.LocaleManager
 import android.os.LocaleList
-import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.smartfoo.android.core.logging.FooLog
 import com.swooby.parropeato.common.R
 import org.junit.After
 import org.junit.Assert.assertNotNull
@@ -41,7 +41,7 @@ abstract class DiagnosticsConsentLocaleScreenshotTestBase<T : Activity>(
             assertTrue("Diagnostics consent message is not visible for $localeTag", message.visibleBounds.height() > 0)
 
             val publicPath = captureScreenshot(device, localeTag)
-            Log.i(Tag, "Saved diagnostics consent screenshot for $localeTag to $publicPath")
+            FooLog.i(Tag, "Saved diagnostics consent screenshot for $localeTag to $publicPath")
 
             val negativeButton = device.wait(
                 Until.findObject(By.text(targetContext.getString(R.string.diagnostics_consent_negative))),
