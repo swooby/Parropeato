@@ -41,7 +41,7 @@ class ParropeatoViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private val _state = mutableStateOf(State.Initializing)
-    val _text = mutableStateOf(application.getString(R.string.state_initializing))
+    private val _text = mutableStateOf(application.getString(R.string.state_initializing))
 
     var state: State
         get() = _state.value
