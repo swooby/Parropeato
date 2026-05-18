@@ -43,24 +43,6 @@ Both `mobile` and `wear` manifests reference it via `android:localeConfig="@xml/
 Adding a locale to `locales_config.xml` without a translation causes the system language picker to offer a language the app cannot display.
 Adding a translation folder without updating `locales_config.xml` means the system will never offer that language to users.
 
-### Current supported UI languages
-
-| Tag | Language |
-|-----|----------|
-| `en` | English |
-| `ar` | Arabic (العربية) |
-| `de` | German (Deutsch) |
-| `es` | Spanish (Español) |
-| `fr` | French (Français) |
-| `hi` | Hindi (हिन्दी) |
-| `id` | Indonesian (Bahasa Indonesia) |
-| `ja` | Japanese (日本語) |
-| `ko` | Korean (한국어) |
-| `pt-BR` | Portuguese — Brazil (Português Brasil) |
-| `ru` | Russian (Русский) |
-| `zh-TW` | Chinese — Traditional (繁體中文) |
-| `zh-CN` | Chinese — Simplified (简体中文) |
-
 ## Developer tools
 
 If you use Claude Code, slash commands for locale auditing, website device sweeps, docs review, and pre-release checks are documented in [`AGENTS.md`](AGENTS.md).
