@@ -92,6 +92,7 @@ Requirements enforced by Play Store reviewers; violations cause rejection. Check
 
 ### Wear OS Specifics
 - **Round-screen geometry:** the usable chord width shrinks as y-offset from center increases. Always verify new text or controls near the bottom of the watch face on a round emulator before submitting.
+- Diagnostics consent locale screenshot test instructions and screenshot retrieval paths live in `docs/android testing.md`.
 - **Settings screens** must use `SwipeDismissableNavHost` (already in place) so swipe-to-dismiss works as expected on Wear OS.
 
 ## Release Notes
