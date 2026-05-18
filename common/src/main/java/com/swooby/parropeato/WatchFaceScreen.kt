@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -359,43 +358,6 @@ private fun hitsIcon(
 // ─────────────────────────────────────────────────────────────────────────────
 // Arc controls
 // ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun AllArcControls(
-    volumePercent: Float,
-    voiceSpeed: Float,
-    voicePitch: Float,
-    scale: Float,
-    cuteIcons: Boolean,
-    onVolumeChange: (Float) -> Unit,
-    onVoiceSpeedChange: (Float) -> Unit,
-    onVoicePitchChange: (Float) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier = modifier) {
-        VolumeArcControl(
-            modifier = Modifier.fillMaxSize(),
-            volumePercent = volumePercent,
-            scale = scale,
-            cuteIcons = cuteIcons,
-            onVolumeChange = onVolumeChange,
-        )
-        VoiceSpeedArcControl(
-            modifier = Modifier.fillMaxSize(),
-            voiceSpeed = voiceSpeed,
-            scale = scale,
-            cuteIcons = cuteIcons,
-            onVoiceSpeedChange = onVoiceSpeedChange,
-        )
-        VoicePitchArcControl(
-            modifier = Modifier.fillMaxSize(),
-            voicePitch = voicePitch,
-            scale = scale,
-            cuteIcons = cuteIcons,
-            onVoicePitchChange = onVoicePitchChange,
-        )
-    }
-}
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)

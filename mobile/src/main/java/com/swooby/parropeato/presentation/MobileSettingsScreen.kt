@@ -62,6 +62,7 @@ import com.swooby.parropeato.verticalScrollbar
 import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.GroupedLocaleOptions
 import com.swooby.parropeato.LocaleLanguageGroup
+import com.swooby.parropeato.ParropeatoAnalytics
 import com.swooby.parropeato.SpeechLocalePreference
 import com.swooby.parropeato.TextToSpeechVoicePreference
 import com.swooby.parropeato.VoiceLanguageGroup
@@ -108,6 +109,7 @@ fun MobileSettingsScreen(
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDiagnosticsEnabledChanged: (Boolean) -> Unit,
+    onSettingsScreenOpened: (ParropeatoAnalytics.SettingsScreen) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val navController = rememberNavController()
@@ -147,8 +149,14 @@ fun MobileSettingsScreen(
                 cuteIcons = cuteIcons,
                 accentColor = accentColor,
                 diagnosticsEnabled = diagnosticsEnabled,
-                onNavigateTtsLanguages = { navController.navigate(Route.TTS_LANGUAGES) },
-                onNavigateSpeechLanguages = { navController.navigate(Route.SPEECH_LANGUAGES) },
+                onNavigateTtsLanguages = {
+                    onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.TtsLanguage)
+                    navController.navigate(Route.TTS_LANGUAGES)
+                },
+                onNavigateSpeechLanguages = {
+                    onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.SpeechLanguage)
+                    navController.navigate(Route.SPEECH_LANGUAGES)
+                },
                 onCuteIconsChanged = onCuteIconsChanged,
                 onAccentColorChanged = onAccentColorChanged,
                 onDiagnosticsEnabledChanged = onDiagnosticsEnabledChanged,
@@ -174,6 +182,7 @@ fun MobileSettingsScreen(
                         onVoiceSelected(entry?.preferredVoice?.name)
                         navController.popBackStack(Route.SETTINGS, inclusive = false)
                     } else {
+                        onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.TtsVariant)
                         navController.navigate(Route.ttsVariants(group.languageCode))
                     }
                 },
@@ -218,6 +227,7 @@ fun MobileSettingsScreen(
                         onSpeechLocaleSelected(group.options.first().tag)
                         navController.popBackStack(Route.SETTINGS, inclusive = false)
                     } else {
+                        onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.SpeechVariant)
                         navController.navigate(Route.speechVariants(group.languageCode))
                     }
                 },

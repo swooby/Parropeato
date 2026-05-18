@@ -1,14 +1,12 @@
 package com.swooby.parropeato.presentation
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.wear.compose.material.PositionIndicator
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.TimeText
 import com.swooby.parropeato.BaseMainActivity
 import com.swooby.parropeato.SettingsGearButton
@@ -17,6 +15,7 @@ class MainActivity : BaseMainActivity() {
     override val watchFaceSceneScale: Float = 1f
     override val watchFaceControlsScale: Float = 1f
     override val watchFaceBorderOutset: Boolean = true
+    override val analyticsPlatform: String = "wear"
 
     override fun onStop() {
         val shouldFinish = !isOpeningExternalActivity && !isRequestingRecordAudioPermission
@@ -62,6 +61,7 @@ class MainActivity : BaseMainActivity() {
             onCuteIconsChanged = ::onSettingsCuteIconsChanged,
             onAccentColorChanged = ::onSettingsAccentColorChanged,
             onDiagnosticsEnabledChanged = ::onSettingsDiagnosticsEnabledChanged,
+            onSettingsScreenOpened = ::onSettingsScreenOpened,
             onDismiss = onDismiss,
         )
     }

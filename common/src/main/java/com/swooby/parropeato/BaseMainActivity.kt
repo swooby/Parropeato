@@ -14,6 +14,7 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.KeyEvent
@@ -21,7 +22,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -46,6 +46,7 @@ import android.provider.Settings as AndroidSettings
  */
 abstract class BaseMainActivity : ComponentActivity() {
 
+    @Suppress("PropertyName")
     protected open val TAG: String by lazy { FooLog.TAG(this::class) }
 
     protected lateinit var tts: FooTextToSpeech
@@ -85,6 +86,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                     this@BaseMainActivity.setPersistentText(text)
 
                 override fun onResult(text: String) {
+                    endSpeechSession(ParropeatoAnalytics.SpeechOutcome.Success)
                     viewModel.state = ParropeatoViewModel.State.Speaking
                     speakRecognition(text)
                 }
@@ -92,6 +94,27 @@ abstract class BaseMainActivity : ComponentActivity() {
                 override fun onOfflineModelUnavailable() {
                     viewModel.state = ParropeatoViewModel.State.Idle
                     setPersistentText(getString(R.string.error_stt_offline_no_model))
+                    endSpeechSession(ParropeatoAnalytics.SpeechOutcome.OfflineModelMissing)
+                }
+
+                override fun onRecognitionEmpty() {
+                    endSpeechSession(ParropeatoAnalytics.SpeechOutcome.NoMatch)
+                }
+
+                override fun onRecognitionError(error: Int, willRetry: Boolean) {
+                    analytics.logSttError(
+                        errorClass = SpeechRecognizerManager.errorToString(error),
+                        retry = willRetry,
+                    )
+                    if (!willRetry) {
+                        endSpeechSession(ParropeatoAnalytics.SpeechOutcome.Error)
+                    }
+                }
+
+                override fun onRecognitionStart(locale: String?, isOnline: Boolean, hasOfflineModel: Boolean) {
+                    // Session start is logged when the user begins push-to-talk so permission
+                    // denials and offline-model failures are still part of the same funnel.
+                    // Do not log again here; recognizer retries may call this more than once.
                 }
 
                 override fun onSavedLocaleInvalidated() {
@@ -112,6 +135,7 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected open val watchFaceControlsScale: Float = 0.88f
     protected open val watchFaceBorderOutset: Boolean = false
     protected open val greetingBottomInsetDp: Float = 24f
+    protected open val analyticsPlatform: String = "unknown"
 
     // ── UI setup ───────────────────────────────────────────────────────────────
 
@@ -123,7 +147,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 sceneScale = watchFaceSceneScale,
                 controlsScale = watchFaceControlsScale,
                 borderOutset = watchFaceBorderOutset,
-                platformOverlay = { onSettingsClick -> PlatformOverlay(onSettingsClick) },
+                platformOverlay = { onSettingsClick -> PlatformOverlay { openSettingsOverlay(onSettingsClick) } },
                 onPushToTalkPressed = ::onPushToTalkPressed,
                 onPushToTalkReleased = ::onPushToTalkReleased,
                 onVolumeChange = ::setVolumePercent,
@@ -132,7 +156,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 greetingBottomInsetDp = greetingBottomInsetDp,
                 settingsOverlay = {
                     if (viewModel.showSettings) {
-                        SettingsOverlay(onDismiss = { viewModel.showSettings = false })
+                        SettingsOverlay(onDismiss = ::closeSettingsOverlay)
                     }
                 },
             )
@@ -198,6 +222,9 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        if (!isRequestingRecordAudioPermission) {
+            endSpeechSession(ParropeatoAnalytics.SpeechOutcome.Cancelled)
+        }
         viewModel.state = ParropeatoViewModel.State.ShuttingDown
         tts.detach(ttsCallbacks)
         speechRecognizerManager.stop()
@@ -246,19 +273,22 @@ abstract class BaseMainActivity : ComponentActivity() {
         if (speechRecognizerManager.isListening) {
             onPushToTalkReleased()
         } else {
-            onPushToTalkPressed()
+            onPushToTalkPressed(ParropeatoAnalytics.InputSource.Hardware)
         }
     }
 
     // ── Push-to-talk ───────────────────────────────────────────────────────────
 
-    protected fun onPushToTalkPressed() {
+    private var speechSessionStartedAtMs: Long? = null
+
+    protected fun onPushToTalkPressed(inputSource: ParropeatoAnalytics.InputSource = ParropeatoAnalytics.InputSource.Touch) {
         FooLog.i(TAG, "+onPushToTalkPressed()")
         speechRecognizerManager.isPushToTalkPressed = true
         if (speechRecognizerManager.isListening) {
             FooLog.i(TAG, "-onPushToTalkPressed() already listening")
             return
         }
+        beginSpeechSession(inputSource)
         tts.clear()
         pendingStartAfterPermission = true
         if (permissionRecordAudioCheck() && !speechRecognizerManager.isListening) {
@@ -282,6 +312,7 @@ abstract class BaseMainActivity : ComponentActivity() {
                 // Give the recognizer 500 ms to deliver proper onResults before using the partial.
                 mainHandler.postDelayed({
                     if (speechRecognizerManager.consumeFallback()) {
+                        endSpeechSession(ParropeatoAnalytics.SpeechOutcome.FallbackPartial)
                         viewModel.state = ParropeatoViewModel.State.Speaking
                         speakRecognition(fallback)
                     }
@@ -291,9 +322,11 @@ abstract class BaseMainActivity : ComponentActivity() {
                 setPersistentText(getString(R.string.status_thinking))
             }
         } else if (!fallback.isNullOrBlank()) {
+            endSpeechSession(ParropeatoAnalytics.SpeechOutcome.FallbackPartial)
             viewModel.state = ParropeatoViewModel.State.Speaking
             speakRecognition(fallback)
         } else {
+            endSpeechSession(ParropeatoAnalytics.SpeechOutcome.NoMatch)
             viewModel.state = ParropeatoViewModel.State.Idle
             setPersistentText(getString(R.string.error_stt_no_match))
         }
@@ -306,6 +339,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             onPermissionRecordAudioResult(isGranted)
         }
+    private var recordAudioRationaleShownForRequest = false
 
     private fun permissionRecordAudioCheck(): Boolean {
         try {
@@ -314,7 +348,6 @@ abstract class BaseMainActivity : ComponentActivity() {
                 ContextCompat.checkSelfPermission(
                     this, Manifest.permission.RECORD_AUDIO
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    onPermissionRecordAudioResult(true)
                     true
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) -> {
@@ -337,15 +370,23 @@ abstract class BaseMainActivity : ComponentActivity() {
             .setTitle(getString(R.string.permission_mic_rationale_title))
             .setMessage(getString(R.string.permission_mic_rationale_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                launchRecordAudioPermissionRequest()
+                launchRecordAudioPermissionRequest(rationaleShown = true)
             }
-            .setNegativeButton(android.R.string.cancel, null)
+            .setNegativeButton(android.R.string.cancel) { _, _ ->
+                pendingStartAfterPermission = false
+                endSpeechSession(ParropeatoAnalytics.SpeechOutcome.Cancelled)
+            }
+            .setOnCancelListener {
+                pendingStartAfterPermission = false
+                endSpeechSession(ParropeatoAnalytics.SpeechOutcome.Cancelled)
+            }
             .show()
         FooLog.i(TAG, "-permissionRecordAudioRationale()")
     }
 
-    private fun launchRecordAudioPermissionRequest() {
+    private fun launchRecordAudioPermissionRequest(rationaleShown: Boolean = false) {
         isRequestingRecordAudioPermission = true
+        recordAudioRationaleShownForRequest = rationaleShown
         permissionRecordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
     }
 
@@ -358,15 +399,15 @@ abstract class BaseMainActivity : ComponentActivity() {
             .setMessage(getString(R.string.diagnostics_consent_message))
             .setPositiveButton(R.string.diagnostics_consent_positive) { _, _ ->
                 settings.diagnosticsPromptShown = true
-                onSettingsDiagnosticsEnabledChanged(true)
+                onSettingsDiagnosticsEnabledChanged(true, ParropeatoAnalytics.ConsentSource.FirstRunPrompt)
             }
             .setNegativeButton(R.string.diagnostics_consent_negative) { _, _ ->
                 settings.diagnosticsPromptShown = true
-                onSettingsDiagnosticsEnabledChanged(false)
+                onSettingsDiagnosticsEnabledChanged(false, ParropeatoAnalytics.ConsentSource.FirstRunPrompt)
             }
             .setOnCancelListener {
                 settings.diagnosticsPromptShown = true
-                onSettingsDiagnosticsEnabledChanged(false)
+                onSettingsDiagnosticsEnabledChanged(false, ParropeatoAnalytics.ConsentSource.FirstRunPrompt)
             }
             .show()
     }
@@ -374,11 +415,18 @@ abstract class BaseMainActivity : ComponentActivity() {
     private fun onPermissionRecordAudioResult(isGranted: Boolean) {
         FooLog.i(TAG, "+onPermissionRecordAudioResult(isGranted=$isGranted)")
         isRequestingRecordAudioPermission = false
+        analytics.logMicPermissionResult(
+            result = if (isGranted) ParropeatoAnalytics.PermissionResult.Granted
+            else ParropeatoAnalytics.PermissionResult.Denied,
+            rationaleShown = recordAudioRationaleShownForRequest,
+        )
+        recordAudioRationaleShownForRequest = false
         if (isGranted && pendingStartAfterPermission) {
             pendingStartAfterPermission = false
             speechRecognizerManager.start()
         } else if (!isGranted) {
             pendingStartAfterPermission = false
+            endSpeechSession(ParropeatoAnalytics.SpeechOutcome.PermissionDenied)
             viewModel.state = ParropeatoViewModel.State.Idle
             setPersistentText(getString(R.string.error_mic_insufficient_permission))
         } else {
@@ -405,6 +453,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         Log.i(TAG, "onTextToSpeechInitialized(status=${FooTextToSpeech.statusToString(status)})")
 
         if (status != TextToSpeech.SUCCESS) {
+            analytics.logTtsInit(success = false, errorClass = FooTextToSpeech.statusToString(status))
             viewModel.state = ParropeatoViewModel.State.InitializingError
             var text = getString(R.string.error_tts_init_failed)
             if (BuildConfig.DEBUG) {
@@ -414,6 +463,7 @@ abstract class BaseMainActivity : ComponentActivity() {
             setPersistentText(text)
             return
         }
+        analytics.logTtsInit(success = true)
 
         viewModel.state = ParropeatoViewModel.State.Initialized
         setPersistentText(
@@ -457,6 +507,7 @@ abstract class BaseMainActivity : ComponentActivity() {
         Log.i(TAG, "onTextToSpeechInitialized: voicePitch=${viewModel.voicePitch}")
 
         tts.speak(getString(R.string.tts_greeting))
+        analytics.logTtsSpeak(ParropeatoAnalytics.TtsSource.Greeting, success = true)
     }
 
     // ── Audio / volume ─────────────────────────────────────────────────────────
@@ -470,6 +521,11 @@ abstract class BaseMainActivity : ComponentActivity() {
             AudioManager.FLAG_PLAY_SOUND,
         )
         updateMediaVolumeState(updateText = true)
+        logSettingBucketChanged(
+            name = ParropeatoAnalytics.SettingName.Volume,
+            value = analytics.percentBucket(viewModel.volumePercent),
+            unit = "percent",
+        )
     }
 
     private fun updateMediaVolumeState(updateText: Boolean) {
@@ -498,6 +554,11 @@ abstract class BaseMainActivity : ComponentActivity() {
         if (::tts.isInitialized) tts.voiceSpeed = viewModel.voiceSpeed
         if (::settings.isInitialized) settings.ttsVoiceSpeed = viewModel.voiceSpeed
         showTransientText(getString(R.string.status_voice_speed, viewModel.voiceSpeed))
+        logSettingBucketChanged(
+            name = ParropeatoAnalytics.SettingName.VoiceSpeed,
+            value = analytics.multiplierBucket(viewModel.voiceSpeed),
+            unit = "multiplier",
+        )
     }
 
     protected fun setVoicePitch(voicePitch: Float) {
@@ -505,16 +566,29 @@ abstract class BaseMainActivity : ComponentActivity() {
         if (::tts.isInitialized) tts.voicePitch = viewModel.voicePitch
         if (::settings.isInitialized) settings.ttsPitch = viewModel.voicePitch
         showTransientText(getString(R.string.status_voice_pitch, viewModel.voicePitch))
+        logSettingBucketChanged(
+            name = ParropeatoAnalytics.SettingName.VoicePitch,
+            value = analytics.multiplierBucket(viewModel.voicePitch),
+            unit = "multiplier",
+        )
     }
 
     protected fun onSettingsVoiceSelected(voiceName: String?) {
         tts.setVoiceName(voiceName)  // null → engine default
         viewModel.selectedVoiceName = voiceName
         settings.ttsVoiceName = voiceName
+        analytics.logSettingChanged(
+            name = ParropeatoAnalytics.SettingName.TtsVoice,
+            value = analytics.localeMode(voiceName).analyticsValue,
+        )
     }
 
     protected fun onSettingsVoicePreview(voiceName: String) {
-        if (!tts.isStarted) return
+        if (!tts.isStarted) {
+            analytics.logTtsSpeak(ParropeatoAnalytics.TtsSource.Preview, success = false)
+            return
+        }
+        analytics.logTtsVoicePreview(ParropeatoAnalytics.LocaleMode.Specific)
         val restoreName = viewModel.selectedVoiceName
         tts.clear()
         tts.setVoiceName(voiceName)
@@ -527,16 +601,25 @@ abstract class BaseMainActivity : ComponentActivity() {
                 }
             },
         )
+        analytics.logTtsSpeak(ParropeatoAnalytics.TtsSource.Preview, success = true)
     }
 
     protected fun onSettingsSpeechLocaleSelected(locale: String?) {
         viewModel.speechRecognizerLocale = locale
         settings.speechRecognizerLocale = locale
+        analytics.logSettingChanged(
+            name = ParropeatoAnalytics.SettingName.SpeechLocale,
+            value = analytics.localeMode(locale).analyticsValue,
+        )
     }
 
     protected fun onSettingsCuteIconsChanged(value: Boolean) {
         viewModel.cuteIcons = value
         settings.cuteIcons = value
+        analytics.logSettingChanged(
+            name = ParropeatoAnalytics.SettingName.CuteIcons,
+            value = value.toString(),
+        )
         val holdMic = getString(R.string.status_hold_mic_to_talk)
         val holdCuteMic = getString(R.string.status_hold_cute_mic_to_talk)
         if (lastPersistentText == holdMic || lastPersistentText == holdCuteMic) {
@@ -552,12 +635,81 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected fun onSettingsAccentColorChanged(argb: Int) {
         viewModel.accentColor = argb
         settings.accentColor = argb
+        analytics.logSettingChanged(
+            name = ParropeatoAnalytics.SettingName.AccentColor,
+            value = analytics.accentColorValue(argb),
+        )
     }
 
-    protected fun onSettingsDiagnosticsEnabledChanged(value: Boolean) {
+    protected fun onSettingsDiagnosticsEnabledChanged(
+        value: Boolean,
+        source: ParropeatoAnalytics.ConsentSource = ParropeatoAnalytics.ConsentSource.Settings,
+    ) {
         viewModel.diagnosticsEnabled = value
         settings.diagnosticsEnabled = value
-        analytics.setDiagnosticsCollectionEnabled(value)
+        if (value) {
+            analytics.setDiagnosticsCollectionEnabled(true)
+            if (source == ParropeatoAnalytics.ConsentSource.FirstRunPrompt) {
+                analytics.logDiagnosticsConsentAccept(source)
+            }
+            analytics.logDiagnosticsSettingChanged(enabled = true, source = source)
+        } else {
+            analytics.logDiagnosticsSettingChanged(enabled = false, source = source)
+            analytics.setDiagnosticsCollectionEnabled(false)
+        }
+    }
+
+    protected fun onSettingsScreenOpened(screen: ParropeatoAnalytics.SettingsScreen) {
+        analytics.logSettingsScreenOpen(screen)
+    }
+
+    private fun openSettingsOverlay(onSettingsClick: () -> Unit) {
+        analytics.logSettingsOpen(analyticsPlatform)
+        analytics.logSettingsScreenOpen(ParropeatoAnalytics.SettingsScreen.Main)
+        onSettingsClick()
+    }
+
+    private fun closeSettingsOverlay() {
+        analytics.logSettingsClose(analyticsPlatform)
+        viewModel.showSettings = false
+    }
+
+    private fun beginSpeechSession(inputSource: ParropeatoAnalytics.InputSource) {
+        speechSessionStartedAtMs = SystemClock.elapsedRealtime()
+        val locale = viewModel.speechRecognizerLocale
+        val hasOfflineModel = locale == null || locale in viewModel.installedSpeechLocales
+        analytics.logSpeechSessionStart(
+            input = inputSource,
+            localeMode = analytics.localeMode(locale),
+            network = if (viewModel.isNetworkAvailable) {
+                ParropeatoAnalytics.NetworkState.Online
+            } else {
+                ParropeatoAnalytics.NetworkState.Offline
+            },
+            offlineModel = analytics.offlineModelState(locale, hasOfflineModel),
+        )
+    }
+
+    private fun endSpeechSession(outcome: ParropeatoAnalytics.SpeechOutcome) {
+        val startedAt = speechSessionStartedAtMs ?: return
+        speechSessionStartedAtMs = null
+        analytics.logSpeechSessionEnd(
+            outcome = outcome,
+            durationMs = SystemClock.elapsedRealtime() - startedAt,
+        )
+    }
+
+    private val lastLoggedSettingBuckets = mutableMapOf<ParropeatoAnalytics.SettingName, String>()
+
+    private fun logSettingBucketChanged(
+        name: ParropeatoAnalytics.SettingName,
+        value: String,
+        unit: String,
+    ) {
+        val previous = lastLoggedSettingBuckets.put(name, value)
+        if (previous != value) {
+            analytics.logSettingChanged(name = name, value = value, unit = unit)
+        }
     }
 
     // ── Settings launchers ─────────────────────────────────────────────────────
@@ -565,20 +717,77 @@ abstract class BaseMainActivity : ComponentActivity() {
     protected fun openTtsSettings() {
         try {
             startExternalActivity(Intent("com.android.settings.TTS_SETTINGS"))
+            analytics.logExternalSettingsOpen(
+                target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
+                success = true,
+            )
         } catch (_: ActivityNotFoundException) {
-            startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+            try {
+                startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
+                analytics.logExternalSettingsOpen(
+                    target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
+                    success = true,
+                    fallback = "general_settings",
+                )
+            } catch (_: ActivityNotFoundException) {
+                analytics.logExternalSettingsOpen(
+                    target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
+                    success = false,
+                    fallback = "none",
+                )
+            } catch (_: SecurityException) {
+                analytics.logExternalSettingsOpen(
+                    target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
+                    success = false,
+                    fallback = "none",
+                )
+            }
+        } catch (_: SecurityException) {
+            analytics.logExternalSettingsOpen(
+                target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
+                success = false,
+                fallback = "none",
+            )
         }
     }
 
     fun openSpeechDownloadSettings() {
         try {
             startExternalActivity(Intent(AndroidSettings.ACTION_VOICE_INPUT_SETTINGS))
+            analytics.logExternalSettingsOpen(
+                target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
+                success = true,
+                fallback = "voice_input",
+            )
         } catch (_: ActivityNotFoundException) {
             try {
                 startExternalActivity(Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+                analytics.logExternalSettingsOpen(
+                    target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
+                    success = true,
+                    fallback = "default_apps",
+                )
             } catch (_: ActivityNotFoundException) {
+                analytics.logExternalSettingsOpen(
+                    target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
+                    success = false,
+                    fallback = "none",
+                )
+                // No suitable settings screen available.
+            } catch (_: SecurityException) {
+                analytics.logExternalSettingsOpen(
+                    target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
+                    success = false,
+                    fallback = "none",
+                )
                 // No suitable settings screen available.
             }
+        } catch (_: SecurityException) {
+            analytics.logExternalSettingsOpen(
+                target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
+                success = false,
+                fallback = "none",
+            )
         }
     }
 
@@ -628,11 +837,26 @@ abstract class BaseMainActivity : ComponentActivity() {
         try {
             startExternalActivity(intent)
             analytics.logButtonSettingsOpen(method = method, success = true)
+            analytics.logExternalSettingsOpen(
+                target = ParropeatoAnalytics.ExternalSettingsTarget.ButtonGestures,
+                success = true,
+                fallback = method.analyticsValue,
+            )
             return true
         } catch (_: ActivityNotFoundException) {
             analytics.logButtonSettingsOpen(method = method, success = false)
+            analytics.logExternalSettingsOpen(
+                target = ParropeatoAnalytics.ExternalSettingsTarget.ButtonGestures,
+                success = false,
+                fallback = method.analyticsValue,
+            )
         } catch (_: SecurityException) {
             analytics.logButtonSettingsOpen(method = method, success = false)
+            analytics.logExternalSettingsOpen(
+                target = ParropeatoAnalytics.ExternalSettingsTarget.ButtonGestures,
+                success = false,
+                fallback = method.analyticsValue,
+            )
         }
         return false
     }
@@ -676,5 +900,6 @@ abstract class BaseMainActivity : ComponentActivity() {
         val spokenText = text.trim()
         setPersistentText(spokenText)
         tts.speak(spokenText)
+        analytics.logTtsSpeak(ParropeatoAnalytics.TtsSource.Recognition, success = true)
     }
 }

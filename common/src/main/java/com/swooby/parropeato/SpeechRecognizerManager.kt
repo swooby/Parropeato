@@ -37,6 +37,12 @@ class SpeechRecognizerManager(
         fun onResult(text: String)
         /** The device is offline and no installed model exists for the selected locale. */
         fun onOfflineModelUnavailable()
+        /** Speech recognition ended without any final recognition candidates. */
+        fun onRecognitionEmpty()
+        /** Speech recognition reported an error. */
+        fun onRecognitionError(error: Int, willRetry: Boolean)
+        /** Speech recognition is starting with the current locale/network configuration. */
+        fun onRecognitionStart(locale: String?, isOnline: Boolean, hasOfflineModel: Boolean)
         /** The previously saved speech locale is no longer supported; persist the cleared value. */
         fun onSavedLocaleInvalidated()
     }
@@ -99,6 +105,7 @@ class SpeechRecognizerManager(
                     else -> false
                 }
                 if (shouldRetry) {
+                    callbacks.onRecognitionError(error, willRetry = true)
                     viewModel.state = ParropeatoViewModel.State.Listening
                     callbacks.setPersistentText(context.getString(R.string.status_listening))
                     reset(updatePrompt = false)
@@ -109,6 +116,7 @@ class SpeechRecognizerManager(
                     }, 150)
                     return
                 }
+                callbacks.onRecognitionError(error, willRetry = false)
                 reset(updatePrompt = false)
                 viewModel.state = ParropeatoViewModel.State.Idle
                 callbacks.setPersistentText(errorText(error))
@@ -146,6 +154,7 @@ class SpeechRecognizerManager(
                     reset(updatePrompt = false)
                     viewModel.state = ParropeatoViewModel.State.Idle
                     callbacks.setPersistentText(context.getString(R.string.error_stt_no_match))
+                    callbacks.onRecognitionEmpty()
                     return
                 }
                 FooLog.i(TAG, "onResults: confidenceScores.size=${confidenceScores.size}")
@@ -265,6 +274,11 @@ class SpeechRecognizerManager(
             callbacks.onOfflineModelUnavailable()
             return
         }
+        callbacks.onRecognitionStart(
+            locale = selectedLocale,
+            isOnline = isOnline,
+            hasOfflineModel = hasOfflineModel,
+        )
         val intent = Intent().apply {
             action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)

@@ -66,6 +66,7 @@ Project-level Claude Code slash commands live in `.claude/commands/`. Type `/<na
 - Shared Firebase SDK usage can live in `common`, but Google Services and Crashlytics Gradle plugins must be applied to the Android application modules (`mobile` and `wear`), not the Android library module (`common`).
 - Both mobile and wear settings screens have a **Test Crash** button (debug builds only) for verifying Crashlytics end-to-end.
 - Analytics DebugView requires running `adb -s <device_id> shell setprop debug.firebase.analytics.app com.swooby.parropeato` targeting each device specifically; the property does not survive reboots. See `docs/firebase testing.md` for full instructions.
+- The current diagnostics disclosure and analytics action/outcome audit lives in `ParropeatoAnalytics.kt` KDoc.
 - Every new or changed user-visible feature must include privacy-respecting analytics for its important actions and outcomes, unless the change explicitly documents why analytics would be inappropriate.
 - Analytics must be implemented behind a global user preference. Treat collection as disabled by default until the user opts in, and let the user opt out later from Settings. Wire this through Firebase's collection controls instead of only suppressing individual log calls.
 - Do not log raw speech, recognized text, TTS text, custom user-entered content, stable device identifiers, or highly specific values that could identify a person. Prefer coarse enums such as source, success/failure, selected category, and error class.

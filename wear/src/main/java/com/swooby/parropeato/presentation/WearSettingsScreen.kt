@@ -47,6 +47,7 @@ import com.swooby.parropeato.ACCENT_COLOR_OPTIONS
 import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.GroupedLocaleOptions
 import com.swooby.parropeato.LocaleLanguageGroup
+import com.swooby.parropeato.ParropeatoAnalytics
 import com.swooby.parropeato.SpeechLocalePreference
 import com.swooby.parropeato.TextToSpeechVoicePreference
 import com.swooby.parropeato.VoiceLanguageGroup
@@ -95,6 +96,7 @@ fun WearSettingsScreen(
     onCuteIconsChanged: (Boolean) -> Unit,
     onAccentColorChanged: (Int) -> Unit,
     onDiagnosticsEnabledChanged: (Boolean) -> Unit,
+    onSettingsScreenOpened: (ParropeatoAnalytics.SettingsScreen) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val navController = rememberSwipeDismissableNavController()
@@ -135,9 +137,18 @@ fun WearSettingsScreen(
                 cuteIcons = cuteIconsState.value,
                 accentColor = accentColorState.value,
                 diagnosticsEnabled = diagnosticsEnabledState.value,
-                onNavigateTtsLanguages = { navController.navigate(Route.TTS_LANGUAGES) },
-                onNavigateSpeechLanguages = { navController.navigate(Route.SPEECH_LANGUAGES) },
-                onNavigateAccentColor = { navController.navigate(Route.ACCENT_COLOR) },
+                onNavigateTtsLanguages = {
+                    onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.TtsLanguage)
+                    navController.navigate(Route.TTS_LANGUAGES)
+                },
+                onNavigateSpeechLanguages = {
+                    onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.SpeechLanguage)
+                    navController.navigate(Route.SPEECH_LANGUAGES)
+                },
+                onNavigateAccentColor = {
+                    onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.AccentColor)
+                    navController.navigate(Route.ACCENT_COLOR)
+                },
                 onCuteIconsChanged = onCuteIconsChanged,
                 onDiagnosticsEnabledChanged = onDiagnosticsEnabledChanged,
                 onOpenButtonsAndGesturesSettings = onOpenButtonsAndGesturesSettings,
@@ -172,6 +183,7 @@ fun WearSettingsScreen(
                         onVoiceSelected(entry?.preferredVoice?.name)
                         navController.popBackStack(Route.SETTINGS, inclusive = false)
                     } else {
+                        onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.TtsVariant)
                         navController.navigate(Route.ttsVariants(group.languageCode))
                     }
                 },
@@ -214,6 +226,7 @@ fun WearSettingsScreen(
                         onSpeechLocaleSelected(group.options.first().tag)
                         navController.popBackStack(Route.SETTINGS, inclusive = false)
                     } else {
+                        onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.SpeechVariant)
                         navController.navigate(Route.speechVariants(group.languageCode))
                     }
                 },
@@ -723,8 +736,8 @@ private fun SelectableChip(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    secondaryLabel: String? = null,
     modifier: Modifier = Modifier,
+    secondaryLabel: String? = null,
 ) {
     Chip(
         modifier = modifier.fillMaxWidth(),

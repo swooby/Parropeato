@@ -2,6 +2,12 @@
 
 M. Parropeato is a novelty Android and Wear OS app that uses speech-to-text to listen to what you say and then parrots it back using text-to-speech.
 
+## Privacy And Diagnostics
+
+M. Parropeato takes privacy seriously and keeps diagnostics opt-in.
+The detailed inventory of Firebase Analytics events, Crashlytics crash information,
+and what data is and must not be collected is documented in the KDoc for [`ParropeatoAnalytics.kt`](common/src/main/java/com/swooby/parropeato/ParropeatoAnalytics.kt).
+
 ## Help Map Wear OS Button Settings
 
 M. Parropeato can open Samsung Wear OS **Buttons and gestures** settings so users can map a hardware button to the app.

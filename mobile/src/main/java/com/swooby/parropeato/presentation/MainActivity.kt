@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter
 
 class MainActivity : BaseMainActivity() {
     override val greetingBottomInsetDp: Float = 52f
+    override val analyticsPlatform: String = "mobile"
 
     @Composable
     override fun PlatformOverlay(onSettingsClick: () -> Unit) {
@@ -64,6 +65,7 @@ class MainActivity : BaseMainActivity() {
             onCuteIconsChanged = ::onSettingsCuteIconsChanged,
             onAccentColorChanged = ::onSettingsAccentColorChanged,
             onDiagnosticsEnabledChanged = ::onSettingsDiagnosticsEnabledChanged,
+            onSettingsScreenOpened = ::onSettingsScreenOpened,
             onDismiss = onDismiss,
         )
     }
