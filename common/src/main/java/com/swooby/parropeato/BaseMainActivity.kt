@@ -46,6 +46,13 @@ import android.provider.Settings as AndroidSettings
  */
 abstract class BaseMainActivity : ComponentActivity() {
 
+    companion object {
+        /** How long to wait for real onResults before speaking a partial fallback. */
+        const val FALLBACK_PARTIAL_TIMEOUT_MS = 500L
+        /** How long a transient status message stays on screen before reverting. */
+        const val TRANSIENT_TEXT_DURATION_MS = 5_000L
+    }
+
     @Suppress("PropertyName")
     protected open val TAG: String by lazy { FooLog.TAG(this::class) }
 
@@ -130,6 +137,7 @@ abstract class BaseMainActivity : ComponentActivity() {
     @Volatile private var pendingStartAfterPermission = false
     private var initialGreetingReady = false
     private var initialGreetingSpoken = false
+    private var fallbackPartialJob: Job? = null
 
     // ── Platform-specific overrides ────────────────────────────────────────────
 
@@ -309,21 +317,27 @@ abstract class BaseMainActivity : ComponentActivity() {
         FooLog.i(TAG, "+onPushToTalkReleased()")
         speechRecognizerManager.isPushToTalkPressed = false
         pendingStartAfterPermission = false
-        mainHandler.removeCallbacksAndMessages(null)
+        fallbackPartialJob?.cancel()
+        fallbackPartialJob = null
+        speechRecognizerManager.cancelRetry()
         val fallback = speechRecognizerManager.bestPartialRecognition()
         if (speechRecognizerManager.isListening) {
             speechRecognizerManager.stop()
             if (!fallback.isNullOrBlank()) {
                 viewModel.state = ParropeatoViewModel.State.Idle
                 setPersistentText(getString(R.string.status_thinking))
-                // Give the recognizer 500 ms to deliver proper onResults before using the partial.
-                mainHandler.postDelayed({
+                // Give the recognizer FALLBACK_PARTIAL_TIMEOUT_MS to deliver proper onResults
+                // before using the partial. consumeFallback() returns false if real results
+                // already arrived, so the coroutine naturally no-ops in that case.
+                fallbackPartialJob = lifecycleScope.launch {
+                    delay(FALLBACK_PARTIAL_TIMEOUT_MS)
                     if (speechRecognizerManager.consumeFallback()) {
                         endSpeechSession(ParropeatoAnalytics.SpeechOutcome.FallbackPartial)
                         viewModel.state = ParropeatoViewModel.State.Speaking
                         speakRecognition(fallback)
                     }
-                }, 500)
+                    fallbackPartialJob = null
+                }
             } else {
                 viewModel.state = ParropeatoViewModel.State.Idle
                 setPersistentText(getString(R.string.status_thinking))
