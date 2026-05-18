@@ -1,7 +1,4 @@
 <resources>
-    <string name="title_activity_presentation._main">presentation.MainActivity</string>
-    <string name="title_activity_main">MainActivity</string>
-
     <!-- Wear-specific overrides for shorter circular-screen labels -->
     <string name="settings_speech_checking">Checking languages…</string>
     <string name="settings_open_tts_settings">Device TTS Settings</string>

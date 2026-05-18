@@ -7,7 +7,7 @@ Parropeato is an Android and Wear OS Kotlin app that listens to speech using spe
 ## Modules
 
 - `mobile`: Android app entry point.
-- `wear`: Wear OS app, tile, and complication services.
+- `wear`: Wear OS app entry point.
 - `common`: shared app logic, settings, view model, and Compose support.
 - `smartfoo`: (Optional) local Android utility library; defaults to Maven Central artifact.
 - `docs`: static GitHub Pages site.
@@ -25,7 +25,7 @@ Parropeato is an Android and Wear OS Kotlin app that listens to speech using spe
 - Kotlin source should follow the surrounding Android/Kotlin style.
 - Prefer small, direct changes over broad refactors.
 - Prefer `common` for app behavior, state, settings, and utilities that should stay consistent across mobile and wear.
-- Keep platform-specific UI, lifecycle, tile, complication, and service behavior inside `mobile` or `wear`.
+- Keep platform-specific UI and lifecycle inside `mobile` or `wear`.
 - Avoid adding new dependencies unless they materially simplify the change.
 
 ## Android Notes
