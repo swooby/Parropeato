@@ -33,9 +33,23 @@ concurrency:
 
 jobs:
   instrumented-tests:
-    name: Instrumented tests
+    name: Instrumented tests (${{ matrix.module }})
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: mobile
+            api-level: 34
+            target: google_apis
+            profile: pixel_6
+            script: ./gradlew :mobile:connectedDebugAndroidTest
+          - module: wear
+            api-level: 34
+            target: android-wear
+            profile: wearos_large_round
+            script: ./gradlew :wear:connectedDebugAndroidTest
 
     steps:
       - name: Checkout
@@ -53,19 +67,26 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Run instrumented tests on emulator
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run ${{ matrix.module }} instrumented tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
-          target: google_apis
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
           arch: x86_64
-          script: ./gradlew :mobile:connectedDebugAndroidTest :wear:connectedDebugAndroidTest
+          profile: ${{ matrix.profile }}
+          script: ${{ matrix.script }}
 
       - name: Upload instrumented test reports on failure
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: instrumented-test-reports
+          name: instrumented-test-reports-${{ matrix.module }}
           path: |
             mobile/build/reports/androidTests/
             wear/build/reports/androidTests/
