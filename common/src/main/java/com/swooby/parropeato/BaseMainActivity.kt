@@ -779,10 +779,13 @@ abstract class BaseMainActivity : ComponentActivity() {
                 startExternalActivity(intent)
                 analytics.logExternalSettingsOpen(target = target, success = true, fallback = fallback)
                 return
-            } catch (_: ActivityNotFoundException) {
-            } catch (_: SecurityException) {
+            } catch (e: ActivityNotFoundException) {
+                Log.d(TAG, "tryLaunchExternalSettings: $target intent not found: ${intent.action ?: intent.component}", e)
+            } catch (e: SecurityException) {
+                Log.d(TAG, "tryLaunchExternalSettings: $target intent blocked: ${intent.action ?: intent.component}", e)
             }
         }
+        Log.d(TAG, "tryLaunchExternalSettings: $target — all candidates failed, no settings screen opened")
         analytics.logExternalSettingsOpen(target = target, success = false, fallback = "none")
     }
 
