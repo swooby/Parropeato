@@ -7,6 +7,22 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.lifecycle.AndroidViewModel
 import com.smartfoo.android.core.texttospeech.FooTextToSpeech
 import com.swooby.parropeato.common.R
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+
+private fun <T> composeState(initial: T): ReadWriteProperty<Any?, T> =
+    object : ReadWriteProperty<Any?, T> {
+        private val backing = mutableStateOf(initial)
+        override fun getValue(thisRef: Any?, property: KProperty<*>) = backing.value
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) { backing.value = value }
+    }
+
+private fun coercedFloatState(initial: Float, min: Float, max: Float): ReadWriteProperty<Any?, Float> =
+    object : ReadWriteProperty<Any?, Float> {
+        private val backing = mutableStateOf(initial)
+        override fun getValue(thisRef: Any?, property: KProperty<*>) = backing.value
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) { backing.value = value.coerceIn(min, max) }
+    }
 
 class ParropeatoViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
@@ -25,6 +41,8 @@ class ParropeatoViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private val _state = mutableStateOf(State.Initializing)
+    val _text = mutableStateOf(application.getString(R.string.state_initializing))
+
     var state: State
         get() = _state.value
         set(value) {
@@ -47,94 +65,27 @@ class ParropeatoViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
 
-    val _text = mutableStateOf(application.getString(R.string.state_initializing))
     var text: String
         get() = _text.value
-        set(value) {
-            _text.value = value
-        }
+        set(value) { _text.value = value }
 
-    private val _volumePercent = mutableStateOf(0f) // placeholder; always replaced by system volume in onCreate
-    var volumePercent: Float
-        get() = _volumePercent.value
-        set(value) {
-            _volumePercent.value = value.coerceIn(0f, 1f)
-        }
+    // placeholder; always replaced by system volume in onCreate
+    var volumePercent: Float by coercedFloatState(0f, 0f, 1f)
+    var voiceSpeed: Float by coercedFloatState(VOICE_SPEED_DEFAULT, VOICE_SPEED_MIN, VOICE_SPEED_MAX)
+    var voicePitch: Float by coercedFloatState(VOICE_PITCH_DEFAULT, VOICE_PITCH_MIN, VOICE_PITCH_MAX)
 
-    private val _voiceSpeed = mutableStateOf(VOICE_SPEED_DEFAULT)
-    var voiceSpeed: Float
-        get() = _voiceSpeed.value
-        set(value) {
-            _voiceSpeed.value = value.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX)
-        }
-
-    private val _voicePitch = mutableStateOf(VOICE_PITCH_DEFAULT)
-    var voicePitch: Float
-        get() = _voicePitch.value
-        set(value) {
-            _voicePitch.value = value.coerceIn(VOICE_PITCH_MIN, VOICE_PITCH_MAX)
-        }
-
-    private val _showSettings = mutableStateOf(false)
-    var showSettings: Boolean
-        get() = _showSettings.value
-        set(value) { _showSettings.value = value }
-
-    private val _availableVoices = mutableStateOf<List<Voice>>(emptyList())
-    var availableVoices: List<Voice>
-        get() = _availableVoices.value
-        set(value) { _availableVoices.value = value }
-
-    private val _ttsDefaultVoiceName = mutableStateOf<String?>(null)
-    var ttsDefaultVoiceName: String?
-        get() = _ttsDefaultVoiceName.value
-        set(value) { _ttsDefaultVoiceName.value = value }
-
-    private val _selectedVoiceName = mutableStateOf<String?>(null)
-    var selectedVoiceName: String?
-        get() = _selectedVoiceName.value
-        set(value) { _selectedVoiceName.value = value }
-
-    private val _speechRecognizerLocale = mutableStateOf<String?>(null)
-    var speechRecognizerLocale: String?
-        get() = _speechRecognizerLocale.value
-        set(value) { _speechRecognizerLocale.value = value }
-
-    private val _supportedSpeechLocales = mutableStateOf<List<String>>(emptyList())
-    var supportedSpeechLocales: List<String>
-        get() = _supportedSpeechLocales.value
-        set(value) { _supportedSpeechLocales.value = value }
-
-    private val _speechLocalesSupportChecked = mutableStateOf(false)
-    var speechLocalesSupportChecked: Boolean
-        get() = _speechLocalesSupportChecked.value
-        set(value) { _speechLocalesSupportChecked.value = value }
-
-    private val _installedSpeechLocales = mutableStateOf<Set<String>>(emptySet())
-    var installedSpeechLocales: Set<String>
-        get() = _installedSpeechLocales.value
-        set(value) { _installedSpeechLocales.value = value }
-
-    private val _isNetworkAvailable = mutableStateOf(true)
-    var isNetworkAvailable: Boolean
-        get() = _isNetworkAvailable.value
-        set(value) { _isNetworkAvailable.value = value }
-
-    private val _cuteIcons = mutableStateOf(false)
-    var cuteIcons: Boolean
-        get() = _cuteIcons.value
-        set(value) { _cuteIcons.value = value }
-
-    private val _accentColor = mutableStateOf(ACCENT_COLOR_DEFAULT_ARGB)
-    var accentColor: Int
-        get() = _accentColor.value
-        set(value) { _accentColor.value = value }
-
-    private val _diagnosticsEnabled = mutableStateOf(false)
-    var diagnosticsEnabled: Boolean
-        get() = _diagnosticsEnabled.value
-        set(value) { _diagnosticsEnabled.value = value }
-
+    var showSettings: Boolean by composeState(false)
+    var availableVoices: List<Voice> by composeState(emptyList())
+    var ttsDefaultVoiceName: String? by composeState(null)
+    var selectedVoiceName: String? by composeState(null)
+    var speechRecognizerLocale: String? by composeState(null)
+    var supportedSpeechLocales: List<String> by composeState(emptyList())
+    var speechLocalesSupportChecked: Boolean by composeState(false)
+    var installedSpeechLocales: Set<String> by composeState(emptySet())
+    var isNetworkAvailable: Boolean by composeState(true)
+    var cuteIcons: Boolean by composeState(false)
+    var accentColor: Int by composeState(ACCENT_COLOR_DEFAULT_ARGB)
+    var diagnosticsEnabled: Boolean by composeState(false)
 }
 
 const val VOICE_SPEED_MIN     = 0.1f
