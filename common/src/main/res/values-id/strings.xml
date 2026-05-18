@@ -93,4 +93,5 @@
     <string name="cd_voice_speed_min">Kecepatan suara minimum</string>
     <string name="cd_voice_pitch_max">Nada suara maksimum</string>
     <string name="cd_voice_pitch_min">Nada suara minimum</string>
+    <string name="info_speech_locale_reset">Bahasa ucapan disetel ulang ke Default Perangkat.</string>
 </resources>

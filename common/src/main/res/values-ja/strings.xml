@@ -93,4 +93,5 @@
     <string name="cd_voice_speed_min">最小音声速度</string>
     <string name="cd_voice_pitch_max">最大音程</string>
     <string name="cd_voice_pitch_min">最小音程</string>
+    <string name="info_speech_locale_reset">音声言語がデバイスのデフォルトにリセットされました。</string>
 </resources>

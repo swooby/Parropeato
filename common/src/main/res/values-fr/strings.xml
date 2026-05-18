@@ -93,4 +93,5 @@
     <string name="cd_voice_speed_min">Vitesse vocale minimum</string>
     <string name="cd_voice_pitch_max">Tonalité vocale maximum</string>
     <string name="cd_voice_pitch_min">Tonalité vocale minimum</string>
+    <string name="info_speech_locale_reset">Langue de la parole réinitialisée à la valeur par défaut de l'appareil.</string>
 </resources>

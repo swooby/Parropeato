@@ -119,6 +119,7 @@ abstract class BaseMainActivity : ComponentActivity() {
 
                 override fun onSavedLocaleInvalidated() {
                     settings.speechRecognizerLocale = null
+                    showTransientText(getString(R.string.info_speech_locale_reset))
                 }
             }
         )

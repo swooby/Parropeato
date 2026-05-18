@@ -93,4 +93,5 @@
     <string name="cd_voice_speed_min">Минимальная скорость голоса</string>
     <string name="cd_voice_pitch_max">Максимальный тон голоса</string>
     <string name="cd_voice_pitch_min">Минимальный тон голоса</string>
+    <string name="info_speech_locale_reset">Язык речи сброшен на значение по умолчанию.</string>
 </resources>

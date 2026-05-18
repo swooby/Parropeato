@@ -93,4 +93,5 @@
     <string name="cd_voice_speed_min">最小语音速度</string>
     <string name="cd_voice_pitch_max">最大语音音调</string>
     <string name="cd_voice_pitch_min">最小语音音调</string>
+    <string name="info_speech_locale_reset">语音语言已重置为设备默认值。</string>
 </resources>
