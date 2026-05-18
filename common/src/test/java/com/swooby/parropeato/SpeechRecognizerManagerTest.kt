@@ -69,13 +69,16 @@ class SpeechRecognizerManagerTest {
     // This avoids relying on ShadowSpeechRecognizer's static accessor, which is unreliable
     // in Robolectric 4.16/API 34.
     private fun fireOnResults(bundle: Bundle) =
-        manager.recognitionListener!!.onResults(bundle)
+        requireNotNull(manager.recognitionListener) { "recognitionListener is null; call manager.init() first" }
+            .onResults(bundle)
 
     private fun fireOnError(error: Int) =
-        manager.recognitionListener!!.onError(error)
+        requireNotNull(manager.recognitionListener) { "recognitionListener is null; call manager.init() first" }
+            .onError(error)
 
     private fun fireOnPartialResults(bundle: Bundle) =
-        manager.recognitionListener!!.onPartialResults(bundle)
+        requireNotNull(manager.recognitionListener) { "recognitionListener is null; call manager.init() first" }
+            .onPartialResults(bundle)
 
     // Helper to build a results Bundle the same way Android delivers it.
     private fun resultsBundle(vararg pairs: Pair<String, Float>): Bundle = Bundle().apply {

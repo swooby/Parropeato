@@ -86,8 +86,8 @@
     <string name="cd_close_settings">設定を閉じる</string>
     <string name="cd_selected">選択済み</string>
     <string name="cd_preview_voice">音声を試聴</string>
-    <string name="cd_listening">聞いています</string>
-    <string name="cd_hold_to_talk">押して話す</string>
+    <string name="cd_listening">離して録音を停止</string>
+    <string name="cd_hold_to_talk">長押しして録音</string>
     <string name="cd_volume_max">最大音量</string>
     <string name="cd_volume_min">最小音量</string>
     <string name="cd_voice_speed_max">最大音声速度</string>

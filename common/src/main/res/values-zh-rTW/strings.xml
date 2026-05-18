@@ -86,8 +86,8 @@
     <string name="cd_close_settings">關閉設定</string>
     <string name="cd_selected">已選取</string>
     <string name="cd_preview_voice">預覽語音</string>
-    <string name="cd_listening">聆聽中</string>
-    <string name="cd_hold_to_talk">按住說話</string>
+    <string name="cd_listening">放開以停止錄音</string>
+    <string name="cd_hold_to_talk">按住以錄製語音</string>
     <string name="cd_volume_max">最大音量</string>
     <string name="cd_volume_min">最小音量</string>
     <string name="cd_voice_speed_max">最大語音速度</string>

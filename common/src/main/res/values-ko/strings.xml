@@ -86,8 +86,8 @@
     <string name="cd_close_settings">설정 닫기</string>
     <string name="cd_selected">선택됨</string>
     <string name="cd_preview_voice">음성 미리 보기</string>
-    <string name="cd_listening">듣고 있습니다</string>
-    <string name="cd_hold_to_talk">눌러서 말하기</string>
+    <string name="cd_listening">놓아서 녹음 중지</string>
+    <string name="cd_hold_to_talk">길게 눌러 음성 녹음</string>
     <string name="cd_volume_max">최대 볼륨</string>
     <string name="cd_volume_min">최소 볼륨</string>
     <string name="cd_voice_speed_max">최대 음성 속도</string>

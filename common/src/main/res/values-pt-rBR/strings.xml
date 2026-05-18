@@ -86,8 +86,8 @@
     <string name="cd_close_settings">Fechar configurações</string>
     <string name="cd_selected">Selecionado</string>
     <string name="cd_preview_voice">Visualizar voz</string>
-    <string name="cd_listening">Ouvindo</string>
-    <string name="cd_hold_to_talk">Segure para falar</string>
+    <string name="cd_listening">Solte para parar a gravação</string>
+    <string name="cd_hold_to_talk">Mantenha pressionado para gravar</string>
     <string name="cd_volume_max">Volume máximo</string>
     <string name="cd_volume_min">Volume mínimo</string>
     <string name="cd_voice_speed_max">Velocidade de voz máxima</string>

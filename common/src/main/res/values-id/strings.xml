@@ -86,8 +86,8 @@
     <string name="cd_close_settings">Tutup pengaturan</string>
     <string name="cd_selected">Dipilih</string>
     <string name="cd_preview_voice">Pratinjau suara</string>
-    <string name="cd_listening">Mendengarkan</string>
-    <string name="cd_hold_to_talk">Tahan untuk berbicara</string>
+    <string name="cd_listening">Lepaskan untuk berhenti merekam</string>
+    <string name="cd_hold_to_talk">Tahan untuk merekam ucapan</string>
     <string name="cd_volume_max">Volume maksimum</string>
     <string name="cd_volume_min">Volume minimum</string>
     <string name="cd_voice_speed_max">Kecepatan suara maksimum</string>

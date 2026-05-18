@@ -86,8 +86,8 @@
     <string name="cd_close_settings">Fermer les paramètres</string>
     <string name="cd_selected">Sélectionné</string>
     <string name="cd_preview_voice">Aperçu de la voix</string>
-    <string name="cd_listening">À l\'écoute</string>
-    <string name="cd_hold_to_talk">Maintenez pour parler</string>
+    <string name="cd_listening">Relâcher pour arrêter l\'enregistrement</string>
+    <string name="cd_hold_to_talk">Maintenir appuyé pour enregistrer</string>
     <string name="cd_volume_max">Volume maximum</string>
     <string name="cd_volume_min">Volume minimum</string>
     <string name="cd_voice_speed_max">Vitesse vocale maximum</string>

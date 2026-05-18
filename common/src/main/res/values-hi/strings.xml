@@ -86,8 +86,8 @@
     <string name="cd_close_settings">सेटिंग बंद करें</string>
     <string name="cd_selected">चुना गया</string>
     <string name="cd_preview_voice">आवाज़ का पूर्वावलोकन</string>
-    <string name="cd_listening">सुन रहे हैं</string>
-    <string name="cd_hold_to_talk">बोलने के लिए दबाएं</string>
+    <string name="cd_listening">रिकॉर्डिंग रोकने के लिए छोड़ें</string>
+    <string name="cd_hold_to_talk">बोलने के लिए दबाकर रखें</string>
     <string name="cd_volume_max">अधिकतम वॉल्यूम</string>
     <string name="cd_volume_min">न्यूनतम वॉल्यूम</string>
     <string name="cd_voice_speed_max">अधिकतम आवाज़ गति</string>

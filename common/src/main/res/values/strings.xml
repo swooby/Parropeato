@@ -105,8 +105,8 @@
     <string name="cd_close_settings">Close settings</string>
     <string name="cd_selected">Selected</string>
     <string name="cd_preview_voice">Preview voice</string>
-    <string name="cd_listening">Listening</string>
-    <string name="cd_hold_to_talk">Hold to talk</string>
+    <string name="cd_listening">Release to stop recording</string>
+    <string name="cd_hold_to_talk">Press and hold to record speech</string>
     <string name="cd_volume_max">Maximum volume</string>
     <string name="cd_volume_min">Minimum volume</string>
     <string name="cd_voice_speed_max">Maximum voice speed</string>

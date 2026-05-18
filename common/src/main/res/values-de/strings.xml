@@ -86,8 +86,8 @@
     <string name="cd_close_settings">Einstellungen schließen</string>
     <string name="cd_selected">Ausgewählt</string>
     <string name="cd_preview_voice">Stimme vorhören</string>
-    <string name="cd_listening">Höre zu</string>
-    <string name="cd_hold_to_talk">Halten zum Sprechen</string>
+    <string name="cd_listening">Loslassen zum Beenden der Aufnahme</string>
+    <string name="cd_hold_to_talk">Gedrückt halten zum Aufnehmen</string>
     <string name="cd_volume_max">Maximale Lautstärke</string>
     <string name="cd_volume_min">Minimale Lautstärke</string>
     <string name="cd_voice_speed_max">Maximale Sprachgeschwindigkeit</string>

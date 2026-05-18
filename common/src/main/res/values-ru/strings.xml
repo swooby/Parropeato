@@ -86,8 +86,8 @@
     <string name="cd_close_settings">Закрыть настройки</string>
     <string name="cd_selected">Выбрано</string>
     <string name="cd_preview_voice">Предпросмотр голоса</string>
-    <string name="cd_listening">Слушаю</string>
-    <string name="cd_hold_to_talk">Удерживайте для разговора</string>
+    <string name="cd_listening">Отпустите для остановки записи</string>
+    <string name="cd_hold_to_talk">Удерживайте для записи речи</string>
     <string name="cd_volume_max">Максимальная громкость</string>
     <string name="cd_volume_min">Минимальная громкость</string>
     <string name="cd_voice_speed_max">Максимальная скорость голоса</string>

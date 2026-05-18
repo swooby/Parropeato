@@ -23,12 +23,14 @@ class Settings(context: Context, val defaultTtsVoiceSpeed: Float = VOICE_SPEED_D
 
     /** Returns the persisted speed, or [defaultTtsVoiceSpeed] if none has been saved yet. */
     var ttsVoiceSpeed: Float
-        get() = if (prefs.contains(KEY_TTS_VOICE_SPEED)) prefs.getFloat(KEY_TTS_VOICE_SPEED, 0f) else defaultTtsVoiceSpeed
+        get() = (if (prefs.contains(KEY_TTS_VOICE_SPEED)) prefs.getFloat(KEY_TTS_VOICE_SPEED, 0f) else defaultTtsVoiceSpeed)
+            .coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX)
         set(value) = prefs.edit { putFloat(KEY_TTS_VOICE_SPEED, value) }
 
     /** Returns the persisted pitch, or [VOICE_PITCH_DEFAULT] if none has been saved yet. */
     var ttsPitch: Float
-        get() = if (prefs.contains(KEY_TTS_VOICE_PITCH)) prefs.getFloat(KEY_TTS_VOICE_PITCH, 0f) else VOICE_PITCH_DEFAULT
+        get() = (if (prefs.contains(KEY_TTS_VOICE_PITCH)) prefs.getFloat(KEY_TTS_VOICE_PITCH, 0f) else VOICE_PITCH_DEFAULT)
+            .coerceIn(VOICE_PITCH_MIN, VOICE_PITCH_MAX)
         set(value) = prefs.edit { putFloat(KEY_TTS_VOICE_PITCH, value) }
 
     var cuteIcons: Boolean

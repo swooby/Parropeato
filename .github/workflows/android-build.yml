@@ -80,7 +80,7 @@ jobs:
           target: ${{ matrix.target }}
           arch: x86_64
           profile: ${{ matrix.profile }}
-          script: ${{ matrix.script }}
+          script: bash -c '${{ matrix.script }}; status=$?; if [ "$status" -ne 0 ]; then mkdir -p build/ci-screenshots; adb exec-out screencap -p > "build/ci-screenshots/${{ matrix.module }}-failure.png" || true; fi; exit "$status"'
 
       - name: Upload instrumented test reports on failure
         if: failure()
@@ -90,6 +90,7 @@ jobs:
           path: |
             mobile/build/reports/androidTests/
             wear/build/reports/androidTests/
+            build/ci-screenshots/
 
   build:
     name: Build app

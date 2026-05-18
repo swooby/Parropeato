@@ -86,8 +86,8 @@
     <string name="cd_close_settings">إغلاق الإعدادات</string>
     <string name="cd_selected">محدد</string>
     <string name="cd_preview_voice">معاينة الصوت</string>
-    <string name="cd_listening">جارٍ الاستماع</string>
-    <string name="cd_hold_to_talk">اضغط باستمرار للتحدث</string>
+    <string name="cd_listening">أفلت لإيقاف التسجيل</string>
+    <string name="cd_hold_to_talk">اضغط باستمرار لتسجيل الكلام</string>
     <string name="cd_volume_max">أقصى مستوى صوت</string>
     <string name="cd_volume_min">أدنى مستوى صوت</string>
     <string name="cd_voice_speed_max">أقصى سرعة صوت</string>
