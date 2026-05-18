@@ -752,80 +752,36 @@ abstract class BaseMainActivity : ComponentActivity() {
     // ── Settings launchers ─────────────────────────────────────────────────────
 
     protected fun openTtsSettings() {
-        try {
-            startExternalActivity(Intent("com.android.settings.TTS_SETTINGS"))
-            analytics.logExternalSettingsOpen(
-                target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
-                success = true,
-            )
-        } catch (_: ActivityNotFoundException) {
-            try {
-                startExternalActivity(Intent(AndroidSettings.ACTION_SETTINGS))
-                analytics.logExternalSettingsOpen(
-                    target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
-                    success = true,
-                    fallback = "general_settings",
-                )
-            } catch (_: ActivityNotFoundException) {
-                analytics.logExternalSettingsOpen(
-                    target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
-                    success = false,
-                    fallback = "none",
-                )
-            } catch (_: SecurityException) {
-                analytics.logExternalSettingsOpen(
-                    target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
-                    success = false,
-                    fallback = "none",
-                )
-            }
-        } catch (_: SecurityException) {
-            analytics.logExternalSettingsOpen(
-                target = ParropeatoAnalytics.ExternalSettingsTarget.Tts,
-                success = false,
-                fallback = "none",
-            )
-        }
+        tryLaunchExternalSettings(
+            ParropeatoAnalytics.ExternalSettingsTarget.Tts,
+            Intent("com.android.settings.TTS_SETTINGS") to null,
+            Intent(AndroidSettings.ACTION_SETTINGS) to "general_settings",
+        )
     }
 
     fun openSpeechDownloadSettings() {
-        try {
-            startExternalActivity(Intent(AndroidSettings.ACTION_VOICE_INPUT_SETTINGS))
-            analytics.logExternalSettingsOpen(
-                target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
-                success = true,
-                fallback = "voice_input",
-            )
-        } catch (_: ActivityNotFoundException) {
+        tryLaunchExternalSettings(
+            ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
+            Intent(AndroidSettings.ACTION_VOICE_INPUT_SETTINGS) to "voice_input",
+            Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS) to "default_apps",
+        )
+    }
+
+    /** Try each candidate intent in order; log the first that succeeds or "none" if all fail. */
+    private fun tryLaunchExternalSettings(
+        target: ParropeatoAnalytics.ExternalSettingsTarget,
+        vararg candidates: Pair<Intent, String?>,
+    ) {
+        for ((intent, fallback) in candidates) {
             try {
-                startExternalActivity(Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-                analytics.logExternalSettingsOpen(
-                    target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
-                    success = true,
-                    fallback = "default_apps",
-                )
+                startExternalActivity(intent)
+                analytics.logExternalSettingsOpen(target = target, success = true, fallback = fallback)
+                return
             } catch (_: ActivityNotFoundException) {
-                analytics.logExternalSettingsOpen(
-                    target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
-                    success = false,
-                    fallback = "none",
-                )
-                // No suitable settings screen available.
             } catch (_: SecurityException) {
-                analytics.logExternalSettingsOpen(
-                    target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
-                    success = false,
-                    fallback = "none",
-                )
-                // No suitable settings screen available.
             }
-        } catch (_: SecurityException) {
-            analytics.logExternalSettingsOpen(
-                target = ParropeatoAnalytics.ExternalSettingsTarget.SpeechDownload,
-                success = false,
-                fallback = "none",
-            )
         }
+        analytics.logExternalSettingsOpen(target = target, success = false, fallback = "none")
     }
 
     protected fun openButtonsAndGesturesSettings() {
