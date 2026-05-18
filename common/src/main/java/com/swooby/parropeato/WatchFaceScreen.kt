@@ -414,7 +414,7 @@ private fun VolumeArcControl(
                         if (hitsIcon(event.x, event.y, size, VOLUME_ICON_MAX_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
                             activeInteraction.value = null
-                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
                             onVolumeChange(1f)
                             onVolumeInteraction(ArcSliderInteraction.ENDPOINT_MAX)
                             return@pointerInteropFilter true
@@ -422,7 +422,7 @@ private fun VolumeArcControl(
                         if (hitsIcon(event.x, event.y, size, VOLUME_ICON_MIN_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
                             activeInteraction.value = null
-                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
                             onVolumeChange(0f)
                             onVolumeInteraction(ArcSliderInteraction.ENDPOINT_MIN)
                             return@pointerInteropFilter true
@@ -433,7 +433,7 @@ private fun VolumeArcControl(
                         ) return@pointerInteropFilter false
                         isTracking.value = true
                         activeInteraction.value = ArcSliderInteraction.ARC_TAP
-                        view.parent.requestDisallowInterceptTouchEvent(true)
+                        view.parent?.requestDisallowInterceptTouchEvent(true)
                         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         onVolumeChange(
                             arcPercentFromPosition(
@@ -464,7 +464,7 @@ private fun VolumeArcControl(
                             }
                             activeInteraction.value = null
                             isTracking.value = false
-                            view.parent.requestDisallowInterceptTouchEvent(false)
+                            view.parent?.requestDisallowInterceptTouchEvent(false)
                         }
                         wasTracking
                     }
@@ -550,7 +550,7 @@ private fun VoiceSpeedArcControl(
                         if (hitsIcon(event.x, event.y, size, VOICE_SPEED_ICON_MAX_ANGLE_DEGREES, innerR, iconSizeF)) {
                             isTracking.value = true
                             activeInteraction.value = null
-                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
                             onVoiceSpeedChange(VOICE_SPEED_MAX)
                             onVoiceSpeedInteraction(ArcSliderInteraction.ENDPOINT_MAX)
                             return@pointerInteropFilter true
@@ -558,7 +558,7 @@ private fun VoiceSpeedArcControl(
                         if (hitsIcon(event.x, event.y, size, VOICE_SPEED_ICON_MIN_ANGLE_DEGREES, innerR, iconSizeF)) {
                             isTracking.value = true
                             activeInteraction.value = null
-                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
                             onVoiceSpeedChange(VOICE_SPEED_MIN)
                             onVoiceSpeedInteraction(ArcSliderInteraction.ENDPOINT_MIN)
                             return@pointerInteropFilter true
@@ -569,7 +569,7 @@ private fun VoiceSpeedArcControl(
                         ) return@pointerInteropFilter false
                         isTracking.value = true
                         activeInteraction.value = ArcSliderInteraction.ARC_TAP
-                        view.parent.requestDisallowInterceptTouchEvent(true)
+                        view.parent?.requestDisallowInterceptTouchEvent(true)
                         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         val pct = arcPercentFromPosition(
                             event.x, event.y, size,
@@ -596,7 +596,7 @@ private fun VoiceSpeedArcControl(
                             }
                             activeInteraction.value = null
                             isTracking.value = false
-                            view.parent.requestDisallowInterceptTouchEvent(false)
+                            view.parent?.requestDisallowInterceptTouchEvent(false)
                         }
                         wasTracking
                     }
@@ -682,7 +682,7 @@ private fun VoicePitchArcControl(
                         if (hitsIcon(event.x, event.y, size, VOICE_PITCH_ICON_MAX_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
                             activeInteraction.value = null
-                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
                             onVoicePitchChange(VOICE_PITCH_MAX)
                             onVoicePitchInteraction(ArcSliderInteraction.ENDPOINT_MAX)
                             return@pointerInteropFilter true
@@ -690,7 +690,7 @@ private fun VoicePitchArcControl(
                         if (hitsIcon(event.x, event.y, size, VOICE_PITCH_ICON_MIN_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
                             activeInteraction.value = null
-                            view.parent.requestDisallowInterceptTouchEvent(true)
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
                             onVoicePitchChange(VOICE_PITCH_MIN)
                             onVoicePitchInteraction(ArcSliderInteraction.ENDPOINT_MIN)
                             return@pointerInteropFilter true
@@ -701,7 +701,7 @@ private fun VoicePitchArcControl(
                         ) return@pointerInteropFilter false
                         isTracking.value = true
                         activeInteraction.value = ArcSliderInteraction.ARC_TAP
-                        view.parent.requestDisallowInterceptTouchEvent(true)
+                        view.parent?.requestDisallowInterceptTouchEvent(true)
                         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         val pct = arcPercentFromPosition(
                             event.x, event.y, size,
@@ -728,7 +728,7 @@ private fun VoicePitchArcControl(
                             }
                             activeInteraction.value = null
                             isTracking.value = false
-                            view.parent.requestDisallowInterceptTouchEvent(false)
+                            view.parent?.requestDisallowInterceptTouchEvent(false)
                         }
                         wasTracking
                     }
