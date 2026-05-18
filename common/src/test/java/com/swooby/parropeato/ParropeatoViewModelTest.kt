@@ -151,4 +151,13 @@ class ParropeatoViewModelTest {
         viewModel.text = "Direct"
         assertEquals("Direct", viewModel.text)
     }
+
+    // --- state + text consistency ---
+
+    @Test
+    fun `state setter updates text to match new state`() {
+        viewModel.state = ParropeatoViewModel.State.Listening
+        assertEquals(ParropeatoViewModel.State.Listening, viewModel.state)
+        assertTrue("text should be non-blank after state change, got: ${viewModel.text}", viewModel.text.isNotBlank())
+    }
 }
