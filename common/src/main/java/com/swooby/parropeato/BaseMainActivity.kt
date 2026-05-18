@@ -518,14 +518,18 @@ abstract class BaseMainActivity : ComponentActivity() {
         viewModel.ttsDefaultVoiceName = tts.voiceName
         FooLog.i(TAG, "onTextToSpeechInitialized: ttsDefaultVoiceName=${viewModel.ttsDefaultVoiceName}")
 
-        // One-time migration: older builds auto-selected a voice via preferredEnglishVoice() and
-        // persisted it without any user interaction. Reset to Device Default so the user starts
-        // fresh with the correct engine default rather than a stale auto-chosen voice.
-        if (settings.settingsVersion < Settings.CURRENT_VERSION) {
-            FooLog.i(TAG, "onTextToSpeechInitialized: migrating settings " + "v${settings.settingsVersion} → ${Settings.CURRENT_VERSION}, clearing ttsVoiceName")
+        // Sequential settings migrations. Each block upgrades from one version to the next so
+        // that devices upgrading across multiple versions apply every step in order.
+        // To add a new migration: append `if (v < N) { ...; v = N }` and bump CURRENT_VERSION.
+        var v = settings.settingsVersion
+        if (v < 1) {
+            // v0 → v1: older builds auto-selected a voice via preferredEnglishVoice() and
+            // persisted it without any user interaction. Reset to Device Default.
+            FooLog.i(TAG, "onTextToSpeechInitialized: migrating settings v$v → 1, clearing ttsVoiceName")
             settings.ttsVoiceName = null
-            settings.settingsVersion = Settings.CURRENT_VERSION
+            v = 1
         }
+        if (v != settings.settingsVersion) settings.settingsVersion = v
 
         val savedVoiceName = settings.ttsVoiceName
         if (savedVoiceName != null && voices.any { it.name == savedVoiceName }) {
