@@ -121,8 +121,11 @@ internal fun WatchFaceScreen(
     onPushToTalkPressed: () -> Unit,
     onPushToTalkReleased: () -> Unit,
     onVolumeChange: (Float) -> Unit,
+    onVolumeInteraction: (ArcSliderInteraction) -> Unit,
     onVoiceSpeedChange: (Float) -> Unit,
+    onVoiceSpeedInteraction: (ArcSliderInteraction) -> Unit,
     onVoicePitchChange: (Float) -> Unit,
+    onVoicePitchInteraction: (ArcSliderInteraction) -> Unit,
     greetingBottomInsetDp: Float,
     settingsOverlay: @Composable () -> Unit,
 ) {
@@ -172,6 +175,7 @@ internal fun WatchFaceScreen(
                         scale = controlScale,
                         cuteIcons = viewModel.cuteIcons,
                         onVoiceSpeedChange = onVoiceSpeedChange,
+                        onVoiceSpeedInteraction = onVoiceSpeedInteraction,
                     )
                     PushToTalkButton(
                         modifier = Modifier
@@ -215,6 +219,7 @@ internal fun WatchFaceScreen(
                         scale = controlScale,
                         cuteIcons = viewModel.cuteIcons,
                         onVolumeChange = onVolumeChange,
+                        onVolumeInteraction = onVolumeInteraction,
                     )
                     VoicePitchArcControl(
                         modifier = Modifier.size(controlsSize),
@@ -222,6 +227,7 @@ internal fun WatchFaceScreen(
                         scale = controlScale,
                         cuteIcons = viewModel.cuteIcons,
                         onVoicePitchChange = onVoicePitchChange,
+                        onVoicePitchInteraction = onVoicePitchInteraction,
                     )
                 }
                 platformOverlay { viewModel.showSettings = true }
@@ -295,6 +301,8 @@ private fun arcAngularOffset(normAngle: Float, startAngleDegrees: Float): Float 
 /** Which arc the touch point lands on. */
 private enum class ActiveArc { NONE, VOLUME, SPEED, PITCH }
 
+internal enum class ArcSliderInteraction { ARC_TAP, DRAG, ENDPOINT_MAX, ENDPOINT_MIN }
+
 /**
  * Identifies which arc curve [x],[y] belongs to.
  *
@@ -366,6 +374,7 @@ private fun VolumeArcControl(
     scale: Float,
     cuteIcons: Boolean,
     onVolumeChange: (Float) -> Unit,
+    onVolumeInteraction: (ArcSliderInteraction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -374,6 +383,7 @@ private fun VolumeArcControl(
     val view = LocalView.current
     val layoutSize = remember { mutableStateOf(IntSize.Zero) }
     val isTracking = remember { mutableStateOf(false) }
+    val activeInteraction = remember { mutableStateOf<ArcSliderInteraction?>(null) }
 
     val boundedVolume = volumePercent.coerceIn(0f, 1f)
     val iconSize = 24.dp * scale
@@ -403,14 +413,18 @@ private fun VolumeArcControl(
                         val outerR = size.width / 2f - strokeWidthF - radiusInsetF
                         if (hitsIcon(event.x, event.y, size, VOLUME_ICON_MAX_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
+                            activeInteraction.value = null
                             view.parent.requestDisallowInterceptTouchEvent(true)
                             onVolumeChange(1f)
+                            onVolumeInteraction(ArcSliderInteraction.ENDPOINT_MAX)
                             return@pointerInteropFilter true
                         }
                         if (hitsIcon(event.x, event.y, size, VOLUME_ICON_MIN_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
+                            activeInteraction.value = null
                             view.parent.requestDisallowInterceptTouchEvent(true)
                             onVolumeChange(0f)
+                            onVolumeInteraction(ArcSliderInteraction.ENDPOINT_MIN)
                             return@pointerInteropFilter true
                         }
                         if (identifyTouchedArc(
@@ -418,6 +432,7 @@ private fun VolumeArcControl(
                             ) != ActiveArc.VOLUME
                         ) return@pointerInteropFilter false
                         isTracking.value = true
+                        activeInteraction.value = ArcSliderInteraction.ARC_TAP
                         view.parent.requestDisallowInterceptTouchEvent(true)
                         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         onVolumeChange(
@@ -431,6 +446,7 @@ private fun VolumeArcControl(
                     }
                     MotionEvent.ACTION_MOVE -> {
                         if (!isTracking.value) return@pointerInteropFilter false
+                        activeInteraction.value = ArcSliderInteraction.DRAG
                         onVolumeChange(
                             arcPercentFromPosition(
                                 event.x, event.y, layoutSize.value,
@@ -443,6 +459,10 @@ private fun VolumeArcControl(
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         val wasTracking = isTracking.value
                         if (wasTracking) {
+                            if (event.actionMasked == MotionEvent.ACTION_UP) {
+                                activeInteraction.value?.let(onVolumeInteraction)
+                            }
+                            activeInteraction.value = null
                             isTracking.value = false
                             view.parent.requestDisallowInterceptTouchEvent(false)
                         }
@@ -487,6 +507,7 @@ private fun VoiceSpeedArcControl(
     scale: Float,
     cuteIcons: Boolean,
     onVoiceSpeedChange: (Float) -> Unit,
+    onVoiceSpeedInteraction: (ArcSliderInteraction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -495,6 +516,7 @@ private fun VoiceSpeedArcControl(
     val view = LocalView.current
     val layoutSize = remember { mutableStateOf(IntSize.Zero) }
     val isTracking = remember { mutableStateOf(false) }
+    val activeInteraction = remember { mutableStateOf<ArcSliderInteraction?>(null) }
 
     val speedPercent =
         (VOICE_SPEED_MAX - voiceSpeed.coerceIn(VOICE_SPEED_MIN, VOICE_SPEED_MAX)) /
@@ -527,14 +549,18 @@ private fun VoiceSpeedArcControl(
                         val innerR = size.width / 2f - strokeWidthF - radiusInsetF - speedExtraInsetF
                         if (hitsIcon(event.x, event.y, size, VOICE_SPEED_ICON_MAX_ANGLE_DEGREES, innerR, iconSizeF)) {
                             isTracking.value = true
+                            activeInteraction.value = null
                             view.parent.requestDisallowInterceptTouchEvent(true)
                             onVoiceSpeedChange(VOICE_SPEED_MAX)
+                            onVoiceSpeedInteraction(ArcSliderInteraction.ENDPOINT_MAX)
                             return@pointerInteropFilter true
                         }
                         if (hitsIcon(event.x, event.y, size, VOICE_SPEED_ICON_MIN_ANGLE_DEGREES, innerR, iconSizeF)) {
                             isTracking.value = true
+                            activeInteraction.value = null
                             view.parent.requestDisallowInterceptTouchEvent(true)
                             onVoiceSpeedChange(VOICE_SPEED_MIN)
+                            onVoiceSpeedInteraction(ArcSliderInteraction.ENDPOINT_MIN)
                             return@pointerInteropFilter true
                         }
                         if (identifyTouchedArc(
@@ -542,6 +568,7 @@ private fun VoiceSpeedArcControl(
                             ) != ActiveArc.SPEED
                         ) return@pointerInteropFilter false
                         isTracking.value = true
+                        activeInteraction.value = ArcSliderInteraction.ARC_TAP
                         view.parent.requestDisallowInterceptTouchEvent(true)
                         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         val pct = arcPercentFromPosition(
@@ -553,6 +580,7 @@ private fun VoiceSpeedArcControl(
                     }
                     MotionEvent.ACTION_MOVE -> {
                         if (!isTracking.value) return@pointerInteropFilter false
+                        activeInteraction.value = ArcSliderInteraction.DRAG
                         val pct = arcPercentFromPosition(
                             event.x, event.y, layoutSize.value,
                             VOICE_SPEED_ARC_START_ANGLE_DEGREES, VOICE_SPEED_ARC_SWEEP_DEGREES,
@@ -563,6 +591,10 @@ private fun VoiceSpeedArcControl(
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         val wasTracking = isTracking.value
                         if (wasTracking) {
+                            if (event.actionMasked == MotionEvent.ACTION_UP) {
+                                activeInteraction.value?.let(onVoiceSpeedInteraction)
+                            }
+                            activeInteraction.value = null
                             isTracking.value = false
                             view.parent.requestDisallowInterceptTouchEvent(false)
                         }
@@ -608,6 +640,7 @@ private fun VoicePitchArcControl(
     scale: Float,
     cuteIcons: Boolean,
     onVoicePitchChange: (Float) -> Unit,
+    onVoicePitchInteraction: (ArcSliderInteraction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -616,6 +649,7 @@ private fun VoicePitchArcControl(
     val view = LocalView.current
     val layoutSize = remember { mutableStateOf(IntSize.Zero) }
     val isTracking = remember { mutableStateOf(false) }
+    val activeInteraction = remember { mutableStateOf<ArcSliderInteraction?>(null) }
 
     val pitchPercent =
         (voicePitch.coerceIn(VOICE_PITCH_MIN, VOICE_PITCH_MAX) - VOICE_PITCH_MIN) /
@@ -647,14 +681,18 @@ private fun VoicePitchArcControl(
                         val outerR = size.width / 2f - strokeWidthF - radiusInsetF
                         if (hitsIcon(event.x, event.y, size, VOICE_PITCH_ICON_MAX_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
+                            activeInteraction.value = null
                             view.parent.requestDisallowInterceptTouchEvent(true)
                             onVoicePitchChange(VOICE_PITCH_MAX)
+                            onVoicePitchInteraction(ArcSliderInteraction.ENDPOINT_MAX)
                             return@pointerInteropFilter true
                         }
                         if (hitsIcon(event.x, event.y, size, VOICE_PITCH_ICON_MIN_ANGLE_DEGREES, outerR, iconSizeF)) {
                             isTracking.value = true
+                            activeInteraction.value = null
                             view.parent.requestDisallowInterceptTouchEvent(true)
                             onVoicePitchChange(VOICE_PITCH_MIN)
+                            onVoicePitchInteraction(ArcSliderInteraction.ENDPOINT_MIN)
                             return@pointerInteropFilter true
                         }
                         if (identifyTouchedArc(
@@ -662,6 +700,7 @@ private fun VoicePitchArcControl(
                             ) != ActiveArc.PITCH
                         ) return@pointerInteropFilter false
                         isTracking.value = true
+                        activeInteraction.value = ArcSliderInteraction.ARC_TAP
                         view.parent.requestDisallowInterceptTouchEvent(true)
                         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         val pct = arcPercentFromPosition(
@@ -673,6 +712,7 @@ private fun VoicePitchArcControl(
                     }
                     MotionEvent.ACTION_MOVE -> {
                         if (!isTracking.value) return@pointerInteropFilter false
+                        activeInteraction.value = ArcSliderInteraction.DRAG
                         val pct = arcPercentFromPosition(
                             event.x, event.y, layoutSize.value,
                             VOICE_PITCH_ARC_START_ANGLE_DEGREES, VOICE_PITCH_ARC_SWEEP_DEGREES,
@@ -683,6 +723,10 @@ private fun VoicePitchArcControl(
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         val wasTracking = isTracking.value
                         if (wasTracking) {
+                            if (event.actionMasked == MotionEvent.ACTION_UP) {
+                                activeInteraction.value?.let(onVoicePitchInteraction)
+                            }
+                            activeInteraction.value = null
                             isTracking.value = false
                             view.parent.requestDisallowInterceptTouchEvent(false)
                         }

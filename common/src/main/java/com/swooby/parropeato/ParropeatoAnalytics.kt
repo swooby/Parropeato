@@ -30,6 +30,7 @@ import kotlin.math.roundToInt
  * | `settings_close` | Settings overlay closed. | `platform` |
  * | `settings_screen_open` | User opened a Settings sub-screen. | `screen` |
  * | `setting_changed` | User changed an app setting. | `name`, `value`, `unit` |
+ * | `arc_slider_interaction` | User changed a curved arc slider from the watch face. | `name`, `action`, `value`, `unit`, `endpoint` |
  * | `mic_permission_result` | Microphone permission request completed. | `result`, `rationale_shown` |
  * | `speech_session_start` | Push-to-talk session started. | `input`, `mode`, `network`, `offline_model` |
  * | `speech_session_end` | Push-to-talk session ended. | `outcome`, `duration_bucket` |
@@ -74,6 +75,7 @@ class ParropeatoAnalytics(context: Context) {
     private companion object {
         private const val ACTION_VOICE_ASSIST = "android.intent.action.VOICE_ASSIST"
 
+        private const val EVENT_ARC_SLIDER_INTERACTION = "arc_slider_interaction"
         private const val EVENT_APP_LAUNCH = "parropeato_launch"
         private const val EVENT_BUTTON_SETTINGS_OPEN = "button_settings_open"
         private const val EVENT_DIAGNOSTICS_CONSENT_ACCEPT = "diagnostics_consent_accept"
@@ -95,6 +97,7 @@ class ParropeatoAnalytics(context: Context) {
         private const val PARAM_ASSISTANT_ROLE = "assistant_role"
         private const val PARAM_DURATION_BUCKET = "duration_bucket"
         private const val PARAM_ENABLED = "enabled"
+        private const val PARAM_ENDPOINT = "endpoint"
         private const val PARAM_ERROR_CLASS = "error_class"
         private const val PARAM_FALLBACK = "fallback"
         private const val PARAM_INPUT = "input"
@@ -179,6 +182,17 @@ class ParropeatoAnalytics(context: Context) {
         VoicePitch("voice_pitch"),
         VoiceSpeed("voice_speed"),
         Volume("volume"),
+    }
+
+    enum class SliderAction(val analyticsValue: String) {
+        ArcTapped("arc_tapped"),
+        EndpointIconPressed("endpoint_icon_pressed"),
+        KnobDragged("knob_dragged"),
+    }
+
+    enum class SliderEndpoint(val analyticsValue: String) {
+        Max("max"),
+        Min("min"),
     }
 
     enum class SettingsScreen(val analyticsValue: String) {
@@ -279,6 +293,23 @@ class ParropeatoAnalytics(context: Context) {
             PARAM_NAME to name.analyticsValue,
             PARAM_VALUE to value.analyticsValue(),
             PARAM_UNIT to unit.analyticsValue(),
+        )
+    }
+
+    fun logArcSliderInteraction(
+        name: SettingName,
+        action: SliderAction,
+        value: String,
+        unit: String,
+        endpoint: SliderEndpoint? = null,
+    ) {
+        logEvent(
+            EVENT_ARC_SLIDER_INTERACTION,
+            PARAM_NAME to name.analyticsValue,
+            PARAM_ACTION to action.analyticsValue,
+            PARAM_VALUE to value,
+            PARAM_UNIT to unit,
+            PARAM_ENDPOINT to endpoint?.analyticsValue.analyticsValue(),
         )
     }
 

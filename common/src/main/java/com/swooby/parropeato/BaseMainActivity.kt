@@ -161,8 +161,11 @@ abstract class BaseMainActivity : ComponentActivity() {
                 onPushToTalkPressed = ::onPushToTalkPressed,
                 onPushToTalkReleased = ::onPushToTalkReleased,
                 onVolumeChange = ::setVolumePercent,
+                onVolumeInteraction = ::logVolumeSliderInteraction,
                 onVoiceSpeedChange = ::setVoiceSpeed,
+                onVoiceSpeedInteraction = ::logVoiceSpeedSliderInteraction,
                 onVoicePitchChange = ::setVoicePitch,
+                onVoicePitchInteraction = ::logVoicePitchSliderInteraction,
                 greetingBottomInsetDp = greetingBottomInsetDp,
                 settingsOverlay = {
                     if (viewModel.showSettings) {
@@ -622,6 +625,59 @@ abstract class BaseMainActivity : ComponentActivity() {
             name = ParropeatoAnalytics.SettingName.VoicePitch,
             value = analytics.multiplierBucket(viewModel.voicePitch),
             unit = "multiplier",
+        )
+    }
+
+    private fun logVolumeSliderInteraction(interaction: ArcSliderInteraction) {
+        logArcSliderInteraction(
+            name = ParropeatoAnalytics.SettingName.Volume,
+            interaction = interaction,
+            value = analytics.percentBucket(viewModel.volumePercent),
+            unit = "percent",
+        )
+    }
+
+    private fun logVoiceSpeedSliderInteraction(interaction: ArcSliderInteraction) {
+        logArcSliderInteraction(
+            name = ParropeatoAnalytics.SettingName.VoiceSpeed,
+            interaction = interaction,
+            value = analytics.multiplierBucket(viewModel.voiceSpeed),
+            unit = "multiplier",
+        )
+    }
+
+    private fun logVoicePitchSliderInteraction(interaction: ArcSliderInteraction) {
+        logArcSliderInteraction(
+            name = ParropeatoAnalytics.SettingName.VoicePitch,
+            interaction = interaction,
+            value = analytics.multiplierBucket(viewModel.voicePitch),
+            unit = "multiplier",
+        )
+    }
+
+    private fun logArcSliderInteraction(
+        name: ParropeatoAnalytics.SettingName,
+        interaction: ArcSliderInteraction,
+        value: String,
+        unit: String,
+    ) {
+        val action = when (interaction) {
+            ArcSliderInteraction.ARC_TAP -> ParropeatoAnalytics.SliderAction.ArcTapped
+            ArcSliderInteraction.DRAG -> ParropeatoAnalytics.SliderAction.KnobDragged
+            ArcSliderInteraction.ENDPOINT_MAX,
+            ArcSliderInteraction.ENDPOINT_MIN -> ParropeatoAnalytics.SliderAction.EndpointIconPressed
+        }
+        val endpoint = when (interaction) {
+            ArcSliderInteraction.ENDPOINT_MAX -> ParropeatoAnalytics.SliderEndpoint.Max
+            ArcSliderInteraction.ENDPOINT_MIN -> ParropeatoAnalytics.SliderEndpoint.Min
+            else -> null
+        }
+        analytics.logArcSliderInteraction(
+            name = name,
+            action = action,
+            value = value,
+            unit = unit,
+            endpoint = endpoint,
         )
     }
 
