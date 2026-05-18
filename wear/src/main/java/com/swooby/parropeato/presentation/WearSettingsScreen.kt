@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLocale
@@ -48,6 +47,7 @@ import com.swooby.parropeato.BuildConfig
 import com.swooby.parropeato.GroupedLocaleOptions
 import com.swooby.parropeato.LocaleLanguageGroup
 import com.swooby.parropeato.ParropeatoAnalytics
+import com.swooby.parropeato.SettingsNavRoutes
 import com.swooby.parropeato.SpeechLocalePreference
 import com.swooby.parropeato.TextToSpeechVoicePreference
 import com.swooby.parropeato.VoiceLanguageGroup
@@ -57,19 +57,9 @@ import com.swooby.parropeato.sttLocaleGroupSubtitle
 import com.swooby.parropeato.ttsVoiceDisplaySubtitle
 import com.swooby.parropeato.voiceSubtitle
 
-// ─── Route constants ────────────────────────────────────────────────────────
+// ─── Wear-only route constants ───────────────────────────────────────────────
 
-private object Route {
-    const val SETTINGS         = "settings"
-    const val TTS_LANGUAGES    = "tts_languages"
-    const val TTS_VARIANTS     = "tts_variants/{code}"
-    const val SPEECH_LANGUAGES = "speech_languages"
-    const val SPEECH_VARIANTS  = "speech_variants/{code}"
-    const val ACCENT_COLOR     = "accent_color"
-
-    fun ttsVariants(code: String)    = "tts_variants/$code"
-    fun speechVariants(code: String) = "speech_variants/$code"
-}
+private const val ROUTE_ACCENT_COLOR = "accent_color"
 
 // ─── Public entry point ──────────────────────────────────────────────────────
 
@@ -115,39 +105,33 @@ fun WearSettingsScreen(
     val defaultVoice = remember(availableVoices, ttsDefaultVoiceName) {
         availableVoices.find { it.name == ttsDefaultVoiceName }
     }
-    val cuteIconsState = rememberUpdatedState(cuteIcons)
-    val diagnosticsEnabledState = rememberUpdatedState(diagnosticsEnabled)
-    val accentColorState = rememberUpdatedState(accentColor)
-    val installedSpeechLocalesState = rememberUpdatedState(installedSpeechLocales)
-    val isNetworkAvailableState = rememberUpdatedState(isNetworkAvailable)
-
     SwipeDismissableNavHost(
         navController = navController,
-        startDestination = Route.SETTINGS,
+        startDestination = SettingsNavRoutes.SETTINGS,
     ) {
         // ── L1: summary ──────────────────────────────────────────────────────
-        composable(Route.SETTINGS) {
+        composable(SettingsNavRoutes.SETTINGS) {
             BackHandler(onBack = onDismiss)
             SettingsL1Screen(
                 currentVoice = currentVoice,
                 defaultVoice = defaultVoice,
                 speechRecognizerLocale = speechRecognizerLocale,
-                installedSpeechLocales = installedSpeechLocalesState.value,
-                isNetworkAvailable = isNetworkAvailableState.value,
-                cuteIcons = cuteIconsState.value,
-                accentColor = accentColorState.value,
-                diagnosticsEnabled = diagnosticsEnabledState.value,
+                installedSpeechLocales = installedSpeechLocales,
+                isNetworkAvailable = isNetworkAvailable,
+                cuteIcons = cuteIcons,
+                accentColor = accentColor,
+                diagnosticsEnabled = diagnosticsEnabled,
                 onNavigateTtsLanguages = {
                     onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.TtsLanguage)
-                    navController.navigate(Route.TTS_LANGUAGES)
+                    navController.navigate(SettingsNavRoutes.TTS_LANGUAGES)
                 },
                 onNavigateSpeechLanguages = {
                     onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.SpeechLanguage)
-                    navController.navigate(Route.SPEECH_LANGUAGES)
+                    navController.navigate(SettingsNavRoutes.SPEECH_LANGUAGES)
                 },
                 onNavigateAccentColor = {
                     onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.AccentColor)
-                    navController.navigate(Route.ACCENT_COLOR)
+                    navController.navigate(ROUTE_ACCENT_COLOR)
                 },
                 onCuteIconsChanged = onCuteIconsChanged,
                 onDiagnosticsEnabledChanged = onDiagnosticsEnabledChanged,
@@ -157,34 +141,34 @@ fun WearSettingsScreen(
         }
 
         // ── Accent color picker ───────────────────────────────────────────────
-        composable(Route.ACCENT_COLOR) {
+        composable(ROUTE_ACCENT_COLOR) {
             AccentColorScreen(
-                accentColor = accentColorState.value,
+                accentColor = accentColor,
                 onAccentColorSelected = { argb ->
                     onAccentColorChanged(argb)
-                    navController.popBackStack(Route.SETTINGS, inclusive = false)
+                    navController.popBackStack(SettingsNavRoutes.SETTINGS, inclusive = false)
                 },
             )
         }
 
         // ── L2: TTS language list ─────────────────────────────────────────────
-        composable(Route.TTS_LANGUAGES) {
+        composable(SettingsNavRoutes.TTS_LANGUAGES) {
             TtsLanguagesScreen(
                 voiceGroups = voiceGroups,
                 defaultVoice = defaultVoice,
                 selectedVoiceName = selectedVoiceName,
                 onDeviceDefaultSelected = {
                     onVoiceSelected(null)
-                    navController.popBackStack(Route.SETTINGS, inclusive = false)
+                    navController.popBackStack(SettingsNavRoutes.SETTINGS, inclusive = false)
                 },
                 onGroupSelected = { group ->
                     if (!group.hasVariants) {
                         val entry = TextToSpeechVoicePreference.voiceEntries(group.voices, displayLocale).firstOrNull()
                         onVoiceSelected(entry?.preferredVoice?.name)
-                        navController.popBackStack(Route.SETTINGS, inclusive = false)
+                        navController.popBackStack(SettingsNavRoutes.SETTINGS, inclusive = false)
                     } else {
                         onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.TtsVariant)
-                        navController.navigate(Route.ttsVariants(group.languageCode))
+                        navController.navigate(SettingsNavRoutes.ttsVariants(group.languageCode))
                     }
                 },
                 onOpenTtsSettings = onOpenTtsSettings,
@@ -193,7 +177,7 @@ fun WearSettingsScreen(
 
         // ── L3: TTS regional variants ─────────────────────────────────────────
         composable(
-            route = Route.TTS_VARIANTS,
+            route = SettingsNavRoutes.TTS_VARIANTS,
             arguments = listOf(navArgument("code") { type = NavType.StringType }),
         ) { entry ->
             val code = entry.arguments?.getString("code") ?: return@composable
@@ -203,31 +187,31 @@ fun WearSettingsScreen(
                 selectedVoiceName = selectedVoiceName,
                 onVoiceSelected = { name ->
                     onVoiceSelected(name)
-                    navController.popBackStack(Route.SETTINGS, inclusive = false)
+                    navController.popBackStack(SettingsNavRoutes.SETTINGS, inclusive = false)
                 },
                 onPreviewVoice = onPreviewVoice,
             )
         }
 
         // ── L2: Speech language list ──────────────────────────────────────────
-        composable(Route.SPEECH_LANGUAGES) {
+        composable(SettingsNavRoutes.SPEECH_LANGUAGES) {
             SpeechLanguagesScreen(
                 localeGroups = localeGroups,
                 speechRecognizerLocale = speechRecognizerLocale,
                 speechLocalesSupportChecked = speechLocalesSupportChecked,
-                installedSpeechLocales = installedSpeechLocalesState.value,
-                isNetworkAvailable = isNetworkAvailableState.value,
+                installedSpeechLocales = installedSpeechLocales,
+                isNetworkAvailable = isNetworkAvailable,
                 onDeviceDefaultSelected = {
                     onSpeechLocaleSelected(null)
-                    navController.popBackStack(Route.SETTINGS, inclusive = false)
+                    navController.popBackStack(SettingsNavRoutes.SETTINGS, inclusive = false)
                 },
                 onGroupSelected = { group ->
                     if (!group.hasVariants) {
                         onSpeechLocaleSelected(group.options.first().tag)
-                        navController.popBackStack(Route.SETTINGS, inclusive = false)
+                        navController.popBackStack(SettingsNavRoutes.SETTINGS, inclusive = false)
                     } else {
                         onSettingsScreenOpened(ParropeatoAnalytics.SettingsScreen.SpeechVariant)
-                        navController.navigate(Route.speechVariants(group.languageCode))
+                        navController.navigate(SettingsNavRoutes.speechVariants(group.languageCode))
                     }
                 },
                 onOpenSpeechDownloadSettings = onOpenSpeechDownloadSettings,
@@ -236,7 +220,7 @@ fun WearSettingsScreen(
 
         // ── L3: Speech regional variants ──────────────────────────────────────
         composable(
-            route = Route.SPEECH_VARIANTS,
+            route = SettingsNavRoutes.SPEECH_VARIANTS,
             arguments = listOf(navArgument("code") { type = NavType.StringType }),
         ) { entry ->
             val code = entry.arguments?.getString("code") ?: return@composable
@@ -246,7 +230,7 @@ fun WearSettingsScreen(
                 speechRecognizerLocale = speechRecognizerLocale,
                 onLocaleSelected = { tag ->
                     onSpeechLocaleSelected(tag)
-                    navController.popBackStack(Route.SETTINGS, inclusive = false)
+                    navController.popBackStack(SettingsNavRoutes.SETTINGS, inclusive = false)
                 },
             )
         }

@@ -15,6 +15,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.swooby.parropeato.common.R
 
+/** Navigation route constants shared between mobile and wear settings screens. */
+object SettingsNavRoutes {
+    const val SETTINGS         = "settings"
+    const val TTS_LANGUAGES    = "tts_languages"
+    const val TTS_VARIANTS     = "tts_variants/{code}"
+    const val SPEECH_LANGUAGES = "speech_languages"
+    const val SPEECH_VARIANTS  = "speech_variants/{code}"
+
+    fun ttsVariants(code: String)    = "tts_variants/$code"
+    fun speechVariants(code: String) = "speech_variants/$code"
+}
+
 @Composable
 fun SettingsGearButton(
     onClick: () -> Unit,
