@@ -332,13 +332,16 @@ abstract class BaseMainActivity : ComponentActivity() {
                 // before using the partial. consumeFallback() returns false if real results
                 // already arrived, so the coroutine naturally no-ops in that case.
                 fallbackPartialJob = lifecycleScope.launch {
-                    delay(FALLBACK_PARTIAL_TIMEOUT_MS)
-                    if (speechRecognizerManager.consumeFallback()) {
-                        endSpeechSession(ParropeatoAnalytics.SpeechOutcome.FallbackPartial)
-                        viewModel.state = ParropeatoViewModel.State.Speaking
-                        speakRecognition(fallback)
+                    try {
+                        delay(FALLBACK_PARTIAL_TIMEOUT_MS)
+                        if (speechRecognizerManager.consumeFallback()) {
+                            endSpeechSession(ParropeatoAnalytics.SpeechOutcome.FallbackPartial)
+                            viewModel.state = ParropeatoViewModel.State.Speaking
+                            speakRecognition(fallback)
+                        }
+                    } finally {
+                        fallbackPartialJob = null
                     }
-                    fallbackPartialJob = null
                 }
             } else {
                 viewModel.state = ParropeatoViewModel.State.Idle
