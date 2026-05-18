@@ -135,9 +135,6 @@ class ParropeatoViewModel(application: Application) : AndroidViewModel(applicati
         get() = _diagnosticsEnabled.value
         set(value) { _diagnosticsEnabled.value = value }
 
-    fun appendText(text: String) {
-        _text.value += " $text"
-    }
 }
 
 const val VOICE_SPEED_MIN     = 0.1f
