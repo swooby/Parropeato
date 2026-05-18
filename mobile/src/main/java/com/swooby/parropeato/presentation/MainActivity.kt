@@ -1,5 +1,7 @@
 package com.swooby.parropeato.presentation
 
+import android.content.Context
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentSize
@@ -12,14 +14,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.swooby.parropeato.BaseMainActivity
 import com.swooby.parropeato.SettingsGearButton
 import kotlinx.coroutines.delay
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class MainActivity : BaseMainActivity() {
     override val greetingBottomInsetDp: Float = 52f
@@ -75,10 +77,13 @@ class MainActivity : BaseMainActivity() {
 private fun WatchClock(
     modifier: Modifier = Modifier,
 ) {
-    val timeText = remember { mutableStateOf(currentClockText()) }
+    val context = LocalContext.current
+    val timeText = remember { mutableStateOf(currentClockText(context)) }
+    // LaunchedEffect is scoped to the composable's lifecycle and cancels automatically when
+    // ClockText leaves the composition (e.g. screen off or activity stopped).
     LaunchedEffect(Unit) {
         while (true) {
-            timeText.value = currentClockText()
+            timeText.value = currentClockText(context)
             delay(1_000)
         }
     }
@@ -92,6 +97,6 @@ private fun WatchClock(
     )
 }
 
-private val ClockTimeFormatter = DateTimeFormatter.ofPattern("h:mm")
-
-private fun currentClockText(): String = LocalTime.now().format(ClockTimeFormatter)
+// DateFormat.getTimeFormat respects the user's 24-hour vs 12-hour system preference.
+private fun currentClockText(context: Context): String =
+    DateFormat.getTimeFormat(context).format(Date())
