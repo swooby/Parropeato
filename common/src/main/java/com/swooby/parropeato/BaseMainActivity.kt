@@ -127,6 +127,8 @@ abstract class BaseMainActivity : ComponentActivity() {
     // ── PTT state ──────────────────────────────────────────────────────────────
 
     @Volatile private var pendingStartAfterPermission = false
+    private var initialGreetingReady = false
+    private var initialGreetingSpoken = false
 
     // ── Platform-specific overrides ────────────────────────────────────────────
 
@@ -283,6 +285,10 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     protected fun onPushToTalkPressed(inputSource: ParropeatoAnalytics.InputSource = ParropeatoAnalytics.InputSource.Touch) {
         FooLog.i(TAG, "+onPushToTalkPressed()")
+        if (shouldShowDiagnosticsConsentPrompt()) {
+            FooLog.i(TAG, "-onPushToTalkPressed() waiting for diagnostics consent")
+            return
+        }
         speechRecognizerManager.isPushToTalkPressed = true
         if (speechRecognizerManager.isListening) {
             FooLog.i(TAG, "-onPushToTalkPressed() already listening")
@@ -392,6 +398,7 @@ abstract class BaseMainActivity : ComponentActivity() {
 
     private fun maybeShowDiagnosticsConsentPrompt() {
         if (!::settings.isInitialized || settings.diagnosticsPromptShown || settings.diagnosticsEnabled) {
+            trySpeakInitialGreeting()
             return
         }
         AlertDialog.Builder(this)
@@ -400,14 +407,17 @@ abstract class BaseMainActivity : ComponentActivity() {
             .setPositiveButton(R.string.diagnostics_consent_positive) { _, _ ->
                 settings.diagnosticsPromptShown = true
                 onSettingsDiagnosticsEnabledChanged(true, ParropeatoAnalytics.ConsentSource.FirstRunPrompt)
+                trySpeakInitialGreeting()
             }
             .setNegativeButton(R.string.diagnostics_consent_negative) { _, _ ->
                 settings.diagnosticsPromptShown = true
                 onSettingsDiagnosticsEnabledChanged(false, ParropeatoAnalytics.ConsentSource.FirstRunPrompt)
+                trySpeakInitialGreeting()
             }
             .setOnCancelListener {
                 settings.diagnosticsPromptShown = true
                 onSettingsDiagnosticsEnabledChanged(false, ParropeatoAnalytics.ConsentSource.FirstRunPrompt)
+                trySpeakInitialGreeting()
             }
             .show()
     }
@@ -506,9 +516,21 @@ abstract class BaseMainActivity : ComponentActivity() {
         tts.voicePitch = viewModel.voicePitch
         Log.i(TAG, "onTextToSpeechInitialized: voicePitch=${viewModel.voicePitch}")
 
+        initialGreetingReady = true
+        trySpeakInitialGreeting()
+    }
+
+    private fun trySpeakInitialGreeting() {
+        if (!initialGreetingReady || initialGreetingSpoken || shouldShowDiagnosticsConsentPrompt()) {
+            return
+        }
+        initialGreetingSpoken = true
         tts.speak(getString(R.string.tts_greeting))
         analytics.logTtsSpeak(ParropeatoAnalytics.TtsSource.Greeting, success = true)
     }
+
+    private fun shouldShowDiagnosticsConsentPrompt(): Boolean =
+        ::settings.isInitialized && !settings.diagnosticsPromptShown && !settings.diagnosticsEnabled
 
     // ── Audio / volume ─────────────────────────────────────────────────────────
 
