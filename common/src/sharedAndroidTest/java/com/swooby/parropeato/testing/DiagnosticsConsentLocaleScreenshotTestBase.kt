@@ -2,9 +2,7 @@ package com.swooby.parropeato.testing
 
 import android.app.Activity
 import android.app.LocaleManager
-import android.content.ContentValues
 import android.os.LocaleList
-import android.provider.MediaStore
 import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -12,7 +10,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.swooby.parropeato.common.R
-import java.io.File
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -43,9 +40,7 @@ abstract class DiagnosticsConsentLocaleScreenshotTestBase<T : Activity>(
             assertNotNull("Missing diagnostics consent message for $localeTag: $expectedMessage", message)
             assertTrue("Diagnostics consent message is not visible for $localeTag", message.visibleBounds.height() > 0)
 
-            val screenshot = screenshotFile(localeTag)
-            assertTrue("Failed to capture $screenshot", device.takeScreenshot(screenshot))
-            val publicPath = publishScreenshot(screenshot)
+            val publicPath = captureScreenshot(device, localeTag)
             Log.i(Tag, "Saved diagnostics consent screenshot for $localeTag to $publicPath")
 
             val negativeButton = device.wait(
@@ -69,35 +64,20 @@ abstract class DiagnosticsConsentLocaleScreenshotTestBase<T : Activity>(
             LocaleList.forLanguageTags(tag)
     }
 
-    private fun screenshotFile(tag: String): File {
-        val dir = File(targetContext.filesDir, "test-screenshots/diagnostics-consent/$screenshotGroup")
-        assertTrue("Failed to create screenshot dir $dir", dir.mkdirs() || dir.isDirectory)
-        return File(dir, "diagnostics-consent-${tag.replace('-', '_')}.png")
-    }
+    private fun captureScreenshot(device: UiDevice, tag: String): String {
+        val publicDir = "/sdcard/Pictures/Parropeato/diagnostics-consent/$screenshotGroup"
+        val publicPath = "$publicDir/diagnostics-consent-${tag.replace('-', '_')}.png"
 
-    private fun publishScreenshot(screenshot: File): String {
-        val publicDir = "Pictures/Parropeato/diagnostics-consent/$screenshotGroup"
-        val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, screenshot.name)
-            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-            put(MediaStore.Images.Media.RELATIVE_PATH, publicDir)
-            put(MediaStore.Images.Media.IS_PENDING, 1)
-        }
-        val resolver = targetContext.contentResolver
-        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-            ?: throw AssertionError("Failed to create MediaStore entry for $screenshot")
+        device.executeShellCommand("mkdir -p $publicDir")
+        device.executeShellCommand("screencap -p $publicPath")
+        val bytes = device.executeShellCommand("wc -c $publicPath")
+            .trim()
+            .substringBefore(' ')
+            .toLongOrNull()
+            ?: 0L
+        assertTrue("Failed to capture $publicPath", bytes > 0)
 
-        val output = resolver.openOutputStream(uri)
-            ?: throw AssertionError("Failed to open MediaStore output stream for $uri")
-        output.use { out ->
-            screenshot.inputStream().use { input -> input.copyTo(out) }
-        }
-
-        values.clear()
-        values.put(MediaStore.Images.Media.IS_PENDING, 0)
-        resolver.update(uri, values, null, null)
-
-        return "/sdcard/$publicDir/${screenshot.name}"
+        return publicPath
     }
 
     companion object {

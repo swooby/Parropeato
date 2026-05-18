@@ -11,7 +11,7 @@ Run the tests from Android Studio, or with a connected device/emulator:
 ./gradlew :mobile:connectedDebugAndroidTest
 ```
 
-The screenshots are published through `MediaStore` into shared media storage so they survive target-app uninstall/reinstall behavior during test runs:
+The screenshots are captured directly into shared media storage so they survive target-app uninstall/reinstall behavior during test runs:
 
 ```text
 /sdcard/Pictures/Parropeato/diagnostics-consent/wear/

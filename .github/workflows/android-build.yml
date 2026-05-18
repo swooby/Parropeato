@@ -35,7 +35,7 @@ jobs:
   instrumented-tests:
     name: Instrumented tests
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout
@@ -101,7 +101,7 @@ jobs:
           path: common/build/reports/tests/
 
       - name: Run lint
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
         run: ./gradlew :mobile:lintDebug :wear:lintDebug
 
       - name: Upload lint reports on failure
