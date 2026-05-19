@@ -99,7 +99,7 @@
 <body>
   <main>
     <h1 data-i18n="prv_h1">M. Parropeato Privacy Policy</h1>
-    <p class="updated" data-i18n="prv_updated">Last updated: May 9, 2026</p>
+    <p class="updated" data-i18n="prv_updated">Last updated: May 19, 2026</p>
 
     <p data-i18n="prv_intro">
       This Privacy Policy describes how M. Parropeato handles information when you use the M. Parropeato Android or Wear OS app.
@@ -129,23 +129,42 @@
 
     <h2 data-i18n="prv_s3_h">Information M. Parropeato Collects</h2>
     <p data-i18n="prv_s3_p">
-      The current app does not create user accounts and does not collect personal information for
-      the app developer. The app does not operate a developer-controlled server for storing microphone audio,
-      speech transcripts, or text-to-speech content.
+      The app does not create user accounts and does not operate a developer-controlled server for storing
+      microphone audio, speech transcripts, or text-to-speech content. If you choose to enable diagnostics,
+      the app collects coarse, anonymous usage data and crash reports as described in the Diagnostics section below.
+    </p>
+
+    <h2 data-i18n="prv_diag_h">Diagnostics (Analytics and Crash Reporting)</h2>
+    <p data-i18n="prv_diag_p1">
+      On first launch, the app asks whether you want to enable diagnostics. You can change this choice at any
+      time via Settings &rarr; Diagnostics. Diagnostics are off by default and are only active after you opt in.
+    </p>
+    <p data-i18n-html="prv_diag_p2_html">
+      When diagnostics are enabled, the app uses <strong>Firebase Analytics</strong> and
+      <strong>Firebase Crashlytics</strong> (both Google services) to collect coarse, anonymous data.
+      Firebase Analytics logs usage events such as which settings were changed and whether a speech session
+      succeeded or failed. Firebase Crashlytics captures crash reports including exception type, message,
+      stack trace, app version, OS version, and device model class. The app never sends raw microphone
+      audio, recognized speech text, text-to-speech content, custom user-entered content, stable device
+      identifiers, exact locale or voice selections, or exact slider values to Firebase. Firebase's handling
+      of this data is governed by the
+      <a href="https://firebase.google.com/support/privacy">Firebase Privacy Policy</a>.
     </p>
 
     <h2 data-i18n="prv_s4_h">Third-Party Services</h2>
     <p data-i18n="prv_s4_p">
       M. Parropeato relies on Android and Wear OS system services, including speech recognition and text-to-speech.
       These services are provided by your device, Google, or another service provider configured on your device.
-      Their handling of data is governed by their own privacy policies and your device settings.
+      If diagnostics are enabled, M. Parropeato also uses Firebase Analytics and Firebase Crashlytics (Google).
+      All third-party services are governed by their own privacy policies and your device settings.
     </p>
 
     <h2 data-i18n="prv_s5_h">Data Sharing</h2>
     <p data-i18n="prv_s5_p">
       M. Parropeato does not collect, retain, or sell personal information. M. Parropeato does not share microphone audio,
-      speech transcripts, or text-to-speech content with the app developer or advertisers. System speech and
-      text-to-speech services may process data as described by their providers.
+      speech transcripts, or text-to-speech content with the app developer or advertisers. If diagnostics are enabled,
+      coarse, anonymous usage events and crash reports are shared with Google via Firebase as described above.
+      System speech and text-to-speech services may process data as described by their providers.
     </p>
 
     <h2 data-i18n="prv_s6_h">Data Retention and Deletion</h2>
